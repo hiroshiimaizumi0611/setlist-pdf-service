@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Technical Manuscript | Setlist Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#999077",
+                        "on-error": "#690005",
+                        "on-primary": "#3a3000",
+                        "surface": "#ffffff",
+                        "primary-fixed-dim": "#e9c400",
+                        "on-surface": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#4d4732",
+                        "on-primary-container": "#705e00",
+                        "inverse-on-surface": "#f5f5f5",
+                        "on-background": "#131313",
+                        "surface-container-high": "#f0f0f0",
+                        "secondary-fixed": "#d1e4fb",
+                        "tertiary-fixed": "#79f5ff",
+                        "primary-container": "#ffd700",
+                        "background": "#ffffff",
+                        "on-secondary": "#203243",
+                        "surface-bright": "#fcfcfc",
+                        "primary": "#fff6df",
+                        "on-tertiary-fixed": "#002022",
+                        "on-tertiary": "#00363a",
+                        "tertiary-fixed-dim": "#00dbe8",
+                        "tertiary-container": "#00f1ff",
+                        "surface-tint": "#e9c400",
+                        "surface-container-low": "#fafafa",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e7e2d9",
+                        "surface-container": "#f5f5f5",
+                        "on-secondary-fixed-variant": "#36485b",
+                        "error-container": "#93000a",
+                        "primary-fixed": "#ffe16d",
+                        "on-tertiary-container": "#006a70",
+                        "inverse-primary": "#705d00",
+                        "on-tertiary-fixed-variant": "#004f54",
+                        "tertiary": "#006a70",
+                        "secondary": "#526070",
+                        "on-primary-fixed": "#221b00",
+                        "inverse-surface": "#313030",
+                        "secondary-fixed-dim": "#b5c8df",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#d1e4fb",
+                        "surface-dim": "#ded9d0",
+                        "on-primary-fixed-variant": "#544600",
+                        "on-secondary-container": "#0e1d2a",
+                        "outline-variant": "#ccc6b5",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary-fixed": "#091d2e"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-space { font-family: 'Space Grotesk', sans-serif; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+        .sheet-border { border: 2px solid #131313; }
+        .cell-border { border-bottom: 1px solid #131313; }
+        .vertical-text { writing-mode: vertical-rl; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-white/85 backdrop-blur-md dark:bg-neutral-900/85 docked full-width top-0 z-50 border-b-2 border-black dark:border-white flex justify-between items-center w-full px-6 h-16 fixed top-0">
+<div class="flex items-center gap-8">
+<div class="text-xl font-black text-black dark:text-white tracking-tighter uppercase font-headline">
+                BACKSTAGE PRO
+            </div>
+<nav class="hidden md:flex gap-6">
+<a class="font-['Space_Grotesk'] uppercase tracking-widest font-bold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors" href="#">LIVE PRODUCTION</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-widest font-bold text-black dark:text-white border-b-2 border-yellow-500 pb-1" href="#">BACKSTAGE</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 mr-4 text-xs font-bold font-headline tracking-widest text-outline">
+<span class="material-symbols-outlined text-sm">light_mode</span>
+                LIGHT MODE
+            </div>
+<button class="bg-primary-container text-on-primary font-headline font-bold px-5 py-2 hover:bg-yellow-400 transition-all active:scale-95 duration-75 uppercase tracking-widest text-sm">
+                GENERATE PDF
+            </button>
+<div class="flex gap-2">
+<span class="material-symbols-outlined p-2 hover:bg-neutral-100 cursor-pointer">settings</span>
+<span class="material-symbols-outlined p-2 hover:bg-neutral-100 cursor-pointer">help</span>
+</div>
+</div>
+</header>
+<!-- Sidebar Wrapper -->
+<aside class="bg-neutral-50 dark:bg-neutral-950 docked left-0 h-screen w-64 border-r-2 border-black dark:border-white fixed left-0 top-0 h-full flex flex-col pt-16">
+<div class="p-6 border-b border-black">
+<div class="text-lg font-bold text-black dark:text-white font-headline">PRODUCTION</div>
+<div class="text-[10px] tracking-[0.2em] text-outline font-headline font-medium">MASTER SCHEDULE</div>
+</div>
+<nav class="flex-1 py-4">
+<a class="text-neutral-600 dark:text-neutral-400 flex items-center gap-3 px-6 py-4 hover:bg-neutral-200 transition-all font-headline text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span> ダッシュボード
+            </a>
+<a class="bg-yellow-400 text-black font-bold flex items-center gap-3 px-6 py-4 transition-all font-headline text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">queue_music</span> セットリスト
+            </a>
+<a class="text-neutral-600 dark:text-neutral-400 flex items-center gap-3 px-6 py-4 hover:bg-neutral-200 transition-all font-headline text-sm font-medium tracking-tight" href="#">
+<span class="material-symbols-outlined">archive</span> アーカイブ
+            </a>
+</nav>
+<div class="p-4">
+<button class="w-full border-2 border-black py-3 font-headline font-bold text-xs tracking-widest hover:bg-black hover:text-white transition-colors">
+                NEW SETLIST
+            </button>
+</div>
+<div class="mt-auto border-t border-black p-4">
+<a class="text-neutral-600 flex items-center gap-3 px-2 py-2 hover:bg-neutral-200 font-headline text-sm font-medium" href="#">
+<span class="material-symbols-outlined">settings</span> 設定
+            </a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 pt-24 px-10 pb-20 max-w-7xl mx-auto">
+<!-- Document Header Area -->
+<section class="mb-12 border-l-8 border-black pl-8">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h1 class="text-5xl font-black font-headline tracking-tighter mb-2">2026.03.28 名古屋 RADHALL</h1>
+<p class="text-outline font-headline font-medium tracking-[0.3em] uppercase text-xs">Technical Manuscript / Setlist v2.4</p>
+</div>
+<div class="text-right">
+<span class="inline-block px-3 py-1 bg-surface-container text-[10px] font-bold font-headline tracking-widest border border-black mb-2">PRODUCTION READY</span>
+</div>
+</div>
+<!-- Form Metadata -->
+<div class="grid grid-cols-4 gap-0 border-2 border-black">
+<div class="border-r-2 border-black p-4 bg-surface-container-low">
+<label class="block text-[10px] font-black font-headline uppercase tracking-widest mb-1">Date</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-headline font-bold text-lg" type="text" value="2026.03.28"/>
+</div>
+<div class="border-r-2 border-black p-4">
+<label class="block text-[10px] font-black font-headline uppercase tracking-widest mb-1">Venue</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-headline font-bold text-lg" type="text" value="RADHALL"/>
+</div>
+<div class="border-r-2 border-black p-4 bg-surface-container-low">
+<label class="block text-[10px] font-black font-headline uppercase tracking-widest mb-1">Tour Title</label>
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 font-headline font-bold text-lg" type="text" value="SPRING EXPERIMENT 2026"/>
+</div>
+<div class="p-4">
+<label class="block text-[10px] font-black font-headline uppercase tracking-widest mb-1">Sheet Theme</label>
+<select class="w-full bg-transparent border-none p-0 focus:ring-0 font-headline font-bold text-lg appearance-none cursor-pointer">
+<option>TECHNICAL LIGHT</option>
+<option>STAGE DARK</option>
+<option>MONO PRINT</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Add Item Area -->
+<section class="mb-12 bg-surface-container p-6 border-2 border-black">
+<h2 class="font-headline font-black text-xs tracking-widest uppercase mb-4 flex items-center gap-2">
+<span class="w-2 h-2 bg-black"></span> Add Production Item
+            </h2>
+<div class="flex gap-4">
+<div class="w-48">
+<select class="w-full border-2 border-black bg-white px-3 py-3 font-headline font-bold text-sm focus:outline-none focus:bg-primary-container">
+<option>Song</option>
+<option>MC</option>
+<option>Changeover</option>
+<option>Header</option>
+</select>
+</div>
+<div class="flex-1">
+<input class="w-full border-2 border-black bg-white px-4 py-3 font-body text-sm focus:outline-none focus:border-yellow-600" placeholder="Title or Description..." type="text"/>
+</div>
+<button class="bg-black text-white px-8 font-headline font-bold text-sm hover:bg-neutral-800 transition-colors">
+                    ADD TO SET
+                </button>
+</div>
+</section>
+<!-- Setlist Table -->
+<section class="border-2 border-black bg-white overflow-hidden">
+<div class="grid grid-cols-[60px_1fr_120px_180px] bg-black text-white font-headline font-bold text-[10px] tracking-widest uppercase py-3 px-4">
+<div>ID</div>
+<div>Performance Item / Song Title</div>
+<div class="text-center">Duration</div>
+<div class="text-right">Operations</div>
+</div>
+<!-- M01 -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-4 px-4 hover:bg-neutral-50 transition-colors group">
+<div class="mono font-bold text-lg">M01</div>
+<div class="font-bold text-xl">緑</div>
+<div class="mono text-center text-outline text-sm">04:12</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">content_copy</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- M02 -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-4 px-4 hover:bg-neutral-50 transition-colors group">
+<div class="mono font-bold text-lg">M02</div>
+<div class="font-bold text-xl">ねえ！もう実験は終わりにしよう！</div>
+<div class="mono text-center text-outline text-sm">03:45</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">content_copy</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- M03 -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-4 px-4 hover:bg-neutral-50 transition-colors group">
+<div class="mono font-bold text-lg">M03</div>
+<div class="font-bold text-xl">Dendrobium</div>
+<div class="mono text-center text-outline text-sm">05:20</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">content_copy</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- MC -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b-2 border-black bg-neutral-100 py-3 px-4 group">
+<div class="mono font-bold text-outline text-xs">--</div>
+<div class="font-headline font-bold text-sm tracking-widest uppercase flex items-center gap-4">
+<span class="material-symbols-outlined text-sm">mic</span> MC / Greeting
+                </div>
+<div class="mono text-center text-outline text-sm">03:00</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- M04 -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-4 px-4 hover:bg-neutral-50 transition-colors group">
+<div class="mono font-bold text-lg">M04</div>
+<div class="font-bold text-xl">いちごジャムにチーズ</div>
+<div class="mono text-center text-outline text-sm">04:02</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">content_copy</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- M05 -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-4 px-4 hover:bg-neutral-50 transition-colors group">
+<div class="mono font-bold text-lg">M05</div>
+<div class="font-bold text-xl">キー</div>
+<div class="mono text-center text-outline text-sm">03:58</div>
+<div class="flex justify-end gap-3 text-neutral-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-black">content_copy</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- Changeover -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b-2 border-black bg-neutral-900 text-white py-3 px-4 group">
+<div class="mono font-bold text-neutral-600 text-xs">--</div>
+<div class="font-headline font-bold text-sm tracking-[0.4em] uppercase">転換 / Changeover</div>
+<div class="mono text-center text-neutral-400 text-sm">10:00</div>
+<div class="flex justify-end gap-3 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined cursor-pointer hover:text-white">arrow_upward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-white">arrow_downward</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-error">delete</span>
+</div>
+</div>
+<!-- Header EN -->
+<div class="grid grid-cols-[60px_1fr_120px_180px] items-center border-b border-black py-6 px-4 bg-yellow-400">
+<div class="mono font-black text-2xl">EN</div>
+<div class="font-headline font-black text-2xl tracking-[0.2em] uppercase">Encore Section</div>
+<div class="mono text-center font-bold text-sm">15:00 est.</div>
+<div class="flex justify-end">
+<span class="inline-block px-2 py-1 border-2 border-black text-[10px] font-black uppercase tracking-widest">Section Break</span>
+</div>
+</div>
+</section>
+<!-- Stats Grid -->
+<section class="mt-12 grid grid-cols-3 gap-6">
+<div class="border-2 border-black p-6 bg-white">
+<div class="text-[10px] font-black font-headline uppercase tracking-widest text-outline mb-2">Total Run Time</div>
+<div class="mono text-4xl font-black">48:32</div>
+</div>
+<div class="border-2 border-black p-6 bg-white">
+<div class="text-[10px] font-black font-headline uppercase tracking-widest text-outline mb-2">Item Count</div>
+<div class="mono text-4xl font-black">08</div>
+</div>
+<div class="border-2 border-black p-6 bg-white">
+<div class="text-[10px] font-black font-headline uppercase tracking-widest text-outline mb-2">Tempo Variance</div>
+<div class="mono text-4xl font-black">±12%</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 right-0 h-10 bg-white border-t-2 border-black flex items-center px-6 justify-between z-50">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+<span class="text-[10px] font-headline font-bold uppercase tracking-widest">Status: Saved</span>
+</div>
+<div class="text-[10px] font-headline font-bold text-outline uppercase tracking-widest">
+                Last updated: 14:20:44 JST
+            </div>
+</div>
+<div class="flex gap-4">
+<div class="text-[10px] font-headline font-bold text-outline uppercase tracking-widest border-l border-black pl-4">
+                User: PRO_ADMIN_01
+            </div>
+<div class="text-[10px] font-headline font-bold text-outline uppercase tracking-widest border-l border-black pl-4">
+                Region: ASIA-NORTHEAST-1
+            </div>
+</div>
+</footer>
+</body></html>

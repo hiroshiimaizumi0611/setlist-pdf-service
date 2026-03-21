@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#defcff",
+              "on-tertiary-fixed": "#002022",
+              "secondary-fixed": "#d1e4fb",
+              "on-primary-fixed-variant": "#544600",
+              "secondary": "#b5c8df",
+              "tertiary-container": "#00f1ff",
+              "surface-variant": "#353534",
+              "surface-container-highest": "#353534",
+              "surface-container-high": "#2a2a2a",
+              "on-secondary-fixed": "#091d2e",
+              "on-primary-fixed": "#221b00",
+              "on-surface": "#e5e2e1",
+              "primary-fixed": "#ffe16d",
+              "on-primary": "#3a3000",
+              "surface-container-lowest": "#0e0e0e",
+              "surface-container": "#201f1f",
+              "surface": "#131313",
+              "primary-fixed-dim": "#e9c400",
+              "on-secondary": "#203243",
+              "inverse-on-surface": "#313030",
+              "outline": "#999077",
+              "surface-tint": "#e9c400",
+              "primary": "#fff6df",
+              "error-container": "#93000a",
+              "primary-container": "#ffd700",
+              "error": "#ffb4ab",
+              "on-tertiary-container": "#006a70",
+              "tertiary-fixed": "#79f5ff",
+              "surface-bright": "#393939",
+              "tertiary-fixed-dim": "#00dbe8",
+              "background": "#131313",
+              "on-tertiary-fixed-variant": "#004f54",
+              "inverse-primary": "#705d00",
+              "secondary-fixed-dim": "#b5c8df",
+              "secondary-container": "#36485b",
+              "on-error": "#690005",
+              "surface-dim": "#131313",
+              "on-primary-container": "#705e00",
+              "on-surface-variant": "#d0c6ab",
+              "on-secondary-fixed-variant": "#36485b",
+              "on-background": "#e5e2e1",
+              "inverse-surface": "#e5e2e1",
+              "on-tertiary": "#00363a",
+              "on-secondary-container": "#a4b7cd",
+              "on-error-container": "#ffdad6",
+              "surface-container-low": "#1c1b1b",
+              "outline-variant": "#4d4732"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-technical { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-[#131313]/85 backdrop-blur-md border-b border-[#4D4732]/15 shadow-[0px_20px_40px_rgba(0,0,0,0.4)]">
+<div class="flex justify-between items-center w-full px-6 h-16">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black text-[#FFD700] tracking-tighter font-technical">BACKSTAGE PRO</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-technical uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">ダッシュボード</a>
+<a class="font-technical uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">セットリスト</a>
+<a class="font-technical uppercase tracking-[0.05em] text-sm font-bold text-[#FFF6DF] border-b-2 border-[#FFD700] pb-1" href="#">テンプレート</a>
+<a class="font-technical uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">アーカイブ</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#999077] hover:bg-[#393939] p-2 transition-all active:scale-95">settings</button>
+<button class="material-symbols-outlined text-[#FFD700] hover:bg-[#393939] p-2 transition-all active:scale-95">account_circle</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Production Shell) -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-[#1C1B1B] hidden lg:flex flex-col py-4 gap-2">
+<div class="px-6 mb-6">
+<h2 class="text-[#FFD700] font-bold font-technical text-xs tracking-widest uppercase">PRODUCTION</h2>
+<p class="text-[10px] text-tertiary-container font-technical tracking-tighter mt-1 opacity-80">LIVE MODE ACTIVE</p>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center px-6 py-3 gap-4 text-[#999077] hover:bg-[#2A2A2A] cursor-pointer font-technical text-xs font-medium tracking-widest transition-colors">
+<span class="material-symbols-outlined text-[#FFD700]">bolt</span>
+<span>クイックアクセス</span>
+</div>
+<div class="flex items-center px-6 py-3 gap-4 text-[#999077] hover:bg-[#2A2A2A] cursor-pointer font-technical text-xs font-medium tracking-widest transition-colors">
+<span class="material-symbols-outlined text-[#FFD700]">history</span>
+<span>最近のキュー</span>
+</div>
+<div class="flex items-center px-6 py-3 gap-4 text-[#999077] hover:bg-[#2A2A2A] cursor-pointer font-technical text-xs font-medium tracking-widest transition-colors">
+<span class="material-symbols-outlined text-[#FFD700]">edit_note</span>
+<span>編集モード</span>
+</div>
+<div class="flex items-center px-6 py-3 gap-4 text-[#999077] hover:bg-[#2A2A2A] cursor-pointer font-technical text-xs font-medium tracking-widest transition-colors">
+<span class="material-symbols-outlined text-[#FFD700]">sensors</span>
+<span>ライブ出力</span>
+</div>
+</div>
+<div class="mt-auto px-6 py-4">
+<button class="w-full bg-primary-container text-on-primary font-technical font-bold text-xs py-3 tracking-[0.1em] hover:brightness-110 active:scale-[0.98] transition-all">
+                PDF生成
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 mt-16 p-8 min-h-screen pb-24">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h1 class="text-3xl font-black font-technical tracking-tight text-primary uppercase">Templates</h1>
+<span class="bg-primary-container text-on-primary text-[10px] font-black px-2 py-0.5 tracking-tighter">PRO</span>
+</div>
+<p class="text-outline text-sm max-w-xl">
+                    再利用可能なセットリスト構造を管理します。一貫した演出と迅速な現場対応を可能にするためのマスターテンプレート。
+                </p>
+</div>
+<button class="bg-primary-container text-on-primary px-6 py-3 flex items-center gap-2 font-technical font-bold text-sm tracking-wider hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                NEW TEMPLATE
+            </button>
+</div>
+<!-- Upgrade CTA (Non-intrusive) -->
+<div class="bg-surface-container-low border-l-4 border-tertiary-container p-4 mb-8 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary-container" style="font-variation-settings: 'FILL' 1;">info</span>
+<span class="text-xs text-on-surface-variant tracking-wide">Save your best setlists as templates with Pro. ベストなセットリストをテンプレート化して効率化しましょう。</span>
+</div>
+<button class="text-tertiary-container text-[11px] font-bold font-technical border-b border-tertiary-container hover:text-primary transition-colors">UPGRADE NOW</button>
+</div>
+<!-- Dense Table View -->
+<div class="bg-surface-container-low overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-3 bg-surface-container-highest border-b border-outline-variant/20">
+<div class="col-span-5 text-[10px] font-technical font-bold tracking-[0.2em] text-outline uppercase">Template Name / Venue</div>
+<div class="col-span-1 text-[10px] font-technical font-bold tracking-[0.2em] text-outline uppercase text-center">Items</div>
+<div class="col-span-2 text-[10px] font-technical font-bold tracking-[0.2em] text-outline uppercase text-center">Theme</div>
+<div class="col-span-2 text-[10px] font-technical font-bold tracking-[0.2em] text-outline uppercase">Last Updated</div>
+<div class="col-span-2 text-[10px] font-technical font-bold tracking-[0.2em] text-outline uppercase text-right">Actions</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-bright transition-colors group">
+<div class="col-span-5 flex flex-col">
+<span class="text-on-surface font-bold text-sm font-technical flex items-center gap-2">
+                            Standard 45min Set
+                            <span class="bg-primary-container/10 text-primary-fixed-dim text-[8px] px-1 border border-primary-container/20">PRO</span>
+</span>
+<span class="text-outline text-[11px] uppercase tracking-wider mt-0.5">Live House (Generic)</span>
+</div>
+<div class="col-span-1 text-center font-technical text-sm text-tertiary-container font-medium">12</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-surface-container-high text-[10px] font-technical tracking-widest text-on-surface-variant flex items-center gap-2 border border-outline-variant/30">
+<span class="w-1.5 h-1.5 bg-background border border-outline-variant"></span>
+                            DARK
+                        </span>
+</div>
+<div class="col-span-2 text-outline text-xs font-technical">2024-05-12 14:30</div>
+<div class="col-span-2 flex justify-end items-center gap-3">
+<button class="material-symbols-outlined text-primary-container hover:brightness-125 transition-all text-[20px]" style="font-variation-settings: 'FILL' 1;" title="Create performance">play_circle</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-all text-[20px]" title="Edit">edit</button>
+<button class="material-symbols-outlined text-error/60 hover:text-error transition-all text-[20px]" title="Delete">delete</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-bright transition-colors group">
+<div class="col-span-5 flex flex-col">
+<span class="text-on-surface font-bold text-sm font-technical flex items-center gap-2">
+                            Acoustic Duo Tour
+                            <span class="bg-primary-container/10 text-primary-fixed-dim text-[8px] px-1 border border-primary-container/20">PRO</span>
+</span>
+<span class="text-outline text-[11px] uppercase tracking-wider mt-0.5">Cafe/Bar</span>
+</div>
+<div class="col-span-1 text-center font-technical text-sm text-tertiary-container font-medium">8</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-primary text-[10px] font-technical tracking-widest text-on-primary flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-white"></span>
+                            LIGHT
+                        </span>
+</div>
+<div class="col-span-2 text-outline text-xs font-technical">2024-04-28 09:15</div>
+<div class="col-span-2 flex justify-end items-center gap-3">
+<button class="material-symbols-outlined text-primary-container hover:brightness-125 transition-all text-[20px]" style="font-variation-settings: 'FILL' 1;" title="Create performance">play_circle</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-all text-[20px]" title="Edit">edit</button>
+<button class="material-symbols-outlined text-error/60 hover:text-error transition-all text-[20px]" title="Delete">delete</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-bright transition-colors group">
+<div class="col-span-5 flex flex-col">
+<span class="text-on-surface font-bold text-sm font-technical flex items-center gap-2">
+                            Festival Stage 30min
+                            <span class="bg-primary-container/10 text-primary-fixed-dim text-[8px] px-1 border border-primary-container/20">PRO</span>
+</span>
+<span class="text-outline text-[11px] uppercase tracking-wider mt-0.5">Outdoor Stage</span>
+</div>
+<div class="col-span-1 text-center font-technical text-sm text-tertiary-container font-medium">6</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-surface-container-high text-[10px] font-technical tracking-widest text-on-surface-variant flex items-center gap-2 border border-outline-variant/30">
+<span class="w-1.5 h-1.5 bg-background border border-outline-variant"></span>
+                            DARK
+                        </span>
+</div>
+<div class="col-span-2 text-outline text-xs font-technical">2024-05-18 22:10</div>
+<div class="col-span-2 flex justify-end items-center gap-3">
+<button class="material-symbols-outlined text-primary-container hover:brightness-125 transition-all text-[20px]" style="font-variation-settings: 'FILL' 1;" title="Create performance">play_circle</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-all text-[20px]" title="Edit">edit</button>
+<button class="material-symbols-outlined text-error/60 hover:text-error transition-all text-[20px]" title="Delete">delete</button>
+</div>
+</div>
+<!-- Asymmetric Featured Slot -->
+<div class="p-6 bg-[#2A2A2A] relative overflow-hidden group hover:bg-[#323232] transition-colors">
+<div class="absolute right-0 top-0 h-full w-1 bg-tertiary-container"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex gap-6">
+<div class="w-16 h-16 bg-surface flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary-container text-3xl">terminal</span>
+</div>
+<div>
+<h3 class="font-technical font-bold text-primary flex items-center gap-2">
+                                    AUTO-MAPPED ARENA TEMPLATE
+                                    <span class="bg-tertiary-container text-on-tertiary-fixed text-[8px] px-1.5 py-0.5">EXPERIMENTAL</span>
+</h3>
+<p class="text-xs text-outline mt-1">MIDI同期とタイムコードを完全制御する大規模アリーナ向け高負荷対応セット。</p>
+<div class="flex gap-4 mt-3">
+<div class="flex items-center gap-1.5 text-[10px] font-technical text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">timer</span>
+                                        90 MINS
+                                    </div>
+<div class="flex items-center gap-1.5 text-[10px] font-technical text-on-surface-variant">
+<span class="material-symbols-outlined text-xs">format_list_numbered</span>
+                                        24 CUES
+                                    </div>
+</div>
+</div>
+</div>
+<button class="bg-outline-variant/20 hover:bg-outline-variant/40 text-on-surface px-6 py-2 text-xs font-technical font-bold tracking-widest border border-outline-variant/30 transition-all">
+                            CONFIGURE INTEGRATION
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Visual Reference -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-surface-container-low p-5 border-t border-outline-variant/10">
+<span class="text-[10px] font-technical font-bold text-outline tracking-[0.2em] block mb-3 uppercase">Sync Status</span>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></div>
+<span class="text-xs font-technical text-on-surface uppercase tracking-tighter">Central Cloud Synchronized</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 border-t border-outline-variant/10">
+<span class="text-[10px] font-technical font-bold text-outline tracking-[0.2em] block mb-3 uppercase">Active Workspace</span>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-sm text-primary-container">stadium</span>
+<span class="text-xs font-technical text-on-surface uppercase tracking-tighter">Main Production Floor</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 border-t border-outline-variant/10">
+<span class="text-[10px] font-technical font-bold text-outline tracking-[0.2em] block mb-3 uppercase">System Load</span>
+<div class="w-full bg-surface-container-high h-1 mt-2">
+<div class="bg-primary-container h-full w-[14%]"></div>
+</div>
+<span class="text-[9px] font-technical text-outline mt-1 block">1.2ms LATENCY | 14% CPU</span>
+</div>
+</div>
+</main>
+<!-- Footer Shell -->
+<footer class="fixed bottom-0 w-full h-8 bg-[#0E0E0E] border-t border-[#4D4732]/15 flex justify-between items-center px-6 z-50">
+<span class="font-mono text-[10px] uppercase tracking-tighter text-[#999077]">© 2024 TECHNICAL MANUSCRIPT | SYSTEM READY</span>
+<div class="flex gap-6">
+<a class="font-mono text-[10px] uppercase tracking-tighter text-[#4D4732] hover:text-[#FFF6DF] transition-opacity" href="#">システムステータス</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-[#4D4732] hover:text-[#FFF6DF] transition-opacity" href="#">サポート</a>
+<a class="font-mono text-[10px] uppercase tracking-tighter text-[#4D4732] hover:text-[#FFF6DF] transition-opacity" href="#">APIドキュメント</a>
+</div>
+</footer>
+</body></html>

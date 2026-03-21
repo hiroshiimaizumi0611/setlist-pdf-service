@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SHOWRUNNER | Setlist Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;700;900&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "secondary-fixed": "#d1e4fb",
+                        "surface-variant": "#353534",
+                        "inverse-primary": "#705d00",
+                        "on-primary-fixed-variant": "#544600",
+                        "primary-fixed-dim": "#e9c400",
+                        "tertiary-container": "#00f1ff",
+                        "on-error-container": "#ffdad6",
+                        "inverse-on-surface": "#313030",
+                        "secondary": "#b5c8df",
+                        "primary-fixed": "#ffe16d",
+                        "secondary-container": "#36485b",
+                        "outline-variant": "#4d4732",
+                        "tertiary-fixed-dim": "#00dbe8",
+                        "surface-bright": "#393939",
+                        "primary": "#fff6df",
+                        "on-primary-container": "#705e00",
+                        "on-secondary-fixed": "#091d2e",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary": "#3a3000",
+                        "background": "#131313",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-fixed": "#79f5ff",
+                        "on-tertiary-fixed": "#002022",
+                        "on-secondary-container": "#a4b7cd",
+                        "on-primary-fixed": "#221b00",
+                        "primary-container": "#ffd700",
+                        "surface-tint": "#e9c400",
+                        "on-surface": "#e5e2e1",
+                        "tertiary": "#defcff",
+                        "surface-container-high": "#2a2a2a",
+                        "on-background": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "on-secondary": "#203243",
+                        "secondary-fixed-dim": "#b5c8df",
+                        "on-tertiary-fixed-variant": "#004f54",
+                        "surface-container-highest": "#353534",
+                        "on-surface-variant": "#d0c6ab",
+                        "on-tertiary": "#00363a",
+                        "on-tertiary-container": "#006a70",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed-variant": "#36485b",
+                        "outline": "#999077",
+                        "error-container": "#93000a"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk", "Noto Sans JP"],
+                        "body": ["Inter", "Noto Sans JP"],
+                        "label": ["Space Grotesk", "Noto Sans JP"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas"]
+                    },
+                    borderRadius: { "DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface select-none">
+<!-- TopNavBar -->
+<header class="bg-[#131313]/85 backdrop-blur-md text-[#FFD700] font-['Space_Grotesk'] uppercase tracking-wider text-sm font-bold docked full-width top-0 z-50 border-b-2 border-[#FFF6DF]/10 flex justify-between items-center w-full px-6 py-3 fixed">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black text-[#FFD700] tracking-tighter">SHOWRUNNER</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#999077] hover:text-[#FFF6DF] transition-colors duration-150" href="#">Live View</a>
+<a class="text-[#FFD700] border-b-2 border-[#FFD700] pb-1" href="#">Stage Monitor</a>
+<a class="text-[#999077] hover:text-[#FFF6DF] transition-colors duration-150" href="#">Library</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-[#FFF6DF] font-mono text-xs border-l border-[#4D4732] pl-4 mr-4 hidden lg:block">
+                CURRENT SHOW: <span class="text-[#FFD700]">2026.03.28 名古屋 RADHALL</span>
+</div>
+<button class="bg-[#393939] hover:bg-[#4d4732] text-[#E9C400] px-3 py-1.5 flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="dark_mode">dark_mode</span>
+</button>
+<button class="bg-[#393939] hover:bg-[#4d4732] text-[#E9C400] px-3 py-1.5 flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="settings">settings</span>
+</button>
+<button class="bg-[#393939] text-[#999077] hover:text-[#FFF6DF] px-4 py-1.5 font-bold transition-all active:scale-95">Save Draft</button>
+<button class="bg-[#FFD700] text-[#3A3000] px-6 py-1.5 font-black flex items-center gap-2 hover:bg-[#FFF6DF] transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="picture_as_pdf">picture_as_pdf</span>
+                PDF出力
+            </button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="bg-[#1C1B1B] text-[#999077] font-['Space_Grotesk'] font-medium text-xs tracking-tight docked h-full left-0 w-64 border-r border-[#4D4732]/15 flex flex-col fixed top-0 pt-16 z-40">
+<div class="p-6">
+<div class="mb-8">
+<h2 class="text-lg font-bold text-[#FFF6DF] mb-1">BACKSTAGE ACCESS</h2>
+<p class="text-[10px] text-[#999077] opacity-60">TOKYO GARDEN THEATER</p>
+</div>
+<button class="w-full bg-[#FFD700] text-[#3A3000] py-3 font-bold mb-8 flex items-center justify-center gap-2 active:translate-x-1 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                新規公演作成
+            </button>
+<nav class="space-y-1">
+<div class="px-2 py-1 text-[10px] uppercase opacity-40 mb-2">Upcoming &amp; Recent</div>
+<a class="flex items-center gap-3 px-3 py-2 bg-[#393939] text-[#FFD700] border-l-4 border-[#FFD700] active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="tour">tour</span>
+                    2026.03.28 名古屋 RADHALL
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+                    2026.03.20 渋谷 QUATTRO
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+                    2026.03.15 大阪 MUSE
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="description">description</span>
+                    過去公演を複製
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] active:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="inventory">inventory</span>
+                    Equipment
+                </a>
+</nav>
+</div>
+<div class="mt-auto p-4 border-t border-[#4D4732]/15">
+<div class="flex items-center gap-3 mb-4 px-2">
+<img class="w-8 h-8 grayscale contrast-125" data-alt="Profile avatar of a production manager" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxSCT69MjYfK0RB9sO8qtjYDcfxq1hMANIpVhOkFtuf4px8wPVSq3Rs2EWkwC6p2G_Ol26MevzE_9yOp3g8CmkX23OIsI28faL5MrpHvyAD182vSdbWWYxg_VoNUT6TTaz-YpBmlgIZp9Jhsi5iANFWFNFesbRmngfWcY89LQtC8_wuMmlExLmET_wHIEWyfZtQWAsGwEF4suBa63pthJ760NHNPvwad_O_i_YD1K4C6ePK8MNSHyytdZP5iLfmPA-oyb7lmjWDFnf"/>
+<div class="overflow-hidden">
+<p class="text-[10px] text-[#FFF6DF] font-bold truncate">PRODUCTION MGR</p>
+<p class="text-[9px] text-[#999077] truncate">LOGGED IN: 13:00</p>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-2 px-2 py-1.5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="help">help</span> Support
+                </a>
+<a class="flex items-center gap-2 px-2 py-1.5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-xs" data-icon="logout">logout</span> Sign Out
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Area -->
+<main class="ml-64 pt-16 pb-12 px-8 min-h-screen bg-surface">
+<div class="max-w-5xl mx-auto py-8">
+<!-- Show Info Form -->
+<section class="bg-surface-container-low p-6 mb-8 border-l-4 border-primary-container">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-1">
+<label class="block text-[10px] font-mono text-outline uppercase mb-1">Date</label>
+<input class="w-full bg-surface-container-high border-b-2 border-outline-variant focus:border-primary text-on-surface py-2 px-3 font-mono outline-none" type="text" value="2026.03.28"/>
+</div>
+<div class="md:col-span-1">
+<label class="block text-[10px] font-mono text-outline uppercase mb-1">Venue</label>
+<input class="w-full bg-surface-container-high border-b-2 border-outline-variant focus:border-primary text-on-surface py-2 px-3 outline-none" type="text" value="RADHALL"/>
+</div>
+<div class="md:col-span-1">
+<label class="block text-[10px] font-mono text-outline uppercase mb-1">Show Title</label>
+<input class="w-full bg-surface-container-high border-b-2 border-outline-variant focus:border-primary text-on-surface py-2 px-3 outline-none" type="text" value="2026.03.28 名古屋 RADHALL"/>
+</div>
+<div class="md:col-span-1">
+<label class="block text-[10px] font-mono text-outline uppercase mb-1">Theme Select</label>
+<select class="w-full bg-surface-container-high border-b-2 border-outline-variant focus:border-primary text-on-surface py-2 px-3 outline-none appearance-none">
+<option>STANDARD BLACK</option>
+<option>HIGH CONTRAST</option>
+<option>RIDER CLASSIC</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Setlist Addition Section -->
+<section class="bg-surface-container p-1 mb-8">
+<div class="flex flex-wrap md:flex-nowrap gap-px">
+<div class="flex bg-surface-container-high p-1 gap-1">
+<button class="px-4 py-2 bg-primary-container text-on-primary font-bold text-xs">曲</button>
+<button class="px-4 py-2 hover:bg-surface-bright text-outline text-xs transition-colors">MC</button>
+<button class="px-4 py-2 hover:bg-surface-bright text-outline text-xs transition-colors">転換</button>
+<button class="px-4 py-2 hover:bg-surface-bright text-outline text-xs transition-colors">見出し</button>
+</div>
+<input class="flex-grow bg-surface-container-high border-none text-on-surface px-6 font-bold tracking-wide outline-none focus:ring-1 focus:ring-primary-container/30 placeholder:opacity-30" placeholder="ITEM TITLE / SONG NAME..." type="text"/>
+<button class="bg-primary-container text-on-primary px-10 py-3 font-black flex items-center gap-2 hover:bg-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                        追加
+                    </button>
+</div>
+</section>
+<!-- Setlist Table -->
+<div class="space-y-1">
+<!-- Song Row -->
+<div class="group flex items-center bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-1 bg-tertiary-container h-14"></div> <!-- Tape strip indicator for backing tracks -->
+<div class="w-16 flex justify-center items-center font-mono text-primary-container font-bold text-lg">M01</div>
+<div class="flex-grow px-6">
+<div class="text-xs font-mono text-outline mb-0.5">SONG</div>
+<div class="text-on-surface font-bold text-lg">緑</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error hover:text-red-400 transition-colors"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Song Row 2 -->
+<div class="group flex items-center bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-1 bg-tertiary-container h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-primary-container font-bold text-lg">M02</div>
+<div class="flex-grow px-6">
+<div class="text-xs font-mono text-outline mb-0.5">SONG</div>
+<div class="text-on-surface font-bold text-lg uppercase">ねえ！もう実験は終わりにしよう！</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Song Row 3 -->
+<div class="group flex items-center bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-1 bg-transparent h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-primary-container font-bold text-lg">M03</div>
+<div class="flex-grow px-6">
+<div class="text-xs font-mono text-outline mb-0.5">SONG</div>
+<div class="text-on-surface font-bold text-lg font-headline">Dendrobium</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- MC Row -->
+<div class="group flex items-center bg-[#2A2A2A] hover:bg-[#333] transition-colors">
+<div class="w-1 bg-primary-fixed-dim h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-outline font-bold text-sm">--</div>
+<div class="flex-grow px-6">
+<div class="text-[10px] font-mono text-[#E9C400] tracking-widest uppercase">MC / TALK</div>
+<div class="text-on-surface font-bold text-lg">MC</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Song Row 4 -->
+<div class="group flex items-center bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-1 bg-tertiary-container h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-primary-container font-bold text-lg">M04</div>
+<div class="flex-grow px-6">
+<div class="text-xs font-mono text-outline mb-0.5">SONG</div>
+<div class="text-on-surface font-bold text-lg">いちごジャムにチーズ</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Song Row 5 -->
+<div class="group flex items-center bg-surface-container-low hover:bg-surface-container-high transition-colors">
+<div class="w-1 bg-transparent h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-primary-container font-bold text-lg">M05</div>
+<div class="flex-grow px-6">
+<div class="text-xs font-mono text-outline mb-0.5">SONG</div>
+<div class="text-on-surface font-bold text-lg">キー</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="content_copy">content_copy</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Changeover Row -->
+<div class="group flex items-center bg-[#0E0E0E] hover:bg-surface-container-lowest transition-colors border-y border-[#4D4732]/10">
+<div class="w-1 bg-outline-variant h-14"></div>
+<div class="w-16 flex justify-center items-center font-mono text-outline font-bold text-xs">--</div>
+<div class="flex-grow px-6 py-2">
+<div class="text-[10px] font-mono text-outline tracking-widest uppercase mb-1">CHANGEOVER</div>
+<div class="text-on-surface font-bold text-base opacity-60">転換</div>
+</div>
+<div class="flex items-center gap-1 pr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_less">expand_less</span></button>
+<button class="p-2 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-lg" data-icon="expand_more">expand_more</span></button>
+<button class="p-2 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-lg" data-icon="delete">delete</span></button>
+</div>
+</div>
+<!-- Heading Row (Encore) -->
+<div class="group flex items-center bg-[#131313] mt-8 mb-2">
+<div class="w-1 bg-transparent h-12"></div>
+<div class="flex-grow border-b-2 border-primary-container/30 pb-2 flex items-center gap-4">
+<span class="bg-primary-container text-on-primary font-black px-4 py-1 text-sm tracking-widest">ENCORE</span>
+<div class="h-[1px] flex-grow bg-primary-container/20"></div>
+<div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 hover:bg-surface-bright text-outline"><span class="material-symbols-outlined text-sm" data-icon="edit">edit</span></button>
+<button class="p-1.5 hover:bg-surface-bright text-error"><span class="material-symbols-outlined text-sm" data-icon="delete">delete</span></button>
+</div>
+</div>
+</div>
+<!-- Empty state visual cues could go here -->
+<div class="flex justify-center pt-8">
+<button class="border border-dashed border-outline-variant hover:border-primary-container text-outline hover:text-primary-container px-12 py-6 transition-all group w-full flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform" data-icon="add_circle">add_circle</span>
+<span class="text-xs font-bold tracking-widest uppercase">Click to add song or item</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#0E0E0E] text-[#E9C400] font-mono text-[10px] uppercase opacity-70 fixed bottom-0 w-full px-6 py-1 border-t border-[#4D4732]/10 flex justify-between items-center z-50">
+<div class="flex items-center gap-6">
+<span>SYSTEM STATUS: <span class="text-green-500">NOMINAL</span></span>
+<span class="hidden md:inline">|</span>
+<span>最終更新: 14:02:45 | 保存済み</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="hover:text-white transition-colors" href="#">System Log</a>
+<a class="hover:text-white transition-colors" href="#">API Access</a>
+<a class="hover:text-white transition-colors" href="#">Technical Rider v2.1</a>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-lowest": "#0e0e0e",
+              "surface-container-high": "#2a2a2a",
+              "on-secondary-fixed-variant": "#36485b",
+              "secondary-fixed-dim": "#b5c8df",
+              "primary-fixed": "#ffe16d",
+              "on-tertiary-container": "#006a70",
+              "on-tertiary": "#00363a",
+              "primary-fixed-dim": "#e9c400",
+              "primary": "#fff6df",
+              "secondary-fixed": "#d1e4fb",
+              "on-primary-container": "#705e00",
+              "tertiary-fixed": "#79f5ff",
+              "on-tertiary-fixed": "#002022",
+              "surface-container": "#201f1f",
+              "surface-container-low": "#1c1b1b",
+              "on-tertiary-fixed-variant": "#004f54",
+              "tertiary-fixed-dim": "#00dbe8",
+              "secondary-container": "#36485b",
+              "on-surface-variant": "#d0c6ab",
+              "on-secondary-fixed": "#091d2e",
+              "on-error": "#690005",
+              "error-container": "#93000a",
+              "on-primary": "#3a3000",
+              "tertiary": "#defcff",
+              "inverse-surface": "#e5e2e1",
+              "background": "#131313",
+              "surface-bright": "#393939",
+              "primary-container": "#ffd700",
+              "inverse-on-surface": "#313030",
+              "on-background": "#e5e2e1",
+              "surface": "#131313",
+              "surface-container-highest": "#353534",
+              "outline-variant": "#4d4732",
+              "inverse-primary": "#705d00",
+              "outline": "#999077",
+              "on-surface": "#e5e2e1",
+              "error": "#ffb4ab",
+              "surface-dim": "#131313",
+              "on-primary-fixed-variant": "#544600",
+              "secondary": "#b5c8df",
+              "on-primary-fixed": "#221b00",
+              "on-secondary": "#203243",
+              "on-error-container": "#ffdad6",
+              "surface-variant": "#353534",
+              "surface-tint": "#e9c400",
+              "on-secondary-container": "#a4b7cd",
+              "tertiary-container": "#00f1ff"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0px", "lg": "0px", "xl": "0px", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #131313;
+        color: #e5e2e1;
+        font-family: 'Inter', sans-serif;
+      }
+      .font-space { font-family: 'Space Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 border-r border-[#4D4732]/15 bg-[#1C1B1B] flex flex-col py-8 gap-1 fixed left-0 top-0 overflow-y-auto z-40">
+<div class="px-6 mb-8">
+<h1 class="text-[#FFD700] font-bold font-headline tracking-tighter text-xl">BACKSTAGE PRO</h1>
+<p class="font-['Space_Grotesk'] text-[10px] font-medium tracking-[0.2em] text-[#999077] mt-1">PRODUCTION CONFIG</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center px-6 py-3 gap-3 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] transition-all cursor-pointer font-['Space_Grotesk'] text-sm font-medium tracking-wider" href="#">
+<span class="material-symbols-outlined text-xl">person</span>
+                Account
+            </a>
+<a class="flex items-center px-6 py-3 gap-3 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] transition-all cursor-pointer font-['Space_Grotesk'] text-sm font-medium tracking-wider" href="#">
+<span class="material-symbols-outlined text-xl">payments</span>
+                Billing
+            </a>
+<!-- Active State: Subscription -->
+<a class="flex items-center px-6 py-3 gap-3 bg-[#2A2A2A] text-[#FFD700] border-l-4 border-[#FFD700] transition-all cursor-pointer font-['Space_Grotesk'] text-sm font-medium tracking-wider" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+                Subscription
+            </a>
+<a class="flex items-center px-6 py-3 gap-3 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] transition-all cursor-pointer font-['Space_Grotesk'] text-sm font-medium tracking-wider" href="#">
+<span class="material-symbols-outlined text-xl">shield</span>
+                Security
+            </a>
+<a class="flex items-center px-6 py-3 gap-3 text-[#999077] hover:bg-[#2A2A2A] hover:text-[#FFF6DF] transition-all cursor-pointer font-['Space_Grotesk'] text-sm font-medium tracking-wider" href="#">
+<span class="material-symbols-outlined text-xl">api</span>
+                Integrations
+            </a>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 min-h-screen bg-[#131313]">
+<!-- TopAppBar Placeholder for context -->
+<header class="fixed top-0 left-64 right-0 h-16 bg-[#131313]/85 backdrop-blur-xl border-b border-[#4D4732]/15 flex justify-between items-center px-8 z-30">
+<div class="flex items-center gap-8">
+<h2 class="font-['Space_Grotesk'] uppercase tracking-[0.1em] font-bold text-[#FFF6DF] text-sm">Subscription Management</h2>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#999077] cursor-pointer hover:text-[#FFD700]">notifications</span>
+<div class="w-8 h-8 bg-[#2A2A2A] border border-[#4D4732]/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-[#999077]">person</span>
+</div>
+</div>
+</header>
+<div class="pt-24 px-12 pb-20 max-w-5xl">
+<!-- Page Header -->
+<div class="mb-12">
+<h1 class="text-3xl font-bold font-headline text-[#FFF6DF] mb-2">プラン管理 / お支払い設定</h1>
+<p class="text-[#999077] text-sm">現在のサブスクリプション状況の確認とプランの変更が行えます。</p>
+</div>
+<!-- Current Plan Section -->
+<section class="mb-16">
+<div class="bg-[#1C1B1B] p-8 flex items-center justify-between group hover:bg-[#201f1f] transition-colors border-l-4 border-[#FFD700]">
+<div>
+<p class="text-[10px] font-['Space_Grotesk'] tracking-[0.2em] text-[#999077] uppercase mb-1">Current Plan</p>
+<div class="flex items-baseline gap-4">
+<h3 class="text-5xl font-black font-headline text-[#FFD700]">FREE</h3>
+<span class="bg-[#36485B] text-[#A4B7CD] px-3 py-1 text-[10px] font-bold tracking-widest uppercase">本番利用可能</span>
+</div>
+<p class="text-[#999077] mt-4 text-sm">基本機能はすべて無料でご利用いただけます。</p>
+</div>
+<div>
+<button class="bg-[#FFD700] text-[#3A3000] px-8 py-4 font-bold font-headline text-sm tracking-widest hover:bg-[#FFF6DF] active:scale-95 transition-all">
+                            PRO にアップグレード
+                        </button>
+</div>
+</div>
+</section>
+<!-- Plan Comparison Section -->
+<section class="mb-16">
+<h4 class="font-headline text-[#FFD700] text-xs tracking-[0.3em] font-black mb-6 uppercase">プラン比較</h4>
+<div class="grid grid-cols-12 gap-0 border-t border-[#4D4732]/30">
+<!-- Table Header -->
+<div class="col-span-6 py-4 px-4 text-[#999077] text-[10px] font-bold uppercase tracking-widest border-b border-[#4D4732]/15">Features</div>
+<div class="col-span-3 py-4 px-4 text-center text-[#999077] text-[10px] font-bold uppercase tracking-widest border-b border-[#4D4732]/15">Free</div>
+<div class="col-span-3 py-4 px-4 text-center text-[#FFD700] text-[10px] font-bold uppercase tracking-widest border-b border-[#FFD700]/30 bg-[#FFD700]/5">Pro</div>
+<!-- Row 1 -->
+<div class="col-span-6 py-5 px-4 text-sm font-medium border-b border-[#4D4732]/15">公演作成 / 基本設定</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<!-- Row 2 -->
+<div class="col-span-6 py-5 px-4 text-sm font-medium border-b border-[#4D4732]/15">曲順編集・タイムコード管理</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<!-- Row 3 -->
+<div class="col-span-6 py-5 px-4 text-sm font-medium border-b border-[#4D4732]/15">PDF出力 (キューシート/セットリスト)</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<!-- Row 4 -->
+<div class="col-span-6 py-5 px-4 text-sm font-medium border-b border-[#4D4732]/15">過去公演データの複製</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<!-- Row 5 (Pro Specific) -->
+<div class="col-span-6 py-5 px-4 text-sm font-bold text-[#FFD700] border-b border-[#4D4732]/15">カスタムテンプレート保存・一括管理</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">—</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+<!-- Row 6 (Pro Specific) -->
+<div class="col-span-6 py-5 px-4 text-sm font-bold text-[#FFD700] border-b border-[#4D4732]/15">今後の時短機能追加 (先行アクセス)</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15">—</div>
+<div class="col-span-3 py-5 px-4 text-center border-b border-[#4D4732]/15 bg-[#FFD700]/5">
+<span class="material-symbols-outlined text-[#FFD700] text-xl">check_circle</span>
+</div>
+</div>
+</section>
+<!-- Payment Information Section -->
+<section class="grid grid-cols-2 gap-8">
+<!-- Payment Method -->
+<div class="space-y-6">
+<h4 class="font-headline text-[#FFD700] text-xs tracking-[0.3em] font-black uppercase">お支払い方法</h4>
+<div class="bg-[#1C1B1B] p-6 border-b-2 border-[#4D4732]/30">
+<div class="flex items-center justify-between mb-8">
+<span class="text-[10px] font-['Space_Grotesk'] text-[#999077] uppercase tracking-widest">Linked Credit Card</span>
+<span class="material-symbols-outlined text-[#999077]">credit_card</span>
+</div>
+<div class="py-4 border-b border-[#4D4732]/15 flex items-center gap-4">
+<div class="w-12 h-8 bg-[#2A2A2A] rounded-sm flex items-center justify-center border border-[#4D4732]/30">
+<span class="text-[8px] font-bold text-[#999077]">STRIPE</span>
+</div>
+<span class="text-[#FFF6DF] font-mono tracking-widest">•••• •••• •••• ----</span>
+</div>
+<button class="mt-6 text-[10px] font-bold text-[#FFD700] uppercase tracking-widest hover:underline flex items-center gap-2">
+                            Update Payment Method <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Billing History -->
+<div class="space-y-6">
+<h4 class="font-headline text-[#FFD700] text-xs tracking-[0.3em] font-black uppercase">請求履歴</h4>
+<div class="bg-[#1C1B1B] overflow-hidden">
+<div class="p-6 text-center py-12">
+<span class="material-symbols-outlined text-4xl text-[#2A2A2A] mb-4">history_edu</span>
+<p class="text-[#999077] text-xs tracking-wider">請求履歴はありません</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual FAB - suppressed for Billing screen as per mandate -->
+</body></html>

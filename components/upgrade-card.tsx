@@ -1,0 +1,114 @@
+"use client";
+
+import Link from "next/link";
+import { useState, useTransition } from "react";
+import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
+import type { AppPlan } from "@/lib/stripe/plans";
+import { authClient } from "@/lib/auth-client";
+import { getDashboardThemeStyles } from "./dashboard-shell";
+
+type UpgradeCardProps = {
+  plan: AppPlan;
+  billingConfigured: boolean;
+  isAuthenticated?: boolean;
+  currentTheme?: PdfThemeName;
+  openBillingPortalAction: () => Promise<void>;
+  upgradeLabel?: string;
+  billingPortalLabel?: string;
+  loginLabel?: string;
+  loginHref?: string;
+};
+
+export function UpgradeCard({
+  plan,
+  billingConfigured,
+  isAuthenticated = true,
+  currentTheme = "dark",
+  openBillingPortalAction,
+  upgradeLabel = "Upgrade to Pro",
+  billingPortalLabel = "Open billing portal",
+  loginLabel = "Log in to upgrade",
+  loginHref = "/login",
+}: UpgradeCardProps) {
+  const theme = getDashboardThemeStyles(currentTheme);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  async function handleUpgrade() {
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        const result = await authClient.subscription.upgrade({
+          plan: "pro",
+          annual: false,
+          successUrl: "/settings/billing",
+          cancelUrl: "/settings/billing",
+          disableRedirect: true,
+        });
+
+        if (result.error) {
+          setError(result.error.message ?? "Unable to start checkout.");
+          return;
+        }
+
+        if (result.data?.url) {
+          window.location.assign(result.data.url);
+        }
+      } catch {
+        setError("チェックアウトの開始に失敗しました。");
+      }
+    });
+  }
+
+  return (
+    <aside className={`border-2 ${theme.border} ${theme.panel} p-8`}>
+      <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.28em] ${theme.mutedText}`}>
+        Upgrade Rail
+      </p>
+      <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
+        テンプレート保存をProで解放
+      </h2>
+      <p className={`mt-4 text-sm leading-7 ${theme.mutedText}`}>
+        無料プランのまま公演作成とPDF出力は使えます。繰り返し使う進行表の保存だけをProで追加します。
+      </p>
+
+      <div className="mt-6">
+        {!isAuthenticated ? (
+          <Link
+            href={loginHref}
+            className={`${theme.buttonPrimary} inline-flex min-h-11 w-full items-center justify-center px-4 py-3 text-sm font-bold`}
+          >
+            {loginLabel}
+          </Link>
+        ) : plan === "pro" ? (
+          <form action={openBillingPortalAction}>
+            <button
+              type="submit"
+              className={`${theme.buttonSecondary} min-h-11 w-full px-4 py-3 text-sm font-bold`}
+            >
+              {billingPortalLabel}
+            </button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            disabled={isPending || !billingConfigured}
+            onClick={() => {
+              void handleUpgrade();
+            }}
+            className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-70`}
+          >
+            {isPending ? "チェックアウトを準備中..." : upgradeLabel}
+          </button>
+        )}
+      </div>
+
+      <div className={`mt-6 border ${theme.border} ${theme.panelMuted} px-4 py-4 text-sm leading-6 ${theme.mutedText}`}>
+        公演テンプレートの保存数に制限はありません。ツアー単位で使い回す下書きをまとめて残せます。
+      </div>
+
+      {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
+    </aside>
+  );
+}

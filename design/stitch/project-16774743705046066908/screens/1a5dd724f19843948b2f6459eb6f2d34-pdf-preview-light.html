@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ja"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#999077",
+                        "on-secondary-container": "#a4b7cd",
+                        "surface-bright": "#393939",
+                        "inverse-primary": "#705d00",
+                        "on-primary-fixed-variant": "#544600",
+                        "on-secondary-fixed": "#091d2e",
+                        "on-secondary-fixed-variant": "#36485b",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-fixed-dim": "#e9c400",
+                        "surface-container-high": "#2a2a2a",
+                        "on-tertiary-fixed": "#002022",
+                        "on-primary": "#3a3000",
+                        "outline-variant": "#4d4732",
+                        "primary": "#fff6df",
+                        "on-error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#b5c8df",
+                        "primary-fixed": "#ffe16d",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container": "#201f1f",
+                        "primary-container": "#ffd700",
+                        "on-surface-variant": "#d0c6ab",
+                        "background": "#131313",
+                        "tertiary-container": "#00f1ff",
+                        "on-tertiary-container": "#006a70",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#004f54",
+                        "on-tertiary": "#00363a",
+                        "on-primary-fixed": "#221b00",
+                        "tertiary": "#defcff",
+                        "secondary-container": "#36485b",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-fixed": "#79f5ff",
+                        "tertiary-fixed-dim": "#00dbe8",
+                        "surface-container-highest": "#353534",
+                        "on-secondary": "#203243",
+                        "on-primary-container": "#705e00",
+                        "secondary": "#b5c8df",
+                        "inverse-surface": "#e5e2e1",
+                        "on-background": "#e5e2e1",
+                        "surface-variant": "#353534",
+                        "on-surface": "#e5e2e1",
+                        "secondary-fixed": "#d1e4fb",
+                        "error-container": "#93000a",
+                        "on-error": "#690005",
+                        "surface-dim": "#131313",
+                        "surface-tint": "#e9c400",
+                        "surface": "#131313"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Inter"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0rem", "lg": "0rem", "xl": "0rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #131313;
+        }
+        .space-grotesk { font-family: 'Space Grotesk', sans-serif; }
+        .mono { font-family: 'Courier New', Courier, monospace; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-[#131313]/85 backdrop-blur-xl border-b border-outline-variant/15 sticky top-0 z-50 flex justify-between items-center w-full px-6 h-16">
+<div class="flex items-center gap-4">
+<span class="text-xl font-black text-[#FFF6DF] tracking-tighter space-grotesk">LIVE PRODUCTION SUITE</span>
+<div class="h-6 w-[1px] bg-outline-variant/30 mx-2"></div>
+<h1 class="font-['Space_Grotesk'] uppercase tracking-[0.05em] text-sm font-bold text-primary">2026.03.28 名古屋 RADHALL</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8 h-full">
+<a class="font-['Space_Grotesk'] uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">DASHBOARD</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-[0.05em] text-sm font-bold text-[#FFD700] border-b-2 border-[#FFD700] pb-1" href="#">SETLISTS</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">STAGES</a>
+<a class="font-['Space_Grotesk'] uppercase tracking-[0.05em] text-sm font-bold text-[#999077] hover:text-[#FFF6DF] transition-colors" href="#">ARCHIVE</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="bg-primary-container text-on-primary px-4 py-2 text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all active:scale-95 space-grotesk">GENERATE PDF</button>
+<button class="text-outline border border-outline-variant/30 px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-surface-container-high transition-all active:scale-95 space-grotesk">EXPORT</button>
+<div class="flex items-center gap-2 ml-4">
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors">account_circle</span>
+</div>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden">
+<!-- SideNavBar (Contextual Icons) -->
+<aside class="bg-[#1C1B1B] border-r border-[#4D4732]/15 flex flex-col items-center py-6 w-16 shrink-0">
+<div class="flex flex-col gap-8 flex-1">
+<span class="material-symbols-outlined text-primary-container cursor-pointer transition-all duration-200" style="font-variation-settings: 'FILL' 1;">visibility</span>
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer transition-all duration-200">edit</span>
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer transition-all duration-200">layers</span>
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer transition-all duration-200">analytics</span>
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer transition-all duration-200">history</span>
+</div>
+<span class="material-symbols-outlined text-outline hover:text-error cursor-pointer">logout</span>
+</aside>
+<!-- Content Canvas -->
+<div class="flex-1 flex flex-col md:flex-row bg-surface overflow-hidden">
+<!-- Left: PDF Preview Container -->
+<div class="flex-1 bg-surface-container-lowest p-8 overflow-y-auto no-scrollbar flex justify-center items-start">
+<!-- PDF Sheet Simulation -->
+<div class="bg-white text-black w-full max-w-[595px] min-h-[842px] shadow-2xl p-12 flex flex-col relative">
+<!-- PDF Header -->
+<div class="border-b-4 border-black pb-4 mb-8">
+<div class="flex justify-between items-baseline">
+<h2 class="text-3xl font-black space-grotesk tracking-tighter">SETLIST_PRODUCTION_SHEET</h2>
+<span class="text-xs font-bold space-grotesk">CONFIDENTIAL / INTERNAL USE</span>
+</div>
+<div class="mt-2 text-xl font-bold tracking-tight">2026.03.28 名古屋 RADHALL</div>
+</div>
+<!-- PDF Setlist Table -->
+<div class="flex-1">
+<!-- M01 -->
+<div class="flex items-start py-4 border-b border-black/10">
+<div class="w-16 font-mono font-bold text-2xl">M01</div>
+<div class="flex-1 text-4xl font-black leading-none">緑</div>
+</div>
+<!-- M02 -->
+<div class="flex items-start border-b border-black/10 py-4">
+<div class="w-16 font-mono font-bold text-2xl">M02</div>
+<div class="flex-1 font-bold leading-tight uppercase text-2xl">ねえ！もう実験は終わりにしよう！</div>
+</div>
+<!-- M03 -->
+<div class="flex items-start py-4 border-b border-black/10">
+<div class="w-16 font-mono font-bold text-2xl">M03</div>
+<div class="flex-1 text-3xl font-bold italic">Dendrobium</div>
+</div>
+<!-- MC -->
+<div class="flex items-start py-3 opacity-60">
+<div class="w-16 font-mono text-sm uppercase"></div>
+<div class="flex-1 text-lg font-medium tracking-widest">[ MC ]</div>
+</div>
+<!-- M04 -->
+<div class="flex items-start py-4 border-b border-black/10">
+<div class="w-16 font-mono font-bold text-2xl">M04</div>
+<div class="flex-1 text-3xl font-bold">いちごジャムにチーズ</div>
+</div>
+<!-- M05 -->
+<div class="flex items-start py-4 border-b border-black/10">
+<div class="w-16 font-mono font-bold text-2xl">M05</div>
+<div class="flex-1 text-3xl font-bold">純闇Dinner</div>
+</div>
+<!-- 転換 -->
+<div class="flex items-start py-3 bg-black/5 px-2 my-2">
+<div class="w-14"></div>
+<div class="flex-1 text-sm font-bold tracking-[0.3em] text-center uppercase">-- 転換 (Changeover) --</div>
+</div>
+<!-- EN -->
+<div class="flex items-start py-6 border-t-2 border-b-2 border-black mt-4">
+<div class="w-16 font-mono font-black text-2xl">EN</div>
+<div class="flex-1 text-3xl font-black underline underline-offset-8 uppercase">SPECIAL TRACK NAME</div>
+</div>
+</div>
+<!-- PDF Footer -->
+<div class="mt-12 flex justify-between items-end border-t border-black pt-4">
+<div class="text-[10px] leading-tight font-mono">
+                            UNIT_ID: LIVE_UNIT_01<br/>
+                            REV_DATE: 2026.03.28_14:20<br/>
+                            MD5: 8F2D1E4A9C3B7D0E
+                        </div>
+<div class="text-xs font-bold space-grotesk tracking-widest">PAGE 01 / 01</div>
+</div>
+</div>
+</div>
+<!-- Right: Inspector Panel -->
+<aside class="w-full md:w-80 bg-surface-container-low border-l border-outline-variant/15 flex flex-col">
+<div class="p-6 flex-1 flex flex-col gap-8 overflow-y-auto no-scrollbar">
+<!-- Section: Document Settings -->
+<section>
+<h3 class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+<span class="w-1 h-1 bg-primary-container"></span> PDFテーマ切替
+                        </h3>
+<div class="grid grid-cols-2 gap-px bg-outline-variant/20 border border-outline-variant/20">
+<button class="bg-surface-container-high py-3 px-2 flex flex-col items-center gap-2 hover:bg-surface-bright transition-colors group">
+<div class="w-8 h-8 border border-white bg-white group-hover:scale-110 transition-transform"></div>
+<span class="text-[10px] font-medium text-on-surface">LIGHT</span>
+</button>
+<button class="bg-surface-container-highest py-3 px-2 flex flex-col items-center gap-2 hover:bg-surface-bright transition-colors group">
+<div class="w-8 h-8 border border-white bg-background group-hover:scale-110 transition-transform"></div>
+<span class="text-[10px] font-medium text-primary-container">DARK (ACTIVE)</span>
+</button>
+</div>
+</section>
+<!-- Section: Paper Size -->
+<section>
+<h3 class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+<span class="w-1 h-1 bg-primary-container"></span> 出力サイズ選択
+                        </h3>
+<div class="flex flex-col gap-2">
+<label class="flex items-center justify-between p-3 bg-surface-container border border-primary-container/50 cursor-pointer">
+<span class="text-xs font-bold text-primary">A4 (210 x 297mm)</span>
+<input checked="" class="text-primary-container bg-transparent border-primary-container focus:ring-0" name="size" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-3 bg-surface-container-low border border-outline-variant/20 hover:border-outline/50 cursor-pointer">
+<span class="text-xs font-bold text-outline">B5 (176 x 250mm)</span>
+<input class="text-primary-container bg-transparent border-outline focus:ring-0" name="size" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-3 bg-surface-container-low border border-outline-variant/20 hover:border-outline/50 cursor-pointer">
+<span class="text-xs font-bold text-outline">iPhone Pro Max (Live)</span>
+<input class="text-primary-container bg-transparent border-outline focus:ring-0" name="size" type="radio"/>
+</label>
+</div>
+</section>
+<!-- Section: Validation -->
+<section>
+<h3 class="text-[10px] font-bold text-outline uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+<span class="w-1 h-1 bg-primary-container"></span> ページ継続確認
+                        </h3>
+<div class="bg-surface-container-lowest p-4 border-l-2 border-tertiary-container">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary-container text-lg">info</span>
+<p class="text-[11px] leading-relaxed text-on-surface-variant">
+                                    曲名「ねえ！もう実験は...」が2行に渡っています。現場での視認性に問題がないか確認してください。
+                                </p>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-3">
+<input class="rounded-none bg-transparent border-outline text-primary-container focus:ring-0" id="check" type="checkbox"/>
+<label class="text-[11px] font-bold text-on-surface" for="check">レイアウト確定済</label>
+</div>
+</section>
+</div>
+<!-- Footer Stats -->
+<div class="p-6 bg-surface-container-lowest border-t border-outline-variant/15">
+<div class="flex justify-between items-center text-[10px] font-mono text-outline">
+<span>最終更新時刻:</span>
+<span class="text-primary">2026.03.28 14:20:44 JST</span>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Mobile BottomNavBar (Hidden on desktop) -->
+<nav class="md:hidden bg-surface-container-low border-t border-outline-variant/15 flex justify-around items-center h-16 px-4">
+<div class="flex flex-col items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined">visibility</span>
+<span class="text-[10px] font-bold space-grotesk">PREVIEW</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-outline">
+<span class="material-symbols-outlined">edit</span>
+<span class="text-[10px] font-bold space-grotesk">EDIT</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-outline">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+<span class="text-[10px] font-bold space-grotesk">PDF</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-outline">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-bold space-grotesk">SETTING</span>
+</div>
+</nav>
+</body></html>
