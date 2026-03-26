@@ -10,11 +10,7 @@ type TemplateSaveButtonProps = {
   sourceEventId?: string;
   defaultName?: string;
   defaultDescription?: string;
-  saveTemplateAction?: (input: {
-    sourceEventId: string;
-    name: string;
-    description?: string;
-  }) => Promise<unknown>;
+  saveTemplateAction?: (formData: FormData) => Promise<void>;
 };
 
 export function TemplateSaveButton({
@@ -41,22 +37,8 @@ export function TemplateSaveButton({
 
   if (mode === "event" && sourceEventId) {
     return (
-      <form
-        action={async (formData) => {
-          "use server";
-
-          if (!saveTemplateAction) {
-            return;
-          }
-
-          await saveTemplateAction({
-            sourceEventId,
-            name: String(formData.get("name") ?? defaultName),
-            description: String(formData.get("description") ?? defaultDescription),
-          });
-        }}
-        className="grid gap-3 md:grid-cols-[minmax(0,14rem)_minmax(0,18rem)_auto]"
-      >
+      <form action={saveTemplateAction} className="grid gap-3 md:grid-cols-[minmax(0,14rem)_minmax(0,18rem)_auto]">
+        <input type="hidden" name="sourceEventId" value={sourceEventId} />
         <label className="grid gap-2 text-sm">
           <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
             テンプレート名

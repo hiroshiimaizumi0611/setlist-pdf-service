@@ -3,10 +3,11 @@ import {
   addEventItemAction,
   createEventAction,
   deleteEventItemAction,
+  duplicateEventFormAction,
   reorderEventItemsAction,
   updateEventMetadataAction,
 } from "@/app/(app)/events/actions";
-import { saveTemplateFromEventAction } from "@/app/(app)/templates/actions";
+import { saveTemplateFromEventFormAction } from "@/app/(app)/templates/actions";
 import { EventEditorPageContent } from "@/components/event-editor-page-content";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import {
@@ -23,12 +24,17 @@ type EventEditorPageProps = {
   }>;
   searchParams?: Promise<{
     theme?: string | string[];
+    deleteItem?: string | string[];
   }>;
 };
 
 function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   const candidate = Array.isArray(value) ? value[0] : value;
   return candidate === "dark" ? "dark" : "light";
+}
+
+function resolveDeleteItem(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }
 
 function buildDraftEventInput() {
@@ -75,6 +81,7 @@ export default async function EventEditorPage({
     searchParams,
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
+  const pendingDeleteItemId = resolveDeleteItem(resolvedSearchParams?.deleteItem);
   const { session, currentPlan } = authSession;
 
   const [events, event] = await Promise.all([
@@ -109,12 +116,14 @@ export default async function EventEditorPage({
       event={event}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
+      pendingDeleteItemId={pendingDeleteItemId}
       createEventAction={createDraftEvent}
+      duplicateEventAction={duplicateEventFormAction}
       updateMetadataAction={updateEventMetadataAction}
       addItemAction={addEventItemAction}
       reorderItemsAction={reorderEventItemsAction}
       deleteItemAction={deleteEventItemAction}
-      saveTemplateAction={saveTemplateFromEventAction}
+      saveTemplateAction={saveTemplateFromEventFormAction}
     />
   );
 }

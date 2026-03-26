@@ -5,12 +5,7 @@ import { getDashboardThemeStyles } from "./dashboard-shell";
 type TemplateListProps = {
   templates: Awaited<ReturnType<typeof listTemplates>>;
   currentTheme?: PdfThemeName;
-  instantiateAction: (
-    input: {
-      templateId: string;
-      title: string;
-    },
-  ) => Promise<unknown>;
+  instantiateAction: (formData: FormData) => Promise<void>;
 };
 
 export function TemplateList({
@@ -52,17 +47,10 @@ export function TemplateList({
               ) : null}
             </div>
 
-            <form
-              action={async () => {
-                "use server";
-
-                await instantiateAction({
-                  templateId: template.id,
-                  title: `${template.name} Copy`,
-                });
-              }}
-              className="flex items-center"
-            >
+            <form action={instantiateAction} className="flex items-center">
+              <input type="hidden" name="templateId" value={template.id} />
+              <input type="hidden" name="title" value={`${template.name} Copy`} />
+              <input type="hidden" name="theme" value={currentTheme} />
               <button
                 type="submit"
                 className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm font-bold`}

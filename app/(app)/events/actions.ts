@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import {
@@ -29,6 +30,22 @@ async function requireUserId() {
 function revalidateEventViews(eventId: string) {
   revalidatePath("/events");
   revalidatePath(`/events/${eventId}`);
+}
+
+function resolveTheme(value: FormDataEntryValue | null) {
+  return value === "dark" ? "dark" : "light";
+}
+
+async function duplicateEventForCurrentUser(
+  input: Omit<Parameters<typeof duplicateEvent>[0], "userId">,
+) {
+  const event = await duplicateEvent({
+    ...input,
+    userId: await requireUserId(),
+  });
+
+  revalidateEventViews(event.id);
+  return event;
 }
 
 export async function createEventAction(
@@ -100,10 +117,13 @@ export async function reorderEventItemsAction(
 export async function duplicateEventAction(
   input: Omit<Parameters<typeof duplicateEvent>[0], "userId">,
 ) {
-  const event = await duplicateEvent({
-    ...input,
-    userId: await requireUserId(),
-  });
-  revalidateEventViews(event.id);
-  return event;
+  return duplicateEventForCurrentUser(input);
+}
+
+export async function duplicateEventFormAction(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const theme = resolveTheme(formData.get("theme"));
+
+  const event = await duplicateEventForCurrentUser({ eventId });
+  redirect(`/events/${event.id}?theme=${theme}`);
 }

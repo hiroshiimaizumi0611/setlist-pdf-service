@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Setlist PDF Service
 
-## Getting Started
+Setlist PDF Service is a Next.js app for managing Japanese live-show setlists, duplicating past events, exporting print-ready PDFs, and saving reusable Pro templates.
 
-First, run the development server:
+## What You Can Do
+
+- Sign up and sign in with email and password.
+- Create a new event and edit its metadata and setlist.
+- Duplicate an existing event as a starting point for the next show.
+- Export the current setlist to PDF.
+- Save a completed event as a reusable template on Pro.
+- Recreate a new event from a saved template.
+- Open the upgrade entrypoint from the billing page.
+
+## Local Setup
+
+The app is designed to run locally without Stripe. SQLite and Better Auth both use development defaults, so you can get started quickly on a fresh machine.
 
 ```bash
+npm install
+npm run db:migrate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The landing page links to registration and login. After signing in, you can create events, duplicate them, and export PDFs without any paid setup.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Free-Tier Friendly Workflow
 
-## Learn More
+- Create an account on `/register`.
+- Sign in on `/login`.
+- Create an event from `/events`.
+- Duplicate an event from the sidebar to branch a new draft.
+- Export the PDF from the event editor.
+- Visit `/settings/billing` to see the upgrade entrypoint.
 
-To learn more about Next.js, take a look at the following resources:
+Stripe is optional for local development. If Stripe keys are missing, the app still runs and shows the billing UI in a safe test-friendly state.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pro Template Flow
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If you want to test template saving locally, insert or configure an active Pro subscription in the local database, then open an event and use the template save form. The templates page lets you create a new event from a saved template.
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev` - start the development server.
+- `npm run db:migrate` - apply database migrations to the local SQLite database.
+- `npm run test` - run the Vitest suite.
+- `npm run build` - build the app for production.
+- `npm run test:e2e -- tests/e2e/setlist-flow.spec.ts` - run the Playwright MVP flow.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## E2E Notes
+
+Playwright runs against `http://localhost:3000` and starts the app after running migrations. That keeps auth cookies and Better Auth origins aligned during local testing.
+
+## Environment
+
+Optional values for Stripe and production auth are read from the environment when you want to enable billing.
+
+- `BETTER_AUTH_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `BETTER_AUTH_SECRET`
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRO_MONTHLY_PRICE_ID`
+
+You can leave the Stripe variables unset for local development and still work through the full free-tier event flow.

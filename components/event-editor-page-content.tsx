@@ -16,7 +16,9 @@ type EventEditorPageContentProps = {
   event: EventWithItems | null;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  pendingDeleteItemId?: string | null;
   createEventAction?: (formData: FormData) => Promise<void>;
+  duplicateEventAction?: (formData: FormData) => Promise<void>;
   updateMetadataAction?: (input: {
     eventId: string;
     title: string;
@@ -37,11 +39,7 @@ type EventEditorPageContentProps = {
     orderedItemIds: string[];
   }) => Promise<unknown>;
   deleteItemAction?: (input: { eventId: string; itemId: string }) => Promise<unknown>;
-  saveTemplateAction?: (input: {
-    sourceEventId: string;
-    name: string;
-    description?: string;
-  }) => Promise<unknown>;
+  saveTemplateAction?: (formData: FormData) => Promise<void>;
 };
 
 function formatDateForSummary(value: Date | null) {
@@ -79,7 +77,9 @@ export function EventEditorPageContent({
   event,
   currentTheme,
   currentPlan,
+  pendingDeleteItemId,
   createEventAction,
+  duplicateEventAction,
   updateMetadataAction,
   addItemAction,
   reorderItemsAction,
@@ -101,9 +101,10 @@ export function EventEditorPageContent({
             currentEventId={currentEventId}
             currentTheme={currentTheme}
             createEventAction={createEventAction}
+            duplicateEventAction={duplicateEventAction}
           />
         }
-        eyebrow="Setlist Editor"
+        eyebrow="セットリスト編集"
         title="新規公演を準備"
         description="左の作成ボタンから最初の公演を作成すると、ここに本番用の進行表エディタが表示されます。"
         headerActions={
@@ -116,7 +117,7 @@ export function EventEditorPageContent({
       >
         <section className={`border-2 ${theme.border} ${theme.panel} p-6`}>
           <p className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
-            Ready Queue
+            編集待機
           </p>
           <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
             公演を作成してセットリスト編集を開始
@@ -177,9 +178,10 @@ export function EventEditorPageContent({
           currentEventId={currentEventId}
           currentTheme={currentTheme}
           createEventAction={createEventAction}
+          duplicateEventAction={duplicateEventAction}
         />
       }
-      eyebrow="Technical Manuscript"
+      eyebrow="技術進行シート"
       title={event.title}
       description={`${headerDescription}。本番進行・曲順・補足メモをひとつの紙面感覚で管理できます。`}
       headerActions={
@@ -222,6 +224,7 @@ export function EventEditorPageContent({
         currentTheme={currentTheme}
         eventId={event.id}
         items={event.items}
+        pendingDeleteItemId={pendingDeleteItemId}
         reorderItemsAction={reorderItemsAction}
         deleteItemAction={deleteItemAction}
       />

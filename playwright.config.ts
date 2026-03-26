@@ -3,11 +3,15 @@ import { defineConfig } from "playwright/test";
 export default defineConfig({
   testDir: "./tests/e2e",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: "http://localhost:3000",
   },
   webServer: {
-    command: "npm run dev",
-    url: "http://127.0.0.1:3000",
+    command: "npm run db:migrate && npm run dev",
+    url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
+    env: {
+      BETTER_AUTH_URL: "http://localhost:3000",
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+    },
   },
 });

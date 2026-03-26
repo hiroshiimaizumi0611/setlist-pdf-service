@@ -1,18 +1,38 @@
-import { requireAuthSessionWithPlan } from "@/lib/subscription";
+import { redirect } from "next/navigation";
+import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { listTemplates } from "@/lib/services/templates-service";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { TemplateList } from "@/components/template-list";
 import { TemplateSaveButton } from "@/components/template-save-button";
 import {
-  createEventFromTemplateAction,
+  createEventFromTemplateFormAction,
   saveTemplateFromEventFormAction,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
 
+function formatTemplateDate(value: Date | null) {
+  if (!value) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "Asia/Tokyo",
+  }).format(value);
+}
+
 export default async function TemplatesPage() {
-  const { session, currentPlan } = await requireAuthSessionWithPlan();
+  const authSession = await getAuthSessionWithPlan();
+
+  if (!authSession) {
+    redirect("/login");
+  }
+
+  const { session, currentPlan } = authSession;
   const events = await listEventSummaries({ userId: session.user.id });
   const templates = await listTemplates({ userId: session.user.id });
   const isPro = currentPlan.plan === "pro";
@@ -24,7 +44,7 @@ export default async function TemplatesPage() {
         <header className={`flex flex-col gap-4 border-2 ${theme.border} ${theme.panel} p-8 md:flex-row md:items-end md:justify-between`}>
           <div className="space-y-3">
             <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-              Templates
+              テンプレート
             </p>
             <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
               テンプレート管理
@@ -40,7 +60,7 @@ export default async function TemplatesPage() {
         <section className={`border-2 ${theme.border} ${theme.panel} p-8`}>
           <div className="space-y-3">
             <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-              Save From Event
+              公演から保存
             </p>
             <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">
               既存の公演からテンプレートを保存
@@ -67,12 +87,12 @@ export default async function TemplatesPage() {
                         {event.title}
                       </h3>
                       <p className={`text-sm ${theme.mutedText}`}>
-                        {[event.venue, event.eventDate?.toLocaleDateString("ja-JP")]
+                        {[event.venue, formatTemplateDate(event.eventDate)]
                           .filter(Boolean)
                           .join(" / ") || "日付・会場未設定"}
                       </p>
                       <p className={`font-mono text-xs uppercase tracking-[0.18em] ${theme.mutedText}`}>
-                        {event.itemCount} items
+                        {event.itemCount}項目
                       </p>
                     </div>
 
@@ -82,20 +102,30 @@ export default async function TemplatesPage() {
                         className="grid w-full gap-3 md:max-w-md"
                       >
                         <input type="hidden" name="sourceEventId" value={event.id} />
-                        <input
-                          type="text"
-                          name="name"
-                          defaultValue={event.title}
-                          placeholder="テンプレート名"
-                          className={`${theme.input} px-4 py-3 text-sm`}
-                        />
-                        <input
-                          type="text"
-                          name="description"
-                          defaultValue={event.notes ?? ""}
-                          placeholder="メモや会場向け補足"
-                          className={`${theme.inputMuted} px-4 py-3 text-sm`}
-                        />
+                        <label className="grid gap-2 text-sm">
+                          <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
+                            テンプレート名
+                          </span>
+                          <input
+                            type="text"
+                            name="name"
+                            defaultValue={event.title}
+                            placeholder="テンプレート名"
+                            className={`${theme.input} px-4 py-3 text-sm`}
+                          />
+                        </label>
+                        <label className="grid gap-2 text-sm">
+                          <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
+                            補足メモ
+                          </span>
+                          <input
+                            type="text"
+                            name="description"
+                            defaultValue={event.notes ?? ""}
+                            placeholder="メモや会場向け補足"
+                            className={`${theme.inputMuted} px-4 py-3 text-sm`}
+                          />
+                        </label>
                         <button
                           type="submit"
                           className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 py-3 text-sm font-medium`}
@@ -118,7 +148,7 @@ export default async function TemplatesPage() {
         <TemplateList
           templates={templates}
           currentTheme="light"
-          instantiateAction={createEventFromTemplateAction}
+          instantiateAction={createEventFromTemplateFormAction}
         />
       </section>
     </main>

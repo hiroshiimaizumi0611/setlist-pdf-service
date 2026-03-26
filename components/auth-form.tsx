@@ -18,10 +18,8 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   const isRegister = mode === "register";
   const alternateHref = isRegister ? "/login" : "/register";
-  const alternateLabel = isRegister
-    ? "Already have an account?"
-    : "Need an account?";
-  const alternateAction = isRegister ? "Log in" : "Create one";
+  const alternateLabel = isRegister ? "アカウントをお持ちですか？" : "まだアカウントがありませんか？";
+  const alternateAction = isRegister ? "ログイン" : "アカウントを作成";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -38,20 +36,20 @@ export function AuthForm({ mode }: AuthFormProps) {
             email,
             password,
             name,
-            callbackURL: "/",
+            callbackURL: "/events",
           })
         : await authClient.signIn.email({
             email,
             password,
-            callbackURL: "/",
+            callbackURL: "/events",
           });
 
       if (result.error) {
-        setError(result.error.message ?? "Authentication failed.");
+        setError(result.error.message ?? "認証に失敗しました。");
         return;
       }
 
-      router.push("/");
+      router.push("/events");
       router.refresh();
     });
   }
@@ -59,23 +57,23 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full space-y-5 rounded-3xl border border-stone-200/80 bg-white/90 p-8 shadow-[0_24px_80px_rgba(60,41,9,0.08)] backdrop-blur"
+    className="w-full space-y-5 rounded-3xl border border-stone-200/80 bg-white/90 p-8 shadow-[0_24px_80px_rgba(60,41,9,0.08)] backdrop-blur"
     >
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
-          {isRegister ? "Create your account" : "Welcome back"}
+          {isRegister ? "アカウントを作成" : "ログイン"}
         </h1>
         <p className="text-sm leading-6 text-stone-600">
           {isRegister
-            ? "Start saving event templates and building print-ready setlists."
-            : "Sign in to manage events, templates, and PDF exports."}
+            ? "無料プランで公演作成とPDF出力を始めて、必要になったらProでテンプレート保存を追加できます。"
+            : "公演の作成、複製、PDF出力、テンプレート保存を続けましょう。"}
         </p>
       </div>
 
       <div className="space-y-4">
         {isRegister ? (
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-stone-700">Name</span>
+            <span className="text-sm font-medium text-stone-700">名前</span>
             <input
               required
               name="name"
@@ -87,7 +85,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         ) : null}
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-stone-700">Email</span>
+          <span className="text-sm font-medium text-stone-700">メールアドレス</span>
           <input
             required
             name="email"
@@ -98,7 +96,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium text-stone-700">Password</span>
+          <span className="text-sm font-medium text-stone-700">パスワード</span>
           <input
             required
             name="password"
@@ -122,11 +120,11 @@ export function AuthForm({ mode }: AuthFormProps) {
       >
         {isPending
           ? isRegister
-            ? "Creating account..."
-            : "Signing in..."
+            ? "アカウントを作成中..."
+            : "ログイン中..."
           : isRegister
-            ? "Create account"
-            : "Sign in"}
+            ? "アカウントを作成"
+            : "ログイン"}
       </button>
 
       <p className="text-sm text-stone-600">
