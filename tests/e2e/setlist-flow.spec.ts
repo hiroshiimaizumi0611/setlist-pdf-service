@@ -68,7 +68,7 @@ async function seedProSubscription(email: string) {
   });
 }
 
-test("supports the free-tier event flow, duplication, export, and upgrade", async ({
+test("supports the free-tier event flow, preview export, duplication, and upgrade", async ({
   page,
 }) => {
   const credentials = uniqueCredentials("free-flow");
@@ -80,14 +80,53 @@ test("supports the free-tier event flow, duplication, export, and upgrade", asyn
   });
   await expect(page).toHaveURL(/\/events\/.+/);
   const pdfLink = page.getByRole("link", { name: "PDF出力" });
-  await expect(pdfLink).toHaveAttribute("href", /\/api\/events\/.+\/pdf\?theme=light/);
-  const pdfHref = await pdfLink.getAttribute("href");
+  const editorPdfHref = await pdfLink.getAttribute("href");
 
-  if (!pdfHref) {
+  if (!editorPdfHref) {
     throw new Error("PDF export link is missing.");
   }
 
-  const pdfResponse = await page.context().request.get(new URL(pdfHref, page.url()).toString());
+  const themeMatch = editorPdfHref.match(/[?&]theme=([^&]+)/);
+  const currentTheme = themeMatch?.[1];
+
+  expect(currentTheme).toBeDefined();
+  await expect(pdfLink).toHaveAttribute(
+    "href",
+    new RegExp(`^/events/.+/pdf\\?theme=${currentTheme}$`),
+  );
+
+  const [previewPage] = await Promise.all([
+    page.waitForEvent("popup"),
+    pdfLink.click(),
+  ]);
+
+  await previewPage.waitForLoadState("domcontentloaded");
+  await expect(previewPage).toHaveURL(
+    new RegExp(`^http://localhost:3000/events/.+/pdf\\?theme=${currentTheme}$`),
+  );
+  await expect(previewPage.getByRole("region", { name: "紙面プレビュー" })).toBeVisible();
+  await expect(previewPage.getByRole("complementary")).toBeVisible();
+  await expect(previewPage.getByText("PDFテーマ切替")).toBeVisible();
+  await expect(previewPage.getByText("出力サイズ選択")).toBeVisible();
+  await expect(previewPage.getByText("ページ継続確認")).toBeVisible();
+  await expect(
+    previewPage.getByRole("link", {
+      name: currentTheme === "dark" ? "DARK" : "LIGHT",
+    }),
+  ).toHaveAttribute("aria-current", "page");
+
+  const previewPdfLink = previewPage.getByRole("link", { name: "PDF出力" });
+  await expect(previewPdfLink).toHaveAttribute(
+    "href",
+    new RegExp(`^/api/events/.+/pdf\\?theme=${currentTheme}$`),
+  );
+  const pdfHref = await previewPdfLink.getAttribute("href");
+
+  if (!pdfHref) {
+    throw new Error("PDF export link is missing from the preview page.");
+  }
+
+  const pdfResponse = await previewPage.context().request.get(new URL(pdfHref, previewPage.url()).toString());
   const pdfBuffer = await pdfResponse.body();
 
   expect(pdfResponse.ok()).toBe(true);
