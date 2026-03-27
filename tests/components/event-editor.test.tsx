@@ -88,9 +88,13 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByLabelText("Show Title")).toBeRequired();
     expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Light");
     expect(screen.getByRole("button", { name: "Save Metadata" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "項目追加" })).toBeInTheDocument();
+    expect(screen.getByText("Add Production Item")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "曲" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "MC" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "転換" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "見出し" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("曲名や進行メモを入力")).toBeRequired();
-    expect(screen.getByRole("button", { name: "項目を追加" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ADD TO SET" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
     fireEvent.click(screen.getAllByText("編集")[1]);
