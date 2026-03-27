@@ -122,7 +122,7 @@ export function DashboardShell({
               SHOWRUNNER
             </span>
             <div className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-6 text-xs font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
-              CURRENT SHOW: <span className={theme.accentText}>{title}</span>
+              CURRENT SHOW: <span className="text-[#f6c453]">{title}</span>
             </div>
           </div>
 
