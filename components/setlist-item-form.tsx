@@ -14,85 +14,113 @@ const ITEM_TYPE_OPTIONS: Array<{ value: SetlistItemType; label: string }> = [
   { value: "heading", label: "見出し" },
 ];
 
-export function SetlistItemForm({
-  currentTheme,
-  addItemAction,
-}: SetlistItemFormProps) {
+export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemFormProps) {
   const theme = getDashboardThemeStyles(currentTheme);
+  const checkedTab =
+    "peer-checked:border-[#f6c453] peer-checked:bg-[#f6c453] peer-checked:text-[#1f1b16] peer-checked:hover:bg-[#ffda78]";
 
   return (
-    <section className={`border-2 ${theme.border} ${theme.panelAlt} p-5`}>
-      <div className="space-y-2">
-        <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">項目追加</h2>
-        <p className={`text-sm leading-6 ${theme.mutedText}`}>
-          曲・MC・転換を本番順に積み上げます。必要ならメモと尺も同時に入力できます。
+    <section className={`overflow-hidden border-2 ${theme.border} ${theme.panelAlt}`}>
+      <div className={`border-b-2 ${theme.border} px-4 py-3`}>
+        <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
+          Add Production Item
+        </p>
+        <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>
+          Compact one-line strip for live edits and quick inserts.
         </p>
       </div>
 
-      <form action={addItemAction} className="mt-5 grid gap-4 lg:grid-cols-[11rem_minmax(0,1fr)]">
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">項目種別</span>
-          <select name="itemType" defaultValue="song" className={`${theme.input} min-h-11 px-4 py-3`}>
-            {ITEM_TYPE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <form action={addItemAction} className="px-4 py-4">
+        <div className="grid gap-3 md:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)_auto]">
+          <fieldset className="min-w-0">
+            <legend className="sr-only">項目種別</legend>
+            <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
+              {ITEM_TYPE_OPTIONS.map((option) => (
+                <label key={option.value} className="block cursor-pointer">
+                  <input
+                    type="radio"
+                    name="itemType"
+                    value={option.value}
+                    defaultChecked={option.value === "song"}
+                    className="peer sr-only"
+                  />
+                  <span
+                    className={`${theme.buttonSecondary} flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase transition ${checkedTab}`}
+                  >
+                    {option.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">タイトル</span>
-          <input
-            type="text"
-            name="title"
-            placeholder="曲名や進行メモを入力"
-            required
-            className={`${theme.input} min-h-11 px-4 py-3`}
-          />
-        </label>
-
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">アーティスト</span>
-          <input
-            type="text"
-            name="artist"
-            placeholder="任意"
-            className={`${theme.inputMuted} min-h-11 px-4 py-3`}
-          />
-        </label>
-
-        <div className="grid gap-4 sm:grid-cols-[11rem_minmax(0,1fr)]">
-          <label className="grid gap-2 text-sm font-medium">
-            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">尺(秒)</span>
-            <input
-              type="number"
-              min="0"
-              name="durationSeconds"
-              placeholder="任意"
-              className={`${theme.inputMuted} min-h-11 px-4 py-3`}
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm font-medium">
-            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">メモ</span>
+          <label className="grid min-w-0 gap-2">
+            <span className="sr-only">タイトル</span>
             <input
               type="text"
-              name="notes"
-              placeholder="転換やキューの補足"
-              className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+              name="title"
+              placeholder="曲名や進行メモを入力"
+              required
+              className={`${theme.input} min-h-11 px-4 py-3`}
             />
           </label>
-        </div>
 
-        <div className="lg:col-span-2">
           <button
             type="submit"
-            className={`${theme.buttonPrimary} min-h-11 px-5 text-sm font-bold tracking-[0.14em] uppercase`}
+            className={`${theme.buttonPrimary} min-h-11 px-6 text-sm font-black tracking-[0.14em] uppercase`}
           >
-            項目を追加
+            ADD TO SET
           </button>
         </div>
+
+        <details
+          className={`mt-3 border-t-2 ${theme.border} pt-3`}
+        >
+          <summary
+            className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+          >
+            追加設定
+          </summary>
+
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <label className="grid gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+                アーティスト
+              </span>
+              <input
+                type="text"
+                name="artist"
+                placeholder="任意"
+                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+                尺(秒)
+              </span>
+              <input
+                type="number"
+                min="0"
+                name="durationSeconds"
+                placeholder="任意"
+                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+                メモ
+              </span>
+              <input
+                type="text"
+                name="notes"
+                placeholder="転換やキューの補足"
+                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+              />
+            </label>
+          </div>
+        </details>
       </form>
     </section>
   );

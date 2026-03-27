@@ -13,6 +13,7 @@ type DashboardShellProps = {
 
 export type DashboardThemeStyles = {
   page: string;
+  headerShell: string;
   rail: string;
   railBorder: string;
   panel: string;
@@ -33,12 +34,16 @@ export type DashboardThemeStyles = {
   inputMuted: string;
   pill: string;
   destructive: string;
+  headerBrand: string;
+  headerMeta: string;
+  headerCurrentShow: string;
 };
 
 const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
   light: {
     page:
       "bg-[#fffdf8] text-[#1f1b16] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_30%),linear-gradient(180deg,#fffdf8_0%,#f4efe4_100%)]",
+    headerShell: "bg-[#fffdf8]/95 text-[#1f1b16]",
     rail: "bg-[#f4efe4]",
     railBorder: "border-[#1f1b16]",
     panel: "bg-[#fffaf0]",
@@ -64,10 +69,14 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     pill: "border border-[#1f1b16] bg-[#efe3c6] text-[#1f1b16]",
     destructive:
       "border border-[#1f1b16] bg-[#2b2520] text-[#fffdf8] transition hover:bg-[#000000]",
+    headerBrand: "BACKSTAGE PRO",
+    headerMeta: "LIVE PRODUCTION",
+    headerCurrentShow: "text-[#1f1b16]",
   },
   dark: {
     page:
       "bg-[#111111] text-[#f6f3ee] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.14),_transparent_28%),linear-gradient(180deg,#111111_0%,#171717_100%)]",
+    headerShell: "bg-black/85 text-[#f6f3ee]",
     rail: "bg-[#191919]",
     railBorder: "border-[#38332b]",
     panel: "bg-[#171717]",
@@ -93,6 +102,9 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     pill: "border border-[#38332b] bg-[#222222] text-[#f6f3ee]",
     destructive:
       "border border-[#9f3a31] bg-[#3a1612] text-[#ffcdc7] transition hover:bg-[#571b15]",
+    headerBrand: "SHOWRUNNER",
+    headerMeta: "LIVE VIEW",
+    headerCurrentShow: "text-[#f6c453]",
   },
 };
 
@@ -113,35 +125,53 @@ export function DashboardShell({
 
   return (
     <main className={`${theme.page} min-h-screen`}>
-      <div className="grid min-h-screen lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <header
+        className={`fixed inset-x-0 top-0 z-50 border-b-2 ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span
+              className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
+            >
+              {theme.headerBrand}
+            </span>
+            <div
+              className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-4 text-[10px] font-mono uppercase tracking-[0.3em] ${theme.mutedText}`}
+            >
+              {theme.headerMeta}
+              <span className={`ml-3 ${theme.headerCurrentShow}`}>CURRENT SHOW: {title}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {headerActions ? (
+              <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:block">
         <aside
-          className={`${theme.rail} ${theme.railBorder} border-b-4 px-4 py-5 lg:min-h-screen lg:border-r-4 lg:border-b-0 lg:px-5 lg:py-6`}
+          className={`${theme.rail} ${theme.railBorder} border-b-4 px-4 pb-6 pt-20 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-full lg:w-64 lg:border-b-0 lg:border-r-2 lg:px-5 lg:pb-5 lg:pt-24`}
         >
           {sidebar}
         </aside>
 
-        <div className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-          <header className={`border-b-4 ${theme.border} pb-6`}>
-            <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-              <div className="space-y-3">
-                <p
-                  className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
-                >
-                  {eyebrow}
-                </p>
-                <h1 className="font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl lg:text-5xl">
-                  {title}
-                </h1>
-                <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
-                  {description}
-                </p>
-              </div>
-
-              {headerActions ? (
-                <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
-              ) : null}
-            </div>
-          </header>
+        <div className="min-w-0 px-4 pb-8 pt-24 sm:px-6 lg:pl-72 lg:pr-8 lg:pt-28">
+          <section className={`border-l-8 ${theme.border} pl-5`}>
+            <p
+              className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
+            >
+              {eyebrow}
+            </p>
+            <h1 className="mt-2 font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl">
+              {title}
+            </h1>
+            <p className={`mt-3 max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
+              {description}
+            </p>
+          </section>
 
           <div className="mt-6 space-y-6">{children}</div>
         </div>

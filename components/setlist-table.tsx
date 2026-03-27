@@ -43,12 +43,11 @@ function formatCue(items: SetlistItemRecord[], index: number) {
   const item = items[index];
 
   if (item.itemType !== "song") {
-    return "";
+    return "--";
   }
 
   const songNumber =
-    items.slice(0, index + 1).filter((candidate) => candidate.itemType === "song")
-      .length;
+    items.slice(0, index + 1).filter((candidate) => candidate.itemType === "song").length;
 
   return `M${String(songNumber).padStart(2, "0")}`;
 }
@@ -79,6 +78,22 @@ function swapIds(items: SetlistItemRecord[], from: number, to: number) {
   return next;
 }
 
+function getRowLabel(itemType: SetlistItemRecord["itemType"]) {
+  if (itemType === "mc") {
+    return "MC / TALK";
+  }
+
+  if (itemType === "transition") {
+    return "CHANGEOVER";
+  }
+
+  if (itemType === "heading") {
+    return "見出し";
+  }
+
+  return "SONG";
+}
+
 export function SetlistTable({
   currentTheme,
   eventId,
@@ -89,280 +104,479 @@ export function SetlistTable({
   deleteItemAction,
 }: SetlistTableProps) {
   const theme = getDashboardThemeStyles(currentTheme);
+  const itemTone =
+    currentTheme === "dark"
+      ? {
+          row: {
+            song: "bg-[#2a2a2a] hover:bg-[#333]",
+            mc: "bg-[#2a2a2a] hover:bg-[#333]",
+            transition: "bg-[#0e0e0e] hover:bg-[#131313] border-y border-[#4d4732]/10",
+            heading: "bg-[#131313]",
+          },
+          cue: "text-[#f6c453]",
+          subtitle: "text-[#bfb7aa]",
+          muted: "text-[#bfb7aa]",
+          headingBorder: "border-primary-container/30",
+        }
+      : {
+          row: {
+            song: "bg-[#ffffff] hover:bg-[#fcfcfc]",
+            mc: "bg-[#f0f0f0] hover:bg-[#fafafa]",
+            transition: "bg-[#f7f1e3] hover:bg-[#fffdf8] border-y border-[#1f1b16]",
+            heading: "bg-[#ffffff]",
+          },
+          cue: "text-[#1f1b16]",
+          subtitle: "text-[#5f5649]",
+          muted: "text-[#5f5649]",
+          headingBorder: "border-[#1f1b16]/20",
+        };
 
   return (
-    <section className={`border-2 ${theme.border} ${theme.panel} overflow-hidden`}>
+    <section className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}>
       <div
         className={`flex flex-col gap-2 border-b-2 ${theme.border} px-5 py-4 sm:flex-row sm:items-end sm:justify-between`}
       >
         <div>
           <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">セットリスト</h2>
           <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>
-            並び替えは上下ボタンで確定します。PDFにもこの順番がそのまま反映されます。
+            上下ボタンで並び替えし、編集・削除は各行から操作します。
           </p>
         </div>
-        <span className={`${theme.pill} inline-flex w-fit px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em]`}>
+        <span
+          className={`${theme.pill} inline-flex w-fit px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em]`}
+        >
           {items.length}項目
         </span>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          <thead className={`${theme.tableHeader}`}>
-            <tr className="text-left">
-              <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                キュー
-              </th>
-              <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                種別
-              </th>
-              <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                タイトル
-              </th>
-              <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                尺
-              </th>
-              <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                メモ
-              </th>
-              <th className="px-4 py-3 text-right font-mono text-[11px] uppercase tracking-[0.22em]">
-                操作
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => {
-              const canMoveUp = index > 0;
-              const canMoveDown = index < items.length - 1;
+      <div className="space-y-0">
+        {items.map((item, index) => {
+          const canMoveUp = index > 0;
+          const canMoveDown = index < items.length - 1;
+          const rowLabel = getRowLabel(item.itemType);
 
-              return (
-                <tr
-                  key={item.id}
-                  className={`border-b ${theme.border} align-top ${index % 2 === 0 ? theme.panel : theme.panelMuted}`}
-                >
-                  <td className="px-4 py-4 font-mono text-lg font-black tracking-[-0.08em]">
-                    {formatCue(items, index)}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={`${theme.pill} inline-flex px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em]`}>
-                      {ITEM_TYPE_LABELS[item.itemType]}
+          if (item.itemType === "heading") {
+            return (
+              <article
+                key={item.id}
+                className={`group border-b-2 ${theme.border} ${itemTone.row.heading} px-4 py-4`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`flex h-10 w-14 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
+                  >
+                    {item.title}
+                  </div>
+                  <div className="flex min-w-0 flex-1 items-center gap-4">
+                    <span
+                      className={`${theme.buttonPrimary} inline-flex min-h-11 items-center px-4 text-xs font-black tracking-[0.22em] uppercase`}
+                    >
+                      {rowLabel}
                     </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="space-y-1">
-                      <p className="font-semibold">{item.title}</p>
-                      {item.artist ? (
-                        <p className={`text-sm ${theme.mutedText}`}>{item.artist}</p>
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 font-mono text-sm">{formatDuration(item.durationSeconds)}</td>
-                  <td className={`px-4 py-4 text-sm ${theme.mutedText}`}>
-                    {item.notes || "メモなし"}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <form
-                        action={async () => {
-                          "use server";
+                    <div className={`hidden h-px flex-1 bg-current/20 sm:block ${itemTone.muted}`} />
+                    <span className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}>
+                      SECTION BREAK
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                    <form
+                      action={async () => {
+                        "use server";
 
-                          if (!canMoveUp || !reorderItemsAction) {
-                            return;
-                          }
+                        if (!canMoveUp || !reorderItemsAction) {
+                          return;
+                        }
 
-                          await reorderItemsAction({
-                            eventId,
-                            orderedItemIds: swapIds(items, index, index - 1),
-                          });
-                        }}
+                        await reorderItemsAction({
+                          eventId,
+                          orderedItemIds: swapIds(items, index, index - 1),
+                        });
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        disabled={!canMoveUp}
+                        aria-label={`${item.title} を上へ移動`}
+                        className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
                       >
-                        <button
-                          type="submit"
-                          disabled={!canMoveUp}
-                          aria-label={`${item.title} を上へ移動`}
-                          className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
-                        >
-                          上へ
-                        </button>
-                      </form>
+                        上へ
+                      </button>
+                    </form>
+                    <form
+                      action={async () => {
+                        "use server";
 
-                      <form
-                        action={async () => {
-                          "use server";
+                        if (!canMoveDown || !reorderItemsAction) {
+                          return;
+                        }
 
-                          if (!canMoveDown || !reorderItemsAction) {
-                            return;
-                          }
-
-                          await reorderItemsAction({
-                            eventId,
-                            orderedItemIds: swapIds(items, index, index + 1),
-                          });
-                        }}
+                        await reorderItemsAction({
+                          eventId,
+                          orderedItemIds: swapIds(items, index, index + 1),
+                        });
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        disabled={!canMoveDown}
+                        aria-label={`${item.title} を下へ移動`}
+                        className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
                       >
-                        <button
-                          type="submit"
-                          disabled={!canMoveDown}
-                          aria-label={`${item.title} を下へ移動`}
-                          className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
-                          >
-                            下へ
-                          </button>
-                      </form>
+                        下へ
+                      </button>
+                    </form>
+                    <details className="w-full max-w-md">
+                      <summary
+                        className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-3 text-xs font-bold`}
+                      >
+                        編集
+                      </summary>
+                      <div className={`mt-3 border-2 ${theme.border} ${theme.panelMuted} p-4`}>
+                        <form
+                          action={async (formData: FormData) => {
+                            "use server";
 
-                      <details className="w-full max-w-md">
-                        <summary
-                          className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-3 text-xs font-bold`}
+                            if (!updateItemAction) {
+                              return;
+                            }
+
+                            await updateItemAction({
+                              eventId,
+                              itemId: item.id,
+                              itemType: String(formData.get("itemType") ?? item.itemType) as SetlistItemRecord["itemType"],
+                              title: String(formData.get("title") ?? ""),
+                              artist: String(formData.get("artist") ?? "") || null,
+                              durationSeconds: parseOptionalNumber(formData.get("durationSeconds")),
+                              notes: String(formData.get("notes") ?? "") || null,
+                            });
+                          }}
+                          aria-label={`${item.title} の編集フォーム`}
+                          className="grid gap-3"
                         >
-                          編集
-                        </summary>
-                        <div className={`mt-3 border-2 ${theme.border} ${theme.panelMuted} p-4`}>
-                          <form
-                            action={async (formData: FormData) => {
-                              "use server";
-
-                              if (!updateItemAction) {
-                                return;
-                              }
-
-                              await updateItemAction({
-                                eventId,
-                                itemId: item.id,
-                                itemType: String(formData.get("itemType") ?? item.itemType) as SetlistItemRecord["itemType"],
-                                title: String(formData.get("title") ?? ""),
-                                artist: String(formData.get("artist") ?? "") || null,
-                                durationSeconds: parseOptionalNumber(formData.get("durationSeconds")),
-                                notes: String(formData.get("notes") ?? "") || null,
-                              });
-                            }}
-                            aria-label={`${item.title} の編集フォーム`}
-                            className="grid gap-3"
-                          >
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              項目種別
+                            </span>
+                            <select
+                              name="itemType"
+                              defaultValue={item.itemType}
+                              className={`${theme.input} min-h-11 px-4 py-3`}
+                            >
+                              {ITEM_TYPE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              タイトル
+                            </span>
+                            <input
+                              type="text"
+                              name="title"
+                              defaultValue={item.title}
+                              required
+                              className={`${theme.input} min-h-11 px-4 py-3`}
+                            />
+                          </label>
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              アーティスト
+                            </span>
+                            <input
+                              type="text"
+                              name="artist"
+                              defaultValue={item.artist ?? ""}
+                              placeholder="任意"
+                              className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                            />
+                          </label>
+                          <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
                             <label className="grid gap-2 text-sm font-medium">
                               <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
-                                項目種別
-                              </span>
-                              <select
-                                name="itemType"
-                                defaultValue={item.itemType}
-                                className={`${theme.input} min-h-11 px-4 py-3`}
-                              >
-                                {ITEM_TYPE_OPTIONS.map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                            <label className="grid gap-2 text-sm font-medium">
-                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
-                                タイトル
+                                尺(秒)
                               </span>
                               <input
-                                type="text"
-                                name="title"
-                                defaultValue={item.title}
-                                required
-                                className={`${theme.input} min-h-11 px-4 py-3`}
-                              />
-                            </label>
-                            <label className="grid gap-2 text-sm font-medium">
-                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
-                                アーティスト
-                              </span>
-                              <input
-                                type="text"
-                                name="artist"
-                                defaultValue={item.artist ?? ""}
+                                type="number"
+                                min="0"
+                                name="durationSeconds"
+                                defaultValue={item.durationSeconds ?? ""}
                                 placeholder="任意"
                                 className={`${theme.inputMuted} min-h-11 px-4 py-3`}
                               />
                             </label>
-                            <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-                              <label className="grid gap-2 text-sm font-medium">
-                                <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
-                                  尺(秒)
-                                </span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  name="durationSeconds"
-                                  defaultValue={item.durationSeconds ?? ""}
-                                  placeholder="任意"
-                                  className={`${theme.inputMuted} min-h-11 px-4 py-3`}
-                                />
-                              </label>
 
-                              <label className="grid gap-2 text-sm font-medium">
-                                <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
-                                  メモ
-                                </span>
-                                <input
-                                  type="text"
-                                  name="notes"
-                                  defaultValue={item.notes ?? ""}
-                                  placeholder="任意"
-                                  className={`${theme.inputMuted} min-h-11 px-4 py-3`}
-                                />
-                              </label>
-                            </div>
-                            <button
-                              type="submit"
-                              className={`${theme.buttonPrimary} min-h-11 px-4 text-xs font-bold`}
-                            >
-                              変更を保存
-                            </button>
-                          </form>
-                        </div>
-                      </details>
-
-                      {pendingDeleteItemId === item.id ? (
-                        <>
-                          <form
-                            action={async () => {
-                              "use server";
-
-                              if (!deleteItemAction) {
-                                return;
-                              }
-
-                              await deleteItemAction({
-                                eventId,
-                                itemId: item.id,
-                              });
-                            }}
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                メモ
+                              </span>
+                              <input
+                                type="text"
+                                name="notes"
+                                defaultValue={item.notes ?? ""}
+                                placeholder="任意"
+                                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                              />
+                            </label>
+                          </div>
+                          <button
+                            type="submit"
+                            className={`${theme.buttonPrimary} min-h-11 px-4 text-xs font-bold`}
                           >
-                            <button
-                              type="submit"
-                              aria-label={`${item.title} の削除を確定`}
-                              className={`${theme.destructive} min-h-11 px-3 text-xs font-bold`}
-                            >
-                              削除を確定
-                            </button>
-                          </form>
-                          <Link
-                            href={`/events/${eventId}?theme=${currentTheme}`}
-                            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
-                          >
-                            キャンセル
-                          </Link>
-                        </>
-                      ) : (
-                        <Link
-                          href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
-                          aria-label={`${item.title} を削除`}
-                          className={`${theme.destructive} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                            変更を保存
+                          </button>
+                        </form>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </article>
+            );
+          }
+
+          return (
+            <article
+              key={item.id}
+              className={`group border-b-2 ${theme.border} ${itemTone.row[item.itemType]} transition-colors`}
+            >
+              <div className="grid md:grid-cols-[60px_minmax(0,1fr)_120px_180px]">
+                <div
+                  className={`flex items-center justify-center border-b-2 border-inherit px-3 py-4 font-mono text-lg font-black md:border-b-0 md:border-r-2 ${itemTone.cue}`}
+                >
+                  {formatCue(items, index)}
+                </div>
+
+                <div className="min-w-0 px-4 py-4 md:px-5">
+                  <p className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}>
+                    {rowLabel}
+                  </p>
+                  <div className="mt-1 min-w-0">
+                    <p
+                      className={`truncate ${
+                        item.itemType === "transition"
+                          ? "font-bold text-base opacity-60"
+                          : "font-bold text-lg"
+                      }`}
+                    >
+                      {item.title}
+                    </p>
+                    {item.artist ? (
+                      <p className={`mt-1 text-sm ${itemTone.muted}`}>{item.artist}</p>
+                    ) : null}
+                    {item.notes ? (
+                      <p className={`mt-1 text-sm ${itemTone.muted}`}>{item.notes}</p>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="flex items-center px-4 py-4 font-mono text-sm md:justify-center">
+                  {formatDuration(item.durationSeconds)}
+                </div>
+
+                <div className="px-4 py-4">
+                  <div className="flex flex-wrap justify-end gap-1 opacity-100 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 md:opacity-0">
+                    <form
+                      action={async () => {
+                        "use server";
+
+                        if (!canMoveUp || !reorderItemsAction) {
+                          return;
+                        }
+
+                        await reorderItemsAction({
+                          eventId,
+                          orderedItemIds: swapIds(items, index, index - 1),
+                        });
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        disabled={!canMoveUp}
+                        aria-label={`${item.title} を上へ移動`}
+                        className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
+                      >
+                        上へ
+                      </button>
+                    </form>
+
+                    <form
+                      action={async () => {
+                        "use server";
+
+                        if (!canMoveDown || !reorderItemsAction) {
+                          return;
+                        }
+
+                        await reorderItemsAction({
+                          eventId,
+                          orderedItemIds: swapIds(items, index, index + 1),
+                        });
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        disabled={!canMoveDown}
+                        aria-label={`${item.title} を下へ移動`}
+                        className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
+                      >
+                        下へ
+                      </button>
+                    </form>
+
+                    <details className="w-full max-w-md">
+                      <summary
+                        className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-3 text-xs font-bold`}
+                      >
+                        編集
+                      </summary>
+                      <div className={`mt-3 border-2 ${theme.border} ${theme.panelMuted} p-4`}>
+                        <form
+                          action={async (formData: FormData) => {
+                            "use server";
+
+                            if (!updateItemAction) {
+                              return;
+                            }
+
+                            await updateItemAction({
+                              eventId,
+                              itemId: item.id,
+                              itemType: String(formData.get("itemType") ?? item.itemType) as SetlistItemRecord["itemType"],
+                              title: String(formData.get("title") ?? ""),
+                              artist: String(formData.get("artist") ?? "") || null,
+                              durationSeconds: parseOptionalNumber(formData.get("durationSeconds")),
+                              notes: String(formData.get("notes") ?? "") || null,
+                            });
+                          }}
+                          aria-label={`${item.title} の編集フォーム`}
+                          className="grid gap-3"
                         >
-                          削除
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              項目種別
+                            </span>
+                            <select
+                              name="itemType"
+                              defaultValue={item.itemType}
+                              className={`${theme.input} min-h-11 px-4 py-3`}
+                            >
+                              {ITEM_TYPE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              タイトル
+                            </span>
+                            <input
+                              type="text"
+                              name="title"
+                              defaultValue={item.title}
+                              required
+                              className={`${theme.input} min-h-11 px-4 py-3`}
+                            />
+                          </label>
+                          <label className="grid gap-2 text-sm font-medium">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                              アーティスト
+                            </span>
+                            <input
+                              type="text"
+                              name="artist"
+                              defaultValue={item.artist ?? ""}
+                              placeholder="任意"
+                              className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                            />
+                          </label>
+                          <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                尺(秒)
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                name="durationSeconds"
+                                defaultValue={item.durationSeconds ?? ""}
+                                placeholder="任意"
+                                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                              />
+                            </label>
+
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                メモ
+                              </span>
+                              <input
+                                type="text"
+                                name="notes"
+                                defaultValue={item.notes ?? ""}
+                                placeholder="任意"
+                                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                              />
+                            </label>
+                          </div>
+                          <button
+                            type="submit"
+                            className={`${theme.buttonPrimary} min-h-11 px-4 text-xs font-bold`}
+                          >
+                            変更を保存
+                          </button>
+                        </form>
+                      </div>
+                    </details>
+
+                    {pendingDeleteItemId === item.id ? (
+                      <>
+                        <form
+                          action={async () => {
+                            "use server";
+
+                            if (!deleteItemAction) {
+                              return;
+                            }
+
+                            await deleteItemAction({
+                              eventId,
+                              itemId: item.id,
+                            });
+                          }}
+                        >
+                          <button
+                            type="submit"
+                            aria-label={`${item.title} の削除を確定`}
+                            className={`${theme.destructive} min-h-11 px-3 text-xs font-bold`}
+                          >
+                            削除を確定
+                          </button>
+                        </form>
+                        <Link
+                          href={`/events/${eventId}?theme=${currentTheme}`}
+                          className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                        >
+                          キャンセル
                         </Link>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      </>
+                    ) : (
+                      <Link
+                        href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
+                        aria-label={`${item.title} を削除`}
+                        className={`${theme.destructive} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                      >
+                        削除
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );

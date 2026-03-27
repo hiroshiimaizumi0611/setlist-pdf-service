@@ -32,80 +32,100 @@ export function EventMetadataForm({
   headerActions,
 }: EventMetadataFormProps) {
   const theme = getDashboardThemeStyles(currentTheme);
+  const themeLabel = currentTheme === "light" ? "Light" : "Dark";
 
   return (
-    <section className={`border-2 ${theme.border} ${theme.panel}`}>
+    <section className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}>
       <div
-        className={`flex flex-col gap-4 border-b-2 ${theme.border} px-5 py-4 lg:flex-row lg:items-center lg:justify-between`}
+        className={`flex flex-col gap-3 border-b-2 ${theme.border} px-4 py-3 md:flex-row md:items-center md:justify-between`}
       >
-        <div>
-          <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">公演情報</h2>
-          <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>
-            出力されるPDFの見出しと共通メモをここで整えます。
+        <div className="space-y-1">
+          <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
+            Show Info
+          </p>
+          <p className={`text-sm leading-6 ${theme.mutedText}`}>
+            Compact metadata strip for the printed show sheet.
           </p>
         </div>
+
         {headerActions ? <div className="flex flex-wrap gap-3">{headerActions}</div> : null}
       </div>
 
-      <form action={updateMetadataAction} className="grid gap-4 p-5 lg:grid-cols-2">
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">公演名</span>
+      <form action={updateMetadataAction} className="grid gap-px bg-black/10 md:grid-cols-4">
+        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+            Date
+          </span>
+          <input
+            type="date"
+            name="eventDate"
+            defaultValue={formatDateInput(event.eventDate)}
+            aria-label="Date"
+            className={`${theme.input} min-h-11 px-3 py-2`}
+          />
+        </label>
+
+        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+            Venue
+          </span>
+          <input
+            type="text"
+            name="venue"
+            defaultValue={event.venue ?? ""}
+            aria-label="Venue"
+            className={`${theme.input} min-h-11 px-3 py-2`}
+          />
+        </label>
+
+        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+            Show Title
+          </span>
           <input
             type="text"
             name="title"
             defaultValue={event.title}
             required
-            className={`${theme.input} min-h-11 px-4 py-3`}
+            aria-label="Show Title"
+            className={`${theme.input} min-h-11 px-3 py-2`}
           />
         </label>
 
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">会場</span>
-          <input
-            type="text"
-            name="venue"
-            defaultValue={event.venue ?? ""}
-            className={`${theme.input} min-h-11 px-4 py-3`}
-          />
-        </label>
-
-        <label className="grid gap-2 text-sm font-medium">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">公演日</span>
-          <input
-            type="date"
-            name="eventDate"
-            defaultValue={formatDateInput(event.eventDate)}
-            className={`${theme.input} min-h-11 px-4 py-3`}
-          />
-        </label>
-
-        <div className={`border ${theme.border} ${theme.panelMuted} px-4 py-3`}>
-          <p className="font-mono text-[11px] uppercase tracking-[0.26em]">出力テーマ</p>
-          <p className={`mt-2 text-sm leading-6 ${theme.mutedText}`}>
-            画面テーマとPDFテーマは連動しています。現在は
-            <span className="ml-1 font-bold">
-              {currentTheme === "light" ? "ライト" : "ダーク"}
-            </span>
-            です。
-          </p>
+        <div
+          role="status"
+          aria-label="Sheet Theme"
+          className={`grid gap-2 px-4 py-3 ${theme.panelMuted}`}
+        >
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+            Sheet Theme
+          </span>
+          <div className={`flex min-h-11 items-center border ${theme.border} px-3 font-mono text-sm font-black uppercase tracking-[0.18em] ${theme.panel}`}>
+            {themeLabel}
+          </div>
         </div>
 
-        <label className="grid gap-2 text-sm font-medium lg:col-span-2">
-          <span className="font-mono text-[11px] uppercase tracking-[0.26em]">備考</span>
+        <label className={`grid gap-2 px-4 py-3 md:col-span-4 ${theme.panel}`}>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+            Notes
+          </span>
           <textarea
             name="notes"
             defaultValue={event.notes ?? ""}
-            rows={4}
-            className={`${theme.inputMuted} resize-y px-4 py-3`}
+            rows={3}
+            className={`${theme.inputMuted} resize-y px-3 py-2`}
           />
         </label>
 
-        <div className="lg:col-span-2">
+        <div className={`flex items-center justify-between gap-3 border-t-2 ${theme.border} bg-transparent px-4 py-3 md:col-span-4`}>
+          <p className={`font-mono text-[10px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
+            Updated for print output and live edits
+          </p>
           <button
             type="submit"
-            className={`${theme.buttonSecondary} min-h-11 px-5 text-sm font-bold tracking-[0.14em] uppercase`}
+            className={`${theme.buttonSecondary} min-h-11 px-5 text-sm font-black tracking-[0.14em] uppercase`}
           >
-            公演情報を保存
+            Save Metadata
           </button>
         </div>
       </form>

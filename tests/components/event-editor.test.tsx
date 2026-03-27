@@ -67,6 +67,14 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
+    expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
+    expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
+    expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
+    expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
+    expect(screen.getByText("Upcoming & Recent")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" }),
     ).toBeInTheDocument();
@@ -75,13 +83,36 @@ describe("EventEditorPageContent", () => {
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",
     );
-    expect(screen.getByRole("heading", { name: "公演情報" })).toBeInTheDocument();
-    expect(screen.getByLabelText("公演名")).toHaveValue("2026.03.28 名古屋 RADHALL");
-    expect(screen.getByLabelText("公演名")).toBeRequired();
-    expect(screen.getByLabelText("会場")).toHaveValue("RADHALL");
-    expect(screen.getByRole("heading", { name: "項目追加" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Date")).toHaveValue("2026-03-28");
+    expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
+    expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
+    expect(screen.getByLabelText("Show Title")).toBeRequired();
+    expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Light");
+    expect(screen.getByRole("button", { name: "Save Metadata" })).toBeInTheDocument();
+    expect(screen.getByText("Add Production Item")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "曲" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "MC" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "転換" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "見出し" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("曲名や進行メモを入力")).toBeRequired();
-    expect(screen.getByRole("button", { name: "項目を追加" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ADD TO SET" })).toBeInTheDocument();
+    const addStrip = screen.getByText("Add Production Item").closest("section");
+    expect(addStrip).toBeTruthy();
+    if (!addStrip) {
+      throw new Error("expected add-item strip to exist");
+    }
+    expect(within(addStrip).getByText("追加設定")).toBeInTheDocument();
+    expect(addStrip.querySelector("details")).not.toHaveAttribute("open");
+    expect(within(addStrip).getByLabelText("アーティスト")).toBeInTheDocument();
+    expect(within(addStrip).getByLabelText("尺(秒)")).toBeInTheDocument();
+    expect(within(addStrip).getByLabelText("メモ")).toBeInTheDocument();
+    expect(screen.getByText("M01")).toBeInTheDocument();
+    expect(screen.getByText("M02")).toBeInTheDocument();
+    expect(screen.getByText("MC / TALK")).toBeInTheDocument();
+    expect(screen.getByText("CHANGEOVER")).toBeInTheDocument();
+    expect(screen.getAllByText("見出し").length).toBeGreaterThan(0);
+    expect(screen.getByText("EN")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
     fireEvent.click(screen.getAllByText("編集")[1]);
@@ -95,9 +126,9 @@ describe("EventEditorPageContent", () => {
     expect(within(editForm).getByLabelText("タイトル")).toBeRequired();
     expect(screen.getByRole("button", { name: "ねえ！もう実験は終わりにしよう！ を上へ移動" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "緑 を下へ移動" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "PDFを書き出し" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      "/api/events/event-nagoya-radhall/pdf?theme=light",
+      "/events/event-nagoya-radhall/pdf?theme=light",
     );
     expect(screen.getByRole("link", { name: "Proでテンプレート保存を有効化" })).toHaveAttribute(
       "href",
@@ -105,6 +136,31 @@ describe("EventEditorPageContent", () => {
     );
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
+  });
+
+  it("renders a Stitch-like rail and compact metadata strip", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="dark"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+      />,
+    );
+
+    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    expect(within(navigation).getByText("Upcoming & Recent")).toBeInTheDocument();
+    expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
+      "2026.03.28 名古屋 RADHALL",
+    );
+    expect(screen.getByLabelText("Date")).toHaveValue("2026-03-28");
+    expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
+    expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
+    expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Dark");
+    expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
+    expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
   });
 
   it("shows the template save form when the account is pro", () => {
@@ -120,9 +176,9 @@ describe("EventEditorPageContent", () => {
 
     expect(screen.getByRole("button", { name: "この内容をテンプレート保存" })).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
-    expect(screen.getByRole("link", { name: "PDFを書き出し" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      "/api/events/event-nagoya-radhall/pdf?theme=dark",
+      "/events/event-nagoya-radhall/pdf?theme=dark",
     );
   });
 
