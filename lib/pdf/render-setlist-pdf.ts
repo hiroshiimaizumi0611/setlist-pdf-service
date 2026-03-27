@@ -247,7 +247,6 @@ function drawSongRow(
   const { pageSize, content, theme } = layout;
   const y = topToBottomY(pageSize.height, row.top, row.height);
   const titleX = content.left + CUE_COLUMN_WIDTH + 14;
-  const titleWidth = content.width - CUE_COLUMN_WIDTH - 28;
 
   page.drawRectangle({
     x: content.left,
@@ -272,7 +271,7 @@ function drawSongRow(
     );
   }
 
-  page.drawText(truncateText(font, row.displayText, SONG_TITLE_SIZE, titleWidth), {
+  page.drawText(row.displayText, {
     x: titleX,
     y: y + 4,
     size: SONG_TITLE_SIZE,
@@ -318,7 +317,7 @@ function drawMcRow(
     });
   }
 
-  page.drawText(truncateText(font, displayText, displaySize, titleAreaWidth - 20), {
+  page.drawText(displayText, {
     x: Math.max(titleAreaX + 14, textX),
     y: y + 5,
     size: displaySize,
@@ -399,7 +398,6 @@ function drawHeadingRow(
   const { pageSize, content, theme } = layout;
   const y = topToBottomY(pageSize.height, row.top, row.height);
   const titleX = content.left + CUE_COLUMN_WIDTH + 14;
-  const titleWidth = content.width - CUE_COLUMN_WIDTH - 28;
 
   page.drawRectangle({
     x: content.left,
@@ -424,7 +422,7 @@ function drawHeadingRow(
     );
   }
 
-  page.drawText(truncateText(font, row.displayText, HEADING_TITLE_SIZE, titleWidth), {
+  page.drawText(row.displayText, {
     x: titleX,
     y: y + 5,
     size: HEADING_TITLE_SIZE,

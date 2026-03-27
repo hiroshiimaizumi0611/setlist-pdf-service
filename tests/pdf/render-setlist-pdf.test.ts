@@ -2,7 +2,6 @@ import { PDFArray, PDFDocument, PDFStream } from "pdf-lib";
 import { inflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { buildSetlistPdfLayout } from "../../lib/pdf/build-layout";
-import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { renderSetlistPdf } from "../../lib/pdf/render-setlist-pdf";
 
 async function getContentStreamStrings(pdfBytes: Uint8Array) {
@@ -30,16 +29,42 @@ async function getContentStreamStrings(pdfBytes: Uint8Array) {
 }
 
 describe("renderSetlistPdf", () => {
-  it("renders the shared display text for MC rows in the PDF stream", async () => {
+  it("renders the shared row display text for long song titles", async () => {
+    const event = {
+      title: "2026.03.28 名古屋 RADHALL",
+      venue: "RADHALL",
+      eventDate: new Date("2026-03-28T09:00:00.000Z"),
+      notes: "本番用セットリスト",
+      updatedAt: new Date("2026-03-28T10:11:00.000Z"),
+      items: [
+        {
+          id: "long-song-1",
+          eventId: "event-long-title",
+          position: 1,
+          itemType: "song" as const,
+          title:
+            "This is an intentionally long title that should be preserved exactly as the shared layout display text",
+          artist: null,
+          durationSeconds: null,
+          notes: null,
+          createdAt: new Date("2026-03-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-03-01T00:00:00.000Z"),
+        },
+      ],
+    };
+
     const layout = buildSetlistPdfLayout({
-      event: nagoyaRadhallEvent,
+      event,
       theme: "light",
     });
 
-    expect(layout.pages[0]?.rows[3]?.displayText).toBe("[ MC ]");
+    const expectedDisplayText = layout.pages[0]?.rows[0]?.displayText;
+
+    expect(expectedDisplayText).toMatch(/…$/);
+    expect(expectedDisplayText).toBeDefined();
 
     const pdfBytes = await renderSetlistPdf({
-      event: nagoyaRadhallEvent,
+      event,
       theme: "light",
     });
 
@@ -52,9 +77,12 @@ describe("renderSetlistPdf", () => {
     );
     expect(pdfBytes.byteLength).toBeGreaterThan(500);
     expect(pdfBytes.byteLength).toBeLessThan(2_000_000);
-    expect(combinedContent).toContain("1 0 0 1 126 640 Tm");
-    expect(combinedContent).toContain("1 0 0 1 288.695 567 Tm");
-    expect(combinedContent).toContain("124 499 m");
-    expect(combinedContent).toContain("333 499 m");
+
+    const songRowMatch = combinedContent.match(
+      /1 0 0 1 126 640 Tm\s+<([0-9A-F]+)> Tj/,
+    );
+
+    expect(songRowMatch?.[1]).toBeDefined();
+    expect(songRowMatch?.[1].length).toBe((expectedDisplayText ?? "").length * 4);
   }, 15_000);
 });
