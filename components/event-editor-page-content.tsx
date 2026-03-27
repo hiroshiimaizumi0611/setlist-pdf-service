@@ -2,6 +2,7 @@ import type { EventSummary, EventWithItems } from "@/lib/repositories/event-repo
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
 import type { SetlistItemType } from "@/lib/services/events-service";
+import Link from "next/link";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { EventList } from "./event-list";
 import { EventMetadataForm } from "./event-metadata-form";
@@ -100,20 +101,51 @@ export function EventEditorPageContent({
   const currentEventId = event?.id ?? null;
   const lightHref = event ? `/events/${event.id}?theme=light` : "/events?theme=light";
   const darkHref = event ? `/events/${event.id}?theme=dark` : "/events?theme=dark";
+  const sidebarChrome = (
+    <div className="space-y-4">
+      <section className={`border-2 ${theme.border} ${theme.panel} px-4 py-4`}>
+        <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
+          BACKSTAGE ACCESS
+        </p>
+        <p className={`mt-2 text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
+          {event?.venue ? event.venue : "TOKYO GARDEN THEATER"}
+        </p>
+      </section>
+
+      <form action={createEventAction} className="contents">
+        <input type="hidden" name="theme" value={currentTheme} />
+        <button
+          type="submit"
+          className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
+        >
+          新規公演作成
+        </button>
+      </form>
+
+      <Link
+        href={`/events?theme=${currentTheme}`}
+        className={`${theme.buttonSecondary} inline-flex min-h-11 w-full items-center justify-center px-4 text-sm font-black tracking-[0.14em] uppercase`}
+      >
+        アーカイブ
+      </Link>
+
+      <div className="[&>div>div:first-child]:hidden [&>div>form]:hidden">
+        <EventList
+          events={events}
+          currentEventId={currentEventId}
+          currentTheme={currentTheme}
+          createEventAction={createEventAction}
+          duplicateEventAction={duplicateEventAction}
+        />
+      </div>
+    </div>
+  );
 
   if (!event) {
     return (
       <DashboardShell
         currentTheme={currentTheme}
-        sidebar={
-          <EventList
-            events={events}
-            currentEventId={currentEventId}
-            currentTheme={currentTheme}
-            createEventAction={createEventAction}
-            duplicateEventAction={duplicateEventAction}
-          />
-        }
+        sidebar={sidebarChrome}
         eyebrow="セットリスト編集"
         title="新規公演を準備"
         description="左の作成ボタンから最初の公演を作成すると、ここに本番用の進行表エディタが表示されます。"
@@ -182,15 +214,7 @@ export function EventEditorPageContent({
   return (
     <DashboardShell
       currentTheme={currentTheme}
-      sidebar={
-        <EventList
-          events={events}
-          currentEventId={currentEventId}
-          currentTheme={currentTheme}
-          createEventAction={createEventAction}
-          duplicateEventAction={duplicateEventAction}
-        />
-      }
+      sidebar={sidebarChrome}
       eyebrow="技術進行シート"
       title={event.title}
       description={`${headerDescription}。本番進行・曲順・補足メモをひとつの紙面感覚で管理できます。`}

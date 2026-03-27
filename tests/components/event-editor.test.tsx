@@ -67,6 +67,12 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
+    expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
+    expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
+    expect(screen.getByText("CURRENT SHOW:")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" }),
     ).toBeInTheDocument();
@@ -95,7 +101,7 @@ describe("EventEditorPageContent", () => {
     expect(within(editForm).getByLabelText("タイトル")).toBeRequired();
     expect(screen.getByRole("button", { name: "ねえ！もう実験は終わりにしよう！ を上へ移動" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "緑 を下へ移動" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "PDFを書き出し" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
       "/api/events/event-nagoya-radhall/pdf?theme=light",
     );
@@ -120,7 +126,7 @@ describe("EventEditorPageContent", () => {
 
     expect(screen.getByRole("button", { name: "この内容をテンプレート保存" })).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
-    expect(screen.getByRole("link", { name: "PDFを書き出し" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
       "/api/events/event-nagoya-radhall/pdf?theme=dark",
     );

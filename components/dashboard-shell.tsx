@@ -113,35 +113,48 @@ export function DashboardShell({
 
   return (
     <main className={`${theme.page} min-h-screen`}>
-      <div className="grid min-h-screen lg:grid-cols-[18rem_minmax(0,1fr)]">
+      <header
+        className={`fixed inset-x-0 top-0 z-50 border-b-2 ${theme.railBorder} bg-black/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <span className="text-xl font-black tracking-tighter text-[#f6c453]">
+              SHOWRUNNER
+            </span>
+            <div className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-6 text-xs font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
+              CURRENT SHOW: <span className={theme.accentText}>{title}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {headerActions ? (
+              <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
+            ) : null}
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:block">
         <aside
-          className={`${theme.rail} ${theme.railBorder} border-b-4 px-4 py-5 lg:min-h-screen lg:border-r-4 lg:border-b-0 lg:px-5 lg:py-6`}
+          className={`${theme.rail} ${theme.railBorder} border-b-4 px-4 pb-6 pt-20 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-full lg:w-64 lg:border-b-0 lg:border-r-2 lg:px-5 lg:pb-5 lg:pt-24`}
         >
           {sidebar}
         </aside>
 
-        <div className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
-          <header className={`border-b-4 ${theme.border} pb-6`}>
-            <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-              <div className="space-y-3">
-                <p
-                  className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
-                >
-                  {eyebrow}
-                </p>
-                <h1 className="font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl lg:text-5xl">
-                  {title}
-                </h1>
-                <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
-                  {description}
-                </p>
-              </div>
-
-              {headerActions ? (
-                <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
-              ) : null}
-            </div>
-          </header>
+        <div className="min-w-0 px-4 pb-8 pt-24 sm:px-6 lg:pl-72 lg:pr-8 lg:pt-28">
+          <section className={`border-l-8 ${theme.border} pl-5`}>
+            <p
+              className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
+            >
+              {eyebrow}
+            </p>
+            <h1 className="mt-2 font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl">
+              {title}
+            </h1>
+            <p className={`mt-3 max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
+              {description}
+            </p>
+          </section>
 
           <div className="mt-6 space-y-6">{children}</div>
         </div>

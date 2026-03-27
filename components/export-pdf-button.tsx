@@ -18,9 +18,9 @@ export function ExportPdfButton({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-5 text-sm font-bold tracking-[0.16em] uppercase`}
+      className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-5 text-sm font-black tracking-[0.16em] uppercase`}
     >
-      PDFを書き出し
+      PDF出力
     </Link>
   );
 }

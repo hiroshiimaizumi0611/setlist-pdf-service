@@ -17,8 +17,8 @@ export function ThemeToggle({
 
   function getLinkClass(isActive: boolean) {
     return isActive
-      ? `${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-bold tracking-[0.18em] uppercase`
-      : `${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-bold tracking-[0.18em] uppercase`;
+      ? `${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`
+      : `${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`;
   }
 
   return (
