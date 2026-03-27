@@ -19,6 +19,10 @@ const HEADER_HEIGHT = 88;
 const FOOTER_HEIGHT = 18;
 const ROW_GAP = 4;
 const LABEL_COLUMN_WIDTH = 44;
+const SONG_CUE_PREFIX = "M";
+const SONG_TITLE_LIMIT = 24;
+const HEADING_TITLE_LIMIT = 20;
+const TRANSITION_TITLE_LIMIT = 18;
 
 type RenderableRow = ReturnType<typeof buildRenderableItems<EventWithItems["items"][number]>>[number];
 
@@ -27,11 +31,23 @@ export type SetlistPdfLayoutInput = {
   theme?: PdfThemeName;
 };
 
+export type SetlistPdfWarning = {
+  type: "long-title";
+  rowId: string;
+  rowVariant: RenderableRow["itemType"];
+  originalTitle: string;
+  displayText: string;
+  message: string;
+};
+
 export type SetlistPdfRowLayout = {
   id: string;
   itemType: RenderableRow["itemType"];
+  variant: RenderableRow["itemType"];
   label: string | null;
+  cueLabel: string | null;
   title: string;
+  displayText: string;
   top: number;
   height: number;
 };
@@ -62,6 +78,8 @@ export type SetlistPdfLayout = {
     labelWidth: number;
   };
   theme: PdfThemeTokens;
+  pageCount: number;
+  warnings: SetlistPdfWarning[];
   pages: SetlistPdfPageLayout[];
 };
 
@@ -75,6 +93,52 @@ function getRowHeight(itemType: RenderableRow["itemType"]) {
     default:
       return 20;
   }
+}
+
+function getTitleLimit(itemType: RenderableRow["itemType"]) {
+  switch (itemType) {
+    case "heading":
+      return HEADING_TITLE_LIMIT;
+    case "transition":
+      return TRANSITION_TITLE_LIMIT;
+    default:
+      return SONG_TITLE_LIMIT;
+  }
+}
+
+function truncateTitle(title: string, limit: number) {
+  if (title.length <= limit) {
+    return title;
+  }
+
+  return `${title.slice(0, Math.max(0, limit - 1))}…`;
+}
+
+function getCueLabel(
+  row: RenderableRow,
+  songIndex: number,
+): string | null {
+  switch (row.itemType) {
+    case "song":
+      return `${SONG_CUE_PREFIX}${String(songIndex).padStart(2, "0")}`;
+    case "transition":
+      return "--";
+    case "heading":
+      return row.title;
+    case "mc":
+      return null;
+    default:
+      return null;
+  }
+}
+
+function getDisplayText(row: RenderableRow) {
+  if (row.itemType === "mc") {
+    return "[ MC ]";
+  }
+
+  const limit = getTitleLimit(row.itemType);
+  return truncateTitle(row.title, limit);
 }
 
 function buildSubtitle(event: SetlistPdfLayoutInput["event"]) {
@@ -94,14 +158,24 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
   const maxRowsHeight = contentBottom - contentTop;
   const renderableRows = buildRenderableItems(input.event.items);
   const pages: Omit<SetlistPdfPageLayout, "pageNumber" | "footer">[] = [];
+  const warnings: SetlistPdfWarning[] = [];
 
   let currentRows: SetlistPdfPageLayout["rows"] = [];
   let currentTop = contentTop;
   let usedHeight = 0;
+  let songCount = 1;
 
   for (const row of renderableRows) {
     const rowHeight = getRowHeight(row.itemType);
     const nextHeight = currentRows.length === 0 ? rowHeight : usedHeight + ROW_GAP + rowHeight;
+    const cueLabel = getCueLabel(row, songCount);
+    const displayText = getDisplayText(row);
+    const titleLimit = getTitleLimit(row.itemType);
+    const shouldWarn = row.itemType !== "mc" && row.title.length > titleLimit;
+
+    if (row.itemType === "song") {
+      songCount += 1;
+    }
 
     if (currentRows.length > 0 && nextHeight > maxRowsHeight) {
       pages.push({
@@ -121,11 +195,25 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
     currentRows.push({
       id: row.id,
       itemType: row.itemType,
-      label: row.label,
+      variant: row.itemType,
+      label: cueLabel,
+      cueLabel,
       title: row.title,
+      displayText,
       top: currentTop,
       height: rowHeight,
     });
+
+    if (shouldWarn) {
+      warnings.push({
+        type: "long-title",
+        rowId: row.id,
+        rowVariant: row.itemType,
+        originalTitle: row.title,
+        displayText,
+        message: `Title for ${row.itemType} ${row.id} was truncated for the shared PDF layout.`,
+      });
+    }
 
     usedHeight = currentRows.length === 1 ? rowHeight : usedHeight + ROW_GAP + rowHeight;
     currentTop += rowHeight + ROW_GAP;
@@ -156,6 +244,8 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
       labelWidth: LABEL_COLUMN_WIDTH,
     },
     theme,
+    pageCount,
+    warnings,
     pages: pages.map((page, index) => ({
       pageNumber: index + 1,
       header: page.header,
