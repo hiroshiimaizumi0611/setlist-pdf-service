@@ -67,12 +67,13 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
-    expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
+    expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
-    expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
-    expect(screen.getByText("CURRENT SHOW:")).toBeInTheDocument();
+    expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
+    expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
+    expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
     expect(screen.getByText("Upcoming & Recent")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" }),
@@ -109,7 +110,8 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByText("M02")).toBeInTheDocument();
     expect(screen.getByText("MC / TALK")).toBeInTheDocument();
     expect(screen.getByText("CHANGEOVER")).toBeInTheDocument();
-    expect(screen.getByText("ENCORE")).toBeInTheDocument();
+    expect(screen.getAllByText("見出し").length).toBeGreaterThan(0);
+    expect(screen.getByText("EN")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
@@ -156,6 +158,8 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
     expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
     expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Dark");
+    expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
+    expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
   });
 

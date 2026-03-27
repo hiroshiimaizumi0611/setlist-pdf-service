@@ -105,9 +105,12 @@ export function EventEditorPageContent({
     <div className="space-y-4">
       <section className={`border-2 ${theme.border} ${theme.panel} px-4 py-4`}>
         <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
-          BACKSTAGE ACCESS
+          {theme.headerMeta === "LIVE VIEW" ? "BACKSTAGE ACCESS" : "PRODUCTION"}
         </p>
         <p className={`mt-2 text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
+          {theme.headerMeta === "LIVE VIEW" ? "TECHNICAL SIDEBAR" : "MASTER SCHEDULE"}
+        </p>
+        <p className={`mt-3 border-t border-dashed ${theme.railBorder} pt-3 text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
           {event?.venue ? event.venue : "TOKYO GARDEN THEATER"}
         </p>
       </section>

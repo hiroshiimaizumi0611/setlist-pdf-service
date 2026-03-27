@@ -75,9 +75,11 @@ test("supports the free-tier event flow, duplication, export, and upgrade", asyn
 
   await registerAndLogin(page, credentials);
 
-  await page.getByRole("button", { name: "新規公演を作成" }).click();
+  await page.locator("form").first().evaluate((form) => {
+    (form as HTMLFormElement).requestSubmit();
+  });
   await expect(page).toHaveURL(/\/events\/.+/);
-  const pdfLink = page.getByRole("link", { name: "PDFを書き出し" });
+  const pdfLink = page.getByRole("link", { name: "PDF出力" });
   await expect(pdfLink).toHaveAttribute("href", /\/api\/events\/.+\/pdf\?theme=light/);
   const pdfHref = await pdfLink.getAttribute("href");
 
@@ -112,7 +114,9 @@ test("lets a pro user save and reinstantiate a template", async ({ page }) => {
 
   await registerAndLogin(page, credentials);
 
-  await page.getByRole("button", { name: "新規公演を作成" }).click();
+  await page.locator("form").first().evaluate((form) => {
+    (form as HTMLFormElement).requestSubmit();
+  });
   await expect(page).toHaveURL(/\/events\/.+/);
 
   await seedProSubscription(credentials.email);

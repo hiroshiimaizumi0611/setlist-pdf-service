@@ -13,6 +13,7 @@ type DashboardShellProps = {
 
 export type DashboardThemeStyles = {
   page: string;
+  headerShell: string;
   rail: string;
   railBorder: string;
   panel: string;
@@ -33,12 +34,16 @@ export type DashboardThemeStyles = {
   inputMuted: string;
   pill: string;
   destructive: string;
+  headerBrand: string;
+  headerMeta: string;
+  headerCurrentShow: string;
 };
 
 const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
   light: {
     page:
       "bg-[#fffdf8] text-[#1f1b16] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_30%),linear-gradient(180deg,#fffdf8_0%,#f4efe4_100%)]",
+    headerShell: "bg-[#fffdf8]/95 text-[#1f1b16]",
     rail: "bg-[#f4efe4]",
     railBorder: "border-[#1f1b16]",
     panel: "bg-[#fffaf0]",
@@ -64,10 +69,14 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     pill: "border border-[#1f1b16] bg-[#efe3c6] text-[#1f1b16]",
     destructive:
       "border border-[#1f1b16] bg-[#2b2520] text-[#fffdf8] transition hover:bg-[#000000]",
+    headerBrand: "BACKSTAGE PRO",
+    headerMeta: "LIVE PRODUCTION",
+    headerCurrentShow: "text-[#1f1b16]",
   },
   dark: {
     page:
       "bg-[#111111] text-[#f6f3ee] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.14),_transparent_28%),linear-gradient(180deg,#111111_0%,#171717_100%)]",
+    headerShell: "bg-black/85 text-[#f6f3ee]",
     rail: "bg-[#191919]",
     railBorder: "border-[#38332b]",
     panel: "bg-[#171717]",
@@ -93,6 +102,9 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     pill: "border border-[#38332b] bg-[#222222] text-[#f6f3ee]",
     destructive:
       "border border-[#9f3a31] bg-[#3a1612] text-[#ffcdc7] transition hover:bg-[#571b15]",
+    headerBrand: "SHOWRUNNER",
+    headerMeta: "LIVE VIEW",
+    headerCurrentShow: "text-[#f6c453]",
   },
 };
 
@@ -114,15 +126,20 @@ export function DashboardShell({
   return (
     <main className={`${theme.page} min-h-screen`}>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b-2 ${theme.railBorder} bg-black/85 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
+        className={`fixed inset-x-0 top-0 z-50 border-b-2 ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
       >
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <span className="text-xl font-black tracking-tighter text-[#f6c453]">
-              SHOWRUNNER
+          <div className="flex items-center gap-4">
+            <span
+              className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
+            >
+              {theme.headerBrand}
             </span>
-            <div className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-6 text-xs font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
-              CURRENT SHOW: <span className="text-[#f6c453]">{title}</span>
+            <div
+              className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-4 text-[10px] font-mono uppercase tracking-[0.3em] ${theme.mutedText}`}
+            >
+              {theme.headerMeta}
+              <span className={`ml-3 ${theme.headerCurrentShow}`}>CURRENT SHOW: {title}</span>
             </div>
           </div>
 

@@ -88,7 +88,7 @@ function getRowLabel(itemType: SetlistItemRecord["itemType"]) {
   }
 
   if (itemType === "heading") {
-    return "ENCORE";
+    return "見出し";
   }
 
   return "SONG";
@@ -175,7 +175,7 @@ export function SetlistTable({
                     </span>
                     <div className={`hidden h-px flex-1 bg-current/20 sm:block ${itemTone.muted}`} />
                     <span className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}>
-                      Section Break
+                      SECTION BREAK
                     </span>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
