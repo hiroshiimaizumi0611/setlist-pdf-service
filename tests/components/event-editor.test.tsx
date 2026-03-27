@@ -105,6 +105,12 @@ describe("EventEditorPageContent", () => {
     expect(within(addStrip).getByLabelText("アーティスト")).toBeInTheDocument();
     expect(within(addStrip).getByLabelText("尺(秒)")).toBeInTheDocument();
     expect(within(addStrip).getByLabelText("メモ")).toBeInTheDocument();
+    expect(screen.getByText("M01")).toBeInTheDocument();
+    expect(screen.getByText("M02")).toBeInTheDocument();
+    expect(screen.getByText("MC / TALK")).toBeInTheDocument();
+    expect(screen.getByText("CHANGEOVER")).toBeInTheDocument();
+    expect(screen.getByText("ENCORE")).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
     fireEvent.click(screen.getAllByText("編集")[1]);
