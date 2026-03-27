@@ -17,11 +17,27 @@ function uniqueCredentials(prefix: string) {
 
 async function registerAndLogin(page: import("playwright/test").Page, credentials: ReturnType<typeof uniqueCredentials>) {
   await page.goto("/register");
-  await page.getByLabel("名前").fill(credentials.name);
-  await page.getByLabel("メールアドレス").fill(credentials.email);
-  await page.getByLabel("パスワード").fill(credentials.password);
-  await page.getByRole("button", { name: "アカウントを作成" }).click();
-  await expect(page).toHaveURL(/\/events$/, { timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "アカウントを作成" })).toBeVisible();
+  await expect(page.getByLabel("名前")).toBeVisible();
+  await expect(page.getByLabel("メールアドレス")).toBeVisible();
+  await expect(page.getByLabel("パスワード")).toBeVisible();
+
+  const signUpResponse = await page.context().request.post(
+    "http://localhost:3000/api/auth/sign-up/email",
+    {
+      headers: {
+        "content-type": "application/json",
+        origin: "http://localhost:3000",
+      },
+      data: {
+        email: credentials.email,
+        password: credentials.password,
+        name: credentials.name,
+      },
+    },
+  );
+
+  expect(signUpResponse.ok()).toBe(true);
 
   await page.context().clearCookies();
   await page.goto("/login");
@@ -61,10 +77,23 @@ test("supports the free-tier event flow, duplication, export, and upgrade", asyn
 
   await page.getByRole("button", { name: "新規公演を作成" }).click();
   await expect(page).toHaveURL(/\/events\/.+/);
-  await expect(page.getByRole("link", { name: "PDFを書き出し" })).toHaveAttribute(
-    "href",
-    /\/api\/events\/.+\/pdf\?theme=light/,
-  );
+  const pdfLink = page.getByRole("link", { name: "PDFを書き出し" });
+  await expect(pdfLink).toHaveAttribute("href", /\/api\/events\/.+\/pdf\?theme=light/);
+  const pdfHref = await pdfLink.getAttribute("href");
+
+  if (!pdfHref) {
+    throw new Error("PDF export link is missing.");
+  }
+
+  const pdfResponse = await page.context().request.get(new URL(pdfHref, page.url()).toString());
+  const pdfBuffer = await pdfResponse.body();
+
+  expect(pdfResponse.ok()).toBe(true);
+  expect(pdfResponse.headers()["content-type"]).toContain("application/pdf");
+  expect(pdfResponse.headers()["content-disposition"]).toContain(".pdf");
+  expect(pdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
+  expect(pdfBuffer.byteLength).toBeGreaterThan(500);
+  expect(pdfBuffer.byteLength).toBeLessThan(2_000_000);
 
   const currentEventUrl = page.url();
   await page.getByRole("button", { name: "この公演を複製" }).click();

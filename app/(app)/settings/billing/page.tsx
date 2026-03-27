@@ -76,7 +76,7 @@ export function BillingPageContent({
       <section className="mx-auto max-w-5xl space-y-8">
         <header className={`space-y-3 border-b-4 ${theme.border} pb-6`}>
           <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-            Settings
+            設定
           </p>
           <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
             プラン管理

@@ -1,3 +1,4 @@
+import { Readable } from "node:stream";
 import * as fontkit from "fontkit";
 import { PDFDocument, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import type { EventWithItems } from "../repositories/event-repository";
@@ -23,6 +24,31 @@ function toRgb(hex: string) {
 
 function topToBottomY(pageHeight: number, top: number, height = 0) {
   return pageHeight - top - height;
+}
+
+function createFontkitCompat() {
+  return {
+    ...fontkit,
+    async create(fontData: Uint8Array) {
+      const font = await fontkit.create(fontData);
+      const originalCreateSubset = font.createSubset.bind(font);
+
+      font.createSubset = () => {
+        const subset = originalCreateSubset();
+
+        if (
+          typeof subset.encodeStream !== "function" &&
+          typeof subset.encode === "function"
+        ) {
+          subset.encodeStream = () => Readable.from([Buffer.from(subset.encode())]);
+        }
+
+        return subset;
+      };
+
+      return font;
+    },
+  };
 }
 
 function truncateText(font: PDFFont, text: string, size: number, maxWidth: number) {
@@ -148,7 +174,7 @@ function drawRows(
 export async function renderSetlistPdf(input: RenderSetlistPdfInput) {
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(
-    fontkit as unknown as Parameters<typeof pdfDoc.registerFontkit>[0],
+    createFontkitCompat() as unknown as Parameters<typeof pdfDoc.registerFontkit>[0],
   );
 
   const [fontBytes, layout] = await Promise.all([

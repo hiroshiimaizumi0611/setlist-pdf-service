@@ -9,6 +9,16 @@ const isTest =
   process.env.VITEST === "true" ||
   Boolean(process.env.VITEST_WORKER_ID);
 const isLocalDev = !isTest && nodeEnv !== "production";
+const isBuildCommand =
+  process.env.npm_lifecycle_event === "build" ||
+  process.env.npm_lifecycle_script?.includes("next build") === true ||
+  process.env.NEXT_PHASE === "phase-production-build";
+const isManagedBuild =
+  Boolean(process.env.CI) ||
+  Boolean(process.env.GITHUB_ACTIONS) ||
+  Boolean(process.env.VERCEL);
+const canUseDevelopmentDefaults =
+  isTest || isLocalDev || (isBuildCommand && !isManagedBuild);
 
 function defaultLocalDatabaseUrl() {
   const filePath = path.join(
@@ -44,16 +54,16 @@ const envSchema = z
   .transform((raw) => {
     const defaultUrl = isTest
       ? defaultTestDatabaseUrl()
-      : isLocalDev
+      : canUseDevelopmentDefaults
         ? defaultLocalDatabaseUrl()
         : undefined;
     const betterAuthUrl =
       raw.BETTER_AUTH_URL ??
       raw.NEXT_PUBLIC_APP_URL ??
-      (isTest || isLocalDev ? "http://localhost:3000" : undefined);
+      (canUseDevelopmentDefaults ? "http://localhost:3000" : undefined);
     const betterAuthSecret =
       raw.BETTER_AUTH_SECRET ??
-      (isTest || isLocalDev
+      (canUseDevelopmentDefaults
         ? "development-secret-for-better-auth-must-be-32-chars"
         : undefined);
     const tursoDatabaseUrl = raw.TURSO_DATABASE_URL ?? defaultUrl;
