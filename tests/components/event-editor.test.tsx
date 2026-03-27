@@ -95,6 +95,16 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("radio", { name: "見出し" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("曲名や進行メモを入力")).toBeRequired();
     expect(screen.getByRole("button", { name: "ADD TO SET" })).toBeInTheDocument();
+    const addStrip = screen.getByText("Add Production Item").closest("section");
+    expect(addStrip).toBeTruthy();
+    if (!addStrip) {
+      throw new Error("expected add-item strip to exist");
+    }
+    expect(within(addStrip).getByText("追加設定")).toBeInTheDocument();
+    expect(addStrip.querySelector("details")).not.toHaveAttribute("open");
+    expect(within(addStrip).getByLabelText("アーティスト")).toBeInTheDocument();
+    expect(within(addStrip).getByLabelText("尺(秒)")).toBeInTheDocument();
+    expect(within(addStrip).getByLabelText("メモ")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
     fireEvent.click(screen.getAllByText("編集")[1]);
