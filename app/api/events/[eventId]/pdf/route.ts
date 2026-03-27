@@ -42,6 +42,10 @@ function buildFilename(event: {
   return `${date}_${venueSlug}_setlist.pdf`;
 }
 
+function buildFontUrl(request: Request) {
+  return new URL("/fonts/NotoSansJP-Regular.ttf", request.url).toString();
+}
+
 export async function GET(request: Request, context: PdfRouteContext) {
   try {
     const session = await requireAuthSession();
@@ -54,6 +58,7 @@ export async function GET(request: Request, context: PdfRouteContext) {
 
     const pdfBytes = await renderSetlistPdf({
       event,
+      fontUrl: buildFontUrl(request),
       theme: resolveTheme(request),
     });
     const filename = buildFilename(event);

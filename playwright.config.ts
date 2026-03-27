@@ -1,17 +1,32 @@
 import { defineConfig } from "playwright/test";
 
+const playwrightAppUrl = "http://localhost:3000";
+const playwrightAuthSecret =
+  "development-secret-for-better-auth-must-be-32-chars";
+const playwrightDatabaseUrl =
+  "file:./node_modules/.cache/setlist-pdf-service/playwright.sqlite";
+
+process.env.BETTER_AUTH_SECRET ??= playwrightAuthSecret;
+process.env.BETTER_AUTH_URL ??= playwrightAppUrl;
+process.env.NEXT_PUBLIC_APP_URL ??= playwrightAppUrl;
+process.env.TURSO_DATABASE_URL ??= playwrightDatabaseUrl;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: playwrightAppUrl,
   },
   webServer: {
-    command: "npm run db:migrate && npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    command:
+      "npm run db:migrate && npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
+    timeout: 180_000,
+    url: playwrightAppUrl,
+    reuseExistingServer: false,
     env: {
-      BETTER_AUTH_URL: "http://localhost:3000",
-      NEXT_PUBLIC_APP_URL: "http://localhost:3000",
+      BETTER_AUTH_SECRET: playwrightAuthSecret,
+      BETTER_AUTH_URL: playwrightAppUrl,
+      NEXT_PUBLIC_APP_URL: playwrightAppUrl,
+      TURSO_DATABASE_URL: playwrightDatabaseUrl,
     },
   },
 });

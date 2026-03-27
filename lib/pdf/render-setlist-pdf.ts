@@ -9,6 +9,7 @@ import type { PdfThemeName } from "./theme-tokens";
 type RenderSetlistPdfInput = {
   event: Pick<EventWithItems, "title" | "venue" | "eventDate" | "notes" | "items">;
   theme?: PdfThemeName;
+  fontUrl?: string;
 };
 
 function toRgb(hex: string) {
@@ -178,7 +179,7 @@ export async function renderSetlistPdf(input: RenderSetlistPdfInput) {
   );
 
   const [fontBytes, layout] = await Promise.all([
-    loadNotoSansJPFont(),
+    loadNotoSansJPFont(input.fontUrl),
     Promise.resolve(buildSetlistPdfLayout(input)),
   ]);
   const font = await pdfDoc.embedFont(fontBytes, { subset: true });
