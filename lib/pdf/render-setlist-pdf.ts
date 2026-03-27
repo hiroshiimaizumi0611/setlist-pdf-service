@@ -7,10 +7,26 @@ import { loadNotoSansJPFont } from "./load-font";
 import type { PdfThemeName } from "./theme-tokens";
 
 type RenderSetlistPdfInput = {
-  event: Pick<EventWithItems, "title" | "venue" | "eventDate" | "notes" | "items">;
+  event: Pick<
+    EventWithItems,
+    "title" | "venue" | "eventDate" | "notes" | "items"
+  > & {
+    updatedAt?: Date | string | null;
+  };
   theme?: PdfThemeName;
   fontUrl?: string;
 };
+
+const CUE_COLUMN_WIDTH = 76;
+const HEADER_PADDING_X = 16;
+const HEADER_TITLE_SIZE = 24;
+const HEADER_SUBTITLE_SIZE = 10;
+const SONG_TITLE_SIZE = 15;
+const SONG_CUE_SIZE = 10;
+const MC_TITLE_SIZE = 15;
+const HEADING_TITLE_SIZE = 14;
+const TRANSITION_TITLE_SIZE = 13;
+const FOOTER_SIZE = 9;
 
 function toRgb(hex: string) {
   const normalized = hex.replace("#", "");
@@ -72,6 +88,94 @@ function truncateText(font: PDFFont, text: string, size: number, maxWidth: numbe
   return "…";
 }
 
+function formatUpdatedAtForDisplay(updatedAt: Date | string | null | undefined) {
+  if (!updatedAt) {
+    return null;
+  }
+
+  const date = updatedAt instanceof Date ? updatedAt : new Date(updatedAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+  const hour = parts.find((part) => part.type === "hour")?.value;
+  const minute = parts.find((part) => part.type === "minute")?.value;
+
+  if (!year || !month || !day || !hour || !minute) {
+    return null;
+  }
+
+  return `${year}.${month}.${day} ${hour}:${minute}`;
+}
+
+function drawRowBorder(page: PDFPage, x: number, y: number, width: number, color: string) {
+  page.drawLine({
+    start: { x, y },
+    end: { x: x + width, y },
+    thickness: 0.75,
+    color: toRgb(color),
+  });
+}
+
+function drawCueColumn(
+  page: PDFPage,
+  x: number,
+  y: number,
+  height: number,
+  theme: ReturnType<typeof buildSetlistPdfLayout>["theme"],
+) {
+  page.drawRectangle({
+    x,
+    y,
+    width: CUE_COLUMN_WIDTH,
+    height,
+    color: toRgb(theme.headerBackground),
+  });
+  page.drawLine({
+    start: { x: x + CUE_COLUMN_WIDTH, y },
+    end: { x: x + CUE_COLUMN_WIDTH, y: y + height },
+    thickness: 1,
+    color: toRgb(theme.border),
+  });
+}
+
+function drawCenteredText(
+  page: PDFPage,
+  font: PDFFont,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  size: number,
+  color: string,
+) {
+  const textWidth = font.widthOfTextAtSize(text, size);
+  const textX = x + Math.max(0, (width - textWidth) / 2);
+
+  page.drawText(text, {
+    x: textX,
+    y,
+    size,
+    font,
+    color: toRgb(color),
+  });
+}
+
 function drawHeader(
   page: PDFPage,
   layout: ReturnType<typeof buildSetlistPdfLayout>,
@@ -80,7 +184,7 @@ function drawHeader(
 ) {
   const { pageSize, margins, content, theme } = layout;
   const headerBottom = topToBottomY(pageSize.height, pageLayout.header.top, pageLayout.header.height);
-  const headerTextWidth = content.width - 32;
+  const headerTextWidth = content.width - HEADER_PADDING_X * 2;
 
   page.drawRectangle({
     x: margins.left,
@@ -90,34 +194,34 @@ function drawHeader(
     color: toRgb(theme.headerBackground),
   });
 
-  page.drawText(truncateText(font, pageLayout.header.title, 21, headerTextWidth), {
-    x: margins.left + 16,
-    y: headerBottom + pageLayout.header.height - 40,
-    size: 21,
-    font,
-    color: toRgb(theme.primaryText),
-  });
+  page.drawText(
+    truncateText(font, pageLayout.header.title, HEADER_TITLE_SIZE, headerTextWidth),
+    {
+      x: margins.left + HEADER_PADDING_X,
+      y: headerBottom + pageLayout.header.height - 34,
+      size: HEADER_TITLE_SIZE,
+      font,
+      color: toRgb(theme.primaryText),
+    },
+  );
 
   if (pageLayout.header.subtitle) {
     page.drawText(
-      truncateText(font, pageLayout.header.subtitle, 10, headerTextWidth),
+      truncateText(
+        font,
+        pageLayout.header.subtitle,
+        HEADER_SUBTITLE_SIZE,
+        headerTextWidth,
+      ),
       {
-        x: margins.left + 16,
-        y: headerBottom + pageLayout.header.height - 60,
-        size: 10,
+        x: margins.left + HEADER_PADDING_X,
+        y: headerBottom + pageLayout.header.height - 55,
+        size: HEADER_SUBTITLE_SIZE,
         font,
         color: toRgb(theme.secondaryText),
       },
     );
   }
-
-  page.drawText(pageLayout.footer.text, {
-    x: pageSize.width - margins.right - 28,
-    y: topToBottomY(pageSize.height, pageLayout.footer.top, 10),
-    size: 9,
-    font,
-    color: toRgb(theme.secondaryText),
-  });
 
   page.drawLine({
     start: { x: margins.left, y: headerBottom },
@@ -125,51 +229,258 @@ function drawHeader(
     thickness: 1,
     color: toRgb(theme.border),
   });
+
+  page.drawLine({
+    start: { x: margins.left, y: headerBottom + pageLayout.header.height - 12 },
+    end: { x: pageSize.width - margins.right, y: headerBottom + pageLayout.header.height - 12 },
+    thickness: 1.5,
+    color: toRgb(theme.accentText),
+  });
+}
+
+function drawSongRow(
+  page: PDFPage,
+  layout: ReturnType<typeof buildSetlistPdfLayout>,
+  row: ReturnType<typeof buildSetlistPdfLayout>["pages"][number]["rows"][number],
+  font: PDFFont,
+) {
+  const { pageSize, content, theme } = layout;
+  const y = topToBottomY(pageSize.height, row.top, row.height);
+  const titleX = content.left + CUE_COLUMN_WIDTH + 14;
+  const titleWidth = content.width - CUE_COLUMN_WIDTH - 28;
+
+  page.drawRectangle({
+    x: content.left,
+    y,
+    width: content.width,
+    height: row.height,
+    color: toRgb(theme.rowFill),
+  });
+  drawCueColumn(page, content.left, y, row.height, theme);
+  drawRowBorder(page, content.left, y, content.width, theme.border);
+
+  if (row.cueLabel) {
+    drawCenteredText(
+      page,
+      font,
+      row.cueLabel,
+      content.left,
+      y + 5,
+      CUE_COLUMN_WIDTH,
+      SONG_CUE_SIZE,
+      theme.accentText,
+    );
+  }
+
+  page.drawText(truncateText(font, row.displayText, SONG_TITLE_SIZE, titleWidth), {
+    x: titleX,
+    y: y + 4,
+    size: SONG_TITLE_SIZE,
+    font,
+    color: toRgb(theme.primaryText),
+  });
+}
+
+function drawMcRow(
+  page: PDFPage,
+  layout: ReturnType<typeof buildSetlistPdfLayout>,
+  row: ReturnType<typeof buildSetlistPdfLayout>["pages"][number]["rows"][number],
+  font: PDFFont,
+) {
+  const { pageSize, content, theme } = layout;
+  const y = topToBottomY(pageSize.height, row.top, row.height);
+  const titleAreaX = content.left + CUE_COLUMN_WIDTH;
+  const titleAreaWidth = content.width - CUE_COLUMN_WIDTH;
+  const displayText = row.displayText;
+  const displaySize = MC_TITLE_SIZE;
+  const textWidth = font.widthOfTextAtSize(displayText, displaySize);
+  const pillWidth = Math.min(titleAreaWidth - 28, textWidth + 28);
+  const pillX = titleAreaX + (titleAreaWidth - pillWidth) / 2;
+  const textX = titleAreaX + (titleAreaWidth - textWidth) / 2;
+
+  page.drawRectangle({
+    x: content.left,
+    y,
+    width: content.width,
+    height: row.height,
+    color: toRgb(theme.emphasisFill),
+  });
+  drawCueColumn(page, content.left, y, row.height, theme);
+  drawRowBorder(page, content.left, y, content.width, theme.border);
+
+  if (pillWidth > 0) {
+    page.drawRectangle({
+      x: pillX,
+      y: y + 4,
+      width: pillWidth,
+      height: row.height - 8,
+      color: toRgb(theme.headerBackground),
+    });
+  }
+
+  page.drawText(truncateText(font, displayText, displaySize, titleAreaWidth - 20), {
+    x: Math.max(titleAreaX + 14, textX),
+    y: y + 5,
+    size: displaySize,
+    font,
+    color: toRgb(theme.primaryText),
+  });
+}
+
+function drawTransitionRow(
+  page: PDFPage,
+  layout: ReturnType<typeof buildSetlistPdfLayout>,
+  row: ReturnType<typeof buildSetlistPdfLayout>["pages"][number]["rows"][number],
+  font: PDFFont,
+) {
+  const { pageSize, content, theme } = layout;
+  const y = topToBottomY(pageSize.height, row.top, row.height);
+  const titleAreaX = content.left + CUE_COLUMN_WIDTH;
+  const titleAreaWidth = content.width - CUE_COLUMN_WIDTH;
+  const displaySize = TRANSITION_TITLE_SIZE;
+  const textWidth = font.widthOfTextAtSize(row.displayText, displaySize);
+  const centerX = titleAreaX + titleAreaWidth / 2;
+  const gap = textWidth / 2 + 12;
+
+  page.drawRectangle({
+    x: content.left,
+    y,
+    width: content.width,
+    height: row.height,
+    color: toRgb(theme.rowFill),
+  });
+  drawCueColumn(page, content.left, y, row.height, theme);
+  drawRowBorder(page, content.left, y, content.width, theme.border);
+
+  if (row.cueLabel) {
+    drawCenteredText(
+      page,
+      font,
+      row.cueLabel,
+      content.left,
+      y + 5,
+      CUE_COLUMN_WIDTH,
+      SONG_CUE_SIZE,
+      theme.accentText,
+    );
+  }
+
+  page.drawLine({
+    start: { x: titleAreaX + 12, y: y + row.height / 2 },
+    end: { x: centerX - gap, y: y + row.height / 2 },
+    thickness: 1,
+    color: toRgb(theme.accentText),
+  });
+  page.drawLine({
+    start: { x: centerX + gap, y: y + row.height / 2 },
+    end: { x: content.right - 12, y: y + row.height / 2 },
+    thickness: 1,
+    color: toRgb(theme.accentText),
+  });
+
+  drawCenteredText(
+    page,
+    font,
+    row.displayText,
+    titleAreaX,
+    y + 4,
+    titleAreaWidth,
+    displaySize,
+    theme.primaryText,
+  );
+}
+
+function drawHeadingRow(
+  page: PDFPage,
+  layout: ReturnType<typeof buildSetlistPdfLayout>,
+  row: ReturnType<typeof buildSetlistPdfLayout>["pages"][number]["rows"][number],
+  font: PDFFont,
+) {
+  const { pageSize, content, theme } = layout;
+  const y = topToBottomY(pageSize.height, row.top, row.height);
+  const titleX = content.left + CUE_COLUMN_WIDTH + 14;
+  const titleWidth = content.width - CUE_COLUMN_WIDTH - 28;
+
+  page.drawRectangle({
+    x: content.left,
+    y,
+    width: content.width,
+    height: row.height,
+    color: toRgb(theme.emphasisFill),
+  });
+  drawCueColumn(page, content.left, y, row.height, theme);
+  drawRowBorder(page, content.left, y, content.width, theme.border);
+
+  if (row.cueLabel) {
+    drawCenteredText(
+      page,
+      font,
+      row.cueLabel,
+      content.left,
+      y + 4,
+      CUE_COLUMN_WIDTH,
+      HEADING_TITLE_SIZE,
+      theme.accentText,
+    );
+  }
+
+  page.drawText(truncateText(font, row.displayText, HEADING_TITLE_SIZE, titleWidth), {
+    x: titleX,
+    y: y + 5,
+    size: HEADING_TITLE_SIZE,
+    font,
+    color: toRgb(theme.primaryText),
+  });
+}
+
+function drawFooter(
+  page: PDFPage,
+  layout: ReturnType<typeof buildSetlistPdfLayout>,
+  pageLayout: ReturnType<typeof buildSetlistPdfLayout>["pages"][number],
+  input: RenderSetlistPdfInput,
+  font: PDFFont,
+) {
+  const { pageSize, margins, content, theme } = layout;
+  const updatedAt = formatUpdatedAtForDisplay(input.event.updatedAt);
+  const footerText = updatedAt ? `${updatedAt} / ${pageLayout.pageNumber}` : `${pageLayout.pageNumber}`;
+  const footerWidth = content.width - HEADER_PADDING_X * 2;
+  const footerX = margins.left + HEADER_PADDING_X;
+  const footerY = topToBottomY(pageSize.height, pageLayout.footer.top, FOOTER_SIZE);
+
+  page.drawText(truncateText(font, footerText, FOOTER_SIZE, footerWidth), {
+    x: footerX,
+    y: footerY,
+    size: FOOTER_SIZE,
+    font,
+    color: toRgb(theme.secondaryText),
+  });
 }
 
 function drawRows(
   page: PDFPage,
   layout: ReturnType<typeof buildSetlistPdfLayout>,
   pageLayout: ReturnType<typeof buildSetlistPdfLayout>["pages"][number],
+  input: RenderSetlistPdfInput,
   font: PDFFont,
 ) {
-  const { pageSize, content, theme } = layout;
-  const titleX = content.left + content.labelWidth + 10;
-  const titleWidth = content.width - content.labelWidth - 26;
-
   for (const row of pageLayout.rows) {
-    const y = topToBottomY(pageSize.height, row.top, row.height);
-    const fill = row.itemType === "heading" ? theme.emphasisFill : theme.rowFill;
-
-    page.drawRectangle({
-      x: content.left,
-      y,
-      width: content.width,
-      height: row.height,
-      color: toRgb(fill),
-    });
-
-    if (row.label) {
-      page.drawText(row.label, {
-        x: content.left + 8,
-        y: y + 5,
-        size: 9,
-        font,
-        color: toRgb(theme.accentText),
-      });
+    switch (row.itemType) {
+      case "mc":
+        drawMcRow(page, layout, row, font);
+        break;
+      case "transition":
+        drawTransitionRow(page, layout, row, font);
+        break;
+      case "heading":
+        drawHeadingRow(page, layout, row, font);
+        break;
+      default:
+        drawSongRow(page, layout, row, font);
+        break;
     }
-
-    page.drawText(
-      truncateText(font, row.title, row.itemType === "heading" ? 14 : 12, titleWidth),
-      {
-        x: titleX,
-        y: y + (row.itemType === "heading" ? 5 : 4),
-        size: row.itemType === "heading" ? 14 : 12,
-        font,
-        color: toRgb(theme.primaryText),
-      },
-    );
   }
+
+  drawFooter(page, layout, pageLayout, input, font);
 }
 
 export async function renderSetlistPdf(input: RenderSetlistPdfInput) {
@@ -200,7 +511,7 @@ export async function renderSetlistPdf(input: RenderSetlistPdfInput) {
     });
 
     drawHeader(page, layout, pageLayout, font);
-    drawRows(page, layout, pageLayout, font);
+    drawRows(page, layout, pageLayout, input, font);
   }
 
   return pdfDoc.save();
