@@ -47,6 +47,7 @@ export function TemplateSaveButton({
             type="text"
             name="name"
             defaultValue={defaultName}
+            required
             className={`${theme.input} min-h-11 px-4 py-3`}
           />
         </label>

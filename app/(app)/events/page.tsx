@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import {
   createEventAction,
   duplicateEventFormAction,
+  updateEventItemAction,
 } from "@/app/(app)/events/actions";
 import { EventEditorPageContent } from "@/components/event-editor-page-content";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
@@ -74,6 +75,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       event={null}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
+      updateItemAction={updateEventItemAction}
       createEventAction={createDraftEvent}
       duplicateEventAction={duplicateEventFormAction}
     />

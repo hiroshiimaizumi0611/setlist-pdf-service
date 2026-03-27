@@ -111,6 +111,7 @@ export default async function TemplatesPage() {
                             name="name"
                             defaultValue={event.title}
                             placeholder="テンプレート名"
+                            required
                             className={`${theme.input} px-4 py-3 text-sm`}
                           />
                         </label>

@@ -43,6 +43,30 @@ describe("BillingPageContent", () => {
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeInTheDocument();
   });
 
+  it("renders a safe non-clicking billing state for seeded pro users without Stripe", () => {
+    render(
+      <BillingPageContent
+        currentPlan="pro"
+        isStripeConfigured={false}
+        isAuthenticated={true}
+        subscription={{
+          plan: "pro",
+          status: "active",
+          seats: 1,
+          billingInterval: "month",
+          periodEnd: new Date("2026-05-01T00:00:00.000Z"),
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Pro")).toBeInTheDocument();
+    expect(screen.getByText("有効中")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeDisabled();
+    expect(
+      screen.getByText("Stripe未設定のため、お支払い設定はご利用いただけません。"),
+    ).toBeInTheDocument();
+  });
+
   it("routes anonymous visitors to login instead of checkout", () => {
     render(
       <BillingPageContent

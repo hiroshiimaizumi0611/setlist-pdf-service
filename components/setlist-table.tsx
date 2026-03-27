@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { SetlistItemRecord } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
@@ -6,6 +7,16 @@ type SetlistTableProps = {
   currentTheme: PdfThemeName;
   eventId: string;
   items: SetlistItemRecord[];
+  pendingDeleteItemId?: string | null;
+  updateItemAction?: (input: {
+    eventId: string;
+    itemId: string;
+    itemType?: SetlistItemRecord["itemType"];
+    title?: string;
+    artist?: string | null;
+    durationSeconds?: number | null;
+    notes?: string | null;
+  }) => Promise<unknown>;
   reorderItemsAction?: (input: {
     eventId: string;
     orderedItemIds: string[];
@@ -22,6 +33,11 @@ const ITEM_TYPE_LABELS: Record<SetlistItemRecord["itemType"], string> = {
   transition: "転換",
   heading: "見出し",
 };
+
+const ITEM_TYPE_OPTIONS = Object.entries(ITEM_TYPE_LABELS).map(([value, label]) => ({
+  value: value as SetlistItemRecord["itemType"],
+  label,
+}));
 
 function formatCue(items: SetlistItemRecord[], index: number) {
   const item = items[index];
@@ -47,6 +63,15 @@ function formatDuration(value: number | null) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+function parseOptionalNumber(value: FormDataEntryValue | null) {
+  if (typeof value !== "string" || value.length === 0) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function swapIds(items: SetlistItemRecord[], from: number, to: number) {
   const ordered = items.map((item) => item.id);
   const next = [...ordered];
@@ -58,6 +83,8 @@ export function SetlistTable({
   currentTheme,
   eventId,
   items,
+  pendingDeleteItemId,
+  updateItemAction,
   reorderItemsAction,
   deleteItemAction,
 }: SetlistTableProps) {
@@ -75,7 +102,7 @@ export function SetlistTable({
           </p>
         </div>
         <span className={`${theme.pill} inline-flex w-fit px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em]`}>
-          {items.length} items
+          {items.length}項目
         </span>
       </div>
 
@@ -84,7 +111,7 @@ export function SetlistTable({
           <thead className={`${theme.tableHeader}`}>
             <tr className="text-left">
               <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
-                Cue
+                キュー
               </th>
               <th className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.22em]">
                 種別
@@ -178,33 +205,157 @@ export function SetlistTable({
                           disabled={!canMoveDown}
                           aria-label={`${item.title} を下へ移動`}
                           className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40`}
-                        >
-                          下へ
-                        </button>
+                          >
+                            下へ
+                          </button>
                       </form>
 
-                      <form
-                        action={async () => {
-                          "use server";
+                      <details className="w-full max-w-md">
+                        <summary
+                          className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-3 text-xs font-bold`}
+                        >
+                          編集
+                        </summary>
+                        <div className={`mt-3 border-2 ${theme.border} ${theme.panelMuted} p-4`}>
+                          <form
+                            action={async (formData: FormData) => {
+                              "use server";
 
-                          if (!deleteItemAction) {
-                            return;
-                          }
+                              if (!updateItemAction) {
+                                return;
+                              }
 
-                          await deleteItemAction({
-                            eventId,
-                            itemId: item.id,
-                          });
-                        }}
-                      >
-                        <button
-                          type="submit"
+                              await updateItemAction({
+                                eventId,
+                                itemId: item.id,
+                                itemType: String(formData.get("itemType") ?? item.itemType) as SetlistItemRecord["itemType"],
+                                title: String(formData.get("title") ?? ""),
+                                artist: String(formData.get("artist") ?? "") || null,
+                                durationSeconds: parseOptionalNumber(formData.get("durationSeconds")),
+                                notes: String(formData.get("notes") ?? "") || null,
+                              });
+                            }}
+                            aria-label={`${item.title} の編集フォーム`}
+                            className="grid gap-3"
+                          >
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                項目種別
+                              </span>
+                              <select
+                                name="itemType"
+                                defaultValue={item.itemType}
+                                className={`${theme.input} min-h-11 px-4 py-3`}
+                              >
+                                {ITEM_TYPE_OPTIONS.map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                タイトル
+                              </span>
+                              <input
+                                type="text"
+                                name="title"
+                                defaultValue={item.title}
+                                required
+                                className={`${theme.input} min-h-11 px-4 py-3`}
+                              />
+                            </label>
+                            <label className="grid gap-2 text-sm font-medium">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                アーティスト
+                              </span>
+                              <input
+                                type="text"
+                                name="artist"
+                                defaultValue={item.artist ?? ""}
+                                placeholder="任意"
+                                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                              />
+                            </label>
+                            <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                              <label className="grid gap-2 text-sm font-medium">
+                                <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                  尺(秒)
+                                </span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  name="durationSeconds"
+                                  defaultValue={item.durationSeconds ?? ""}
+                                  placeholder="任意"
+                                  className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                                />
+                              </label>
+
+                              <label className="grid gap-2 text-sm font-medium">
+                                <span className="font-mono text-[11px] uppercase tracking-[0.26em]">
+                                  メモ
+                                </span>
+                                <input
+                                  type="text"
+                                  name="notes"
+                                  defaultValue={item.notes ?? ""}
+                                  placeholder="任意"
+                                  className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                                />
+                              </label>
+                            </div>
+                            <button
+                              type="submit"
+                              className={`${theme.buttonPrimary} min-h-11 px-4 text-xs font-bold`}
+                            >
+                              変更を保存
+                            </button>
+                          </form>
+                        </div>
+                      </details>
+
+                      {pendingDeleteItemId === item.id ? (
+                        <>
+                          <form
+                            action={async () => {
+                              "use server";
+
+                              if (!deleteItemAction) {
+                                return;
+                              }
+
+                              await deleteItemAction({
+                                eventId,
+                                itemId: item.id,
+                              });
+                            }}
+                          >
+                            <button
+                              type="submit"
+                              aria-label={`${item.title} の削除を確定`}
+                              className={`${theme.destructive} min-h-11 px-3 text-xs font-bold`}
+                            >
+                              削除を確定
+                            </button>
+                          </form>
+                          <Link
+                            href={`/events/${eventId}?theme=${currentTheme}`}
+                            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                          >
+                            キャンセル
+                          </Link>
+                        </>
+                      ) : (
+                        <Link
+                          href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
                           aria-label={`${item.title} を削除`}
-                          className={`${theme.destructive} min-h-11 px-3 text-xs font-bold`}
+                          className={`${theme.destructive} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
                         >
                           削除
-                        </button>
-                      </form>
+                        </Link>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -47,6 +47,7 @@ export function SetlistItemForm({
             type="text"
             name="title"
             placeholder="曲名や進行メモを入力"
+            required
             className={`${theme.input} min-h-11 px-4 py-3`}
           />
         </label>

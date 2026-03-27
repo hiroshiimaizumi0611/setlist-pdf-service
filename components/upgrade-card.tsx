@@ -48,7 +48,7 @@ export function UpgradeCard({
         });
 
         if (result.error) {
-          setError(result.error.message ?? "Unable to start checkout.");
+          setError(result.error.message ?? "チェックアウトの開始に失敗しました。");
           return;
         }
 
@@ -61,10 +61,12 @@ export function UpgradeCard({
     });
   }
 
+  const disabledBillingPortal = plan === "pro" && !billingConfigured;
+
   return (
     <aside className={`border-2 ${theme.border} ${theme.panel} p-8`}>
       <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.28em] ${theme.mutedText}`}>
-        Upgrade Rail
+        アップグレード
       </p>
       <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
         テンプレート保存をProで解放
@@ -81,6 +83,19 @@ export function UpgradeCard({
           >
             {loginLabel}
           </Link>
+        ) : disabledBillingPortal ? (
+          <div className="space-y-3">
+            <button
+              type="button"
+              disabled
+              className={`${theme.buttonSecondary} min-h-11 w-full px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-70`}
+            >
+              {billingPortalLabel}
+            </button>
+            <p className={`text-sm leading-6 ${theme.mutedText}`}>
+              Stripe未設定のため、お支払い設定はご利用いただけません。
+            </p>
+          </div>
         ) : plan === "pro" ? (
           <form action={openBillingPortalAction}>
             <button

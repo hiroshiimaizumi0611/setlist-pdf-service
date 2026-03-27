@@ -54,6 +54,7 @@ export function EventMetadataForm({
             type="text"
             name="title"
             defaultValue={event.title}
+            required
             className={`${theme.input} min-h-11 px-4 py-3`}
           />
         </label>

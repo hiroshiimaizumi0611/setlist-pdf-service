@@ -5,6 +5,7 @@ import {
   deleteEventItemAction,
   duplicateEventFormAction,
   reorderEventItemsAction,
+  updateEventItemAction,
   updateEventMetadataAction,
 } from "@/app/(app)/events/actions";
 import { saveTemplateFromEventFormAction } from "@/app/(app)/templates/actions";
@@ -121,6 +122,7 @@ export default async function EventEditorPage({
       duplicateEventAction={duplicateEventFormAction}
       updateMetadataAction={updateEventMetadataAction}
       addItemAction={addEventItemAction}
+      updateItemAction={updateEventItemAction}
       reorderItemsAction={reorderEventItemsAction}
       deleteItemAction={deleteEventItemAction}
       saveTemplateAction={saveTemplateFromEventFormAction}

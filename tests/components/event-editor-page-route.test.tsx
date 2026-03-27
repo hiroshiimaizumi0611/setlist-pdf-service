@@ -4,10 +4,12 @@ const {
   mockGetAuthSessionWithPlan,
   mockListEventSummaries,
   mockGetEventForUser,
+  mockUpdateEventItemAction,
 } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockListEventSummaries: vi.fn(),
   mockGetEventForUser: vi.fn(),
+  mockUpdateEventItemAction: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -30,6 +32,7 @@ vi.mock("@/app/(app)/events/actions", () => ({
   deleteEventItemAction: vi.fn(),
   duplicateEventFormAction: vi.fn(),
   reorderEventItemsAction: vi.fn(),
+  updateEventItemAction: mockUpdateEventItemAction,
   updateEventMetadataAction: vi.fn(),
 }));
 
@@ -91,5 +94,6 @@ describe("EventEditorPage route wiring", () => {
 
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.pendingDeleteItemId).toBe("item-2");
+    expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
   });
 });

@@ -34,6 +34,15 @@ type EventEditorPageContentProps = {
     durationSeconds?: number | null;
     notes?: string | null;
   }) => Promise<unknown>;
+  updateItemAction?: (input: {
+    eventId: string;
+    itemId: string;
+    itemType?: SetlistItemType;
+    title?: string;
+    artist?: string | null;
+    durationSeconds?: number | null;
+    notes?: string | null;
+  }) => Promise<unknown>;
   reorderItemsAction?: (input: {
     eventId: string;
     orderedItemIds: string[];
@@ -82,6 +91,7 @@ export function EventEditorPageContent({
   duplicateEventAction,
   updateMetadataAction,
   addItemAction,
+  updateItemAction,
   reorderItemsAction,
   deleteItemAction,
   saveTemplateAction,
@@ -226,6 +236,7 @@ export function EventEditorPageContent({
         items={event.items}
         pendingDeleteItemId={pendingDeleteItemId}
         reorderItemsAction={reorderItemsAction}
+        updateItemAction={updateItemAction}
         deleteItemAction={deleteItemAction}
       />
     </DashboardShell>
