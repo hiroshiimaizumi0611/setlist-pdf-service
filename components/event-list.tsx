@@ -28,38 +28,21 @@ export function EventList({
   events,
   currentEventId,
   currentTheme,
-  createEventAction,
   duplicateEventAction,
 }: EventListProps) {
   const theme = getDashboardThemeStyles(currentTheme);
 
   return (
-    <div className="flex h-full flex-col gap-5">
-      <div className={`border-2 ${theme.border} ${theme.panel} p-4`}>
-        <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
-          公演レール
-        </p>
-        <h2 className="mt-3 font-mono text-2xl font-black tracking-[-0.08em]">
-          公演一覧
-        </h2>
-        <p className={`mt-2 text-sm leading-6 ${theme.mutedText}`}>
-          左レールから公演を切り替え、PDF用の進行表を即座に整えます。
-        </p>
+    <nav aria-label="公演ナビゲーション" className="flex h-full flex-col gap-3">
+      <div className={`px-2 font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
+        Upcoming &amp; Recent
       </div>
 
-      <form action={createEventAction} className="contents">
-        <input type="hidden" name="theme" value={currentTheme} />
-        <button
-          type="submit"
-          className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-bold tracking-[0.14em] uppercase`}
-        >
-          新規公演を作成
-        </button>
-      </form>
-
-      <nav aria-label="公演ナビゲーション" className="flex-1 space-y-3">
+      <div className="space-y-2">
         {events.length === 0 ? (
-          <div className={`border-2 ${theme.border} ${theme.panelMuted} p-4 text-sm leading-6 ${theme.mutedText}`}>
+          <div
+            className={`border-2 ${theme.border} ${theme.panelMuted} px-3 py-4 text-sm leading-6 ${theme.mutedText}`}
+          >
             まだ公演がありません。最初の公演を作成すると、ここに本番候補が並びます。
           </div>
         ) : (
@@ -69,31 +52,26 @@ export function EventList({
             return (
               <article
                 key={event.id}
-                className={`border-2 p-4 transition ${
-                  isCurrent
-                    ? `${theme.accentBg} ${theme.accentText} ${theme.accentBorder}`
-                    : `${theme.panel} ${theme.border} ${theme.panelHover}`
-                }`}
+                className={`border-l-4 ${isCurrent ? theme.accentBorder : theme.railBorder} ${
+                  isCurrent ? `${theme.accentBg} ${theme.accentText}` : `${theme.panel} ${theme.border}`
+                } transition ${theme.panelHover}`}
               >
                 <Link
                   href={`/events/${event.id}?theme=${currentTheme}`}
                   aria-current={isCurrent ? "page" : undefined}
-                  className="block"
+                  className="block px-3 py-3"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-2">
-                      <p className="font-mono text-[11px] uppercase tracking-[0.24em]">
-                        項目 {String(event.itemCount).padStart(2, "0")}
-                      </p>
-                      <p className="truncate font-mono text-sm font-bold tracking-[-0.03em]">
+                    <div className="min-w-0 space-y-1">
+                      <p className="truncate font-mono text-[13px] font-bold tracking-[-0.03em]">
                         {event.title}
                       </p>
                       <p
-                        className={`text-xs ${isCurrent ? theme.currentMutedText : theme.mutedText}`}
+                        className={`text-[11px] uppercase tracking-[0.2em] ${
+                          isCurrent ? theme.currentMutedText : theme.mutedText
+                        }`}
                       >
-                        {[event.venue || "会場未設定", formatEventDate(event.eventDate)].join(
-                          " / ",
-                        )}
+                        {[event.venue || "会場未設定", formatEventDate(event.eventDate)].join(" / ")}
                       </p>
                     </div>
 
@@ -102,18 +80,20 @@ export function EventList({
                         isCurrent ? "border-[#3f3310] text-[#3f3310]" : theme.pill
                       }`}
                     >
-                      {event.itemCount}項目
+                      {String(event.itemCount).padStart(2, "0")}
                     </span>
                   </div>
                 </Link>
 
                 {duplicateEventAction ? (
-                  <form action={duplicateEventAction} className="mt-4 flex flex-wrap gap-2">
+                  <form action={duplicateEventAction} className="px-3 pb-3">
                     <input type="hidden" name="eventId" value={event.id} />
                     <input type="hidden" name="theme" value={currentTheme} />
                     <button
                       type="submit"
-                      className={`${theme.buttonSecondary} min-h-11 px-4 py-2 text-xs font-bold`}
+                      className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
+                        isCurrent ? "text-[#3f3310]" : theme.mutedText
+                      } transition hover:opacity-80`}
                     >
                       この公演を複製
                     </button>
@@ -123,7 +103,7 @@ export function EventList({
             );
           })
         )}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }

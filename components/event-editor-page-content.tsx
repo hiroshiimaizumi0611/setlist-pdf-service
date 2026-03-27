@@ -129,15 +129,12 @@ export function EventEditorPageContent({
         アーカイブ
       </Link>
 
-      <div className="[&>div>div:first-child]:hidden [&>div>form]:hidden">
-        <EventList
-          events={events}
-          currentEventId={currentEventId}
-          currentTheme={currentTheme}
-          createEventAction={createEventAction}
-          duplicateEventAction={duplicateEventAction}
-        />
-      </div>
+      <EventList
+        events={events}
+        currentEventId={currentEventId}
+        currentTheme={currentTheme}
+        duplicateEventAction={duplicateEventAction}
+      />
     </div>
   );
 

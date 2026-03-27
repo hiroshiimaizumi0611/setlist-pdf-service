@@ -73,6 +73,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
     expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
     expect(screen.getByText("CURRENT SHOW:")).toBeInTheDocument();
+    expect(screen.getByText("Upcoming & Recent")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" }),
     ).toBeInTheDocument();
@@ -81,10 +82,12 @@ describe("EventEditorPageContent", () => {
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",
     );
-    expect(screen.getByRole("heading", { name: "公演情報" })).toBeInTheDocument();
-    expect(screen.getByLabelText("公演名")).toHaveValue("2026.03.28 名古屋 RADHALL");
-    expect(screen.getByLabelText("公演名")).toBeRequired();
-    expect(screen.getByLabelText("会場")).toHaveValue("RADHALL");
+    expect(screen.getByLabelText("Date")).toHaveValue("2026-03-28");
+    expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
+    expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
+    expect(screen.getByLabelText("Show Title")).toBeRequired();
+    expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Light");
+    expect(screen.getByRole("button", { name: "Save Metadata" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "項目追加" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("曲名や進行メモを入力")).toBeRequired();
     expect(screen.getByRole("button", { name: "項目を追加" })).toBeInTheDocument();
@@ -111,6 +114,29 @@ describe("EventEditorPageContent", () => {
     );
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
+  });
+
+  it("renders a Stitch-like rail and compact metadata strip", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="dark"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+      />,
+    );
+
+    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    expect(within(navigation).getByText("Upcoming & Recent")).toBeInTheDocument();
+    expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
+      "2026.03.28 名古屋 RADHALL",
+    );
+    expect(screen.getByLabelText("Date")).toHaveValue("2026-03-28");
+    expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
+    expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
+    expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Dark");
+    expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
   });
 
   it("shows the template save form when the account is pro", () => {
