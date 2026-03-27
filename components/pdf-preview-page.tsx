@@ -1,7 +1,9 @@
+import Link from "next/link";
 import type { SetlistPdfLayout } from "@/lib/pdf/build-layout";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { EventWithItems } from "@/lib/repositories/event-repository";
-import { getDashboardThemeStyles } from "./dashboard-shell";
+import { PdfPreviewInspector } from "./pdf-preview-inspector";
+import { PdfSheetPreview } from "./pdf-sheet-preview";
 
 type PdfPreviewPageProps = {
   event: EventWithItems;
@@ -12,7 +14,6 @@ type PdfPreviewPageProps = {
 
 function formatPreviewSubtitle(event: EventWithItems) {
   const parts = [
-    event.venue,
     event.eventDate
       ? new Intl.DateTimeFormat("ja-JP", {
           year: "numeric",
@@ -21,10 +22,10 @@ function formatPreviewSubtitle(event: EventWithItems) {
           timeZone: "Asia/Tokyo",
         }).format(event.eventDate)
       : null,
-    event.notes,
+    event.venue,
   ].filter(Boolean);
 
-  return parts.length > 0 ? parts.join(" / ") : "日付・会場未設定";
+  return parts.length > 0 ? parts.join("  ") : "日付・会場未設定";
 }
 
 export function PdfPreviewPage({
@@ -33,85 +34,61 @@ export function PdfPreviewPage({
   currentTheme,
   downloadHref,
 }: PdfPreviewPageProps) {
-  const theme = getDashboardThemeStyles(currentTheme);
+  const previewBaseHref = `/events/${event.id}/pdf`;
+  const lightHref = `${previewBaseHref}?theme=light`;
+  const darkHref = `${previewBaseHref}?theme=dark`;
 
   return (
-    <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
-      <section className="mx-auto max-w-7xl space-y-6">
-        <header
-          className={`flex flex-col gap-4 border-2 ${theme.border} ${theme.panel} p-6 lg:flex-row lg:items-end lg:justify-between`}
-        >
-          <div className="space-y-3">
-            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
+    <main className="min-h-screen bg-[#111111] text-[#f6f3ee]">
+      <header className="border-b border-[#2f2a24] bg-[#0d0d0d]/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#8d8578]">
               PDF Preview
             </p>
-            <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
-              {event.title}
-            </h1>
-            <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
-              {formatPreviewSubtitle(event)}
-            </p>
+            <div className="space-y-1">
+              <h1 className="font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl">
+                {event.title}
+              </h1>
+              <p className="text-sm text-[#bfb7aa]">{formatPreviewSubtitle(event)}</p>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <span className={`${theme.pill} px-3 py-1 text-xs font-medium uppercase tracking-[0.22em]`}>
-              {layout.theme.name}
-            </span>
-            <span className={`${theme.pill} px-3 py-1 text-xs font-medium uppercase tracking-[0.22em]`}>
+            <span className="border border-[#38332b] bg-[#171717] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[#bfb7aa]">
               {layout.pageCount} pages
             </span>
-            <span className={`${theme.pill} px-3 py-1 text-xs font-medium uppercase tracking-[0.22em]`}>
+            <span className="border border-[#38332b] bg-[#171717] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[#bfb7aa]">
               {layout.warnings.length} warnings
             </span>
+            <Link
+              href={`/events/${event.id}`}
+              className="inline-flex min-h-11 items-center justify-center border border-[#38332b] bg-[#171717] px-4 text-sm font-black uppercase tracking-[0.14em] text-[#f6f3ee] transition hover:bg-[#222222]"
+            >
+              編集へ戻る
+            </Link>
             <a
               href={downloadHref}
               target="_blank"
               rel="noreferrer"
-              className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-5 text-sm font-black tracking-[0.16em] uppercase`}
+              className="inline-flex min-h-11 items-center justify-center border border-[#f6c453] bg-[#f6c453] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#1f1b16] transition hover:bg-[#ffe08a]"
             >
-              PDFをダウンロード
+              PDF出力
             </a>
           </div>
-        </header>
-
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className={`border-2 ${theme.border} ${theme.panel} p-6`}>
-            <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
-              Paper Preview
-            </p>
-            <h2 className="mt-3 font-mono text-2xl font-black tracking-[-0.06em]">
-              紙面プレビューは次のタスクで実装
-            </h2>
-            <p className={`mt-3 max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-              共有レイアウトモデルだけを先に受け取り、左カラムのシートスタックは後続の Task 4 で差し込みます。
-            </p>
-
-            <div className={`mt-6 border-2 ${theme.border} ${theme.panelMuted} p-5`}>
-              <p className={`font-mono text-[11px] uppercase tracking-[0.28em] ${theme.mutedText}`}>
-                Shared layout snapshot
-              </p>
-              <p className="mt-2 text-sm font-medium">
-                {layout.pages.length} pages / {layout.warnings.length} warnings
-              </p>
-              <p className={`mt-2 text-xs leading-6 ${theme.mutedText}`}>
-                preview shell receives the exact model used by the PDF renderer.
-              </p>
-            </div>
-          </section>
-
-          <aside className={`border-2 ${theme.border} ${theme.panelMuted} p-6`}>
-            <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
-              Inspector
-            </p>
-            <h2 className="mt-3 font-mono text-2xl font-black tracking-[-0.06em]">
-              右パネルは後続タスクで展開
-            </h2>
-            <p className={`mt-3 text-sm leading-7 ${theme.mutedText}`}>
-              この段階では構造だけを置き、テーマ切替と警告表示の実装は次の Task 4 へ委ねます。
-            </p>
-          </aside>
         </div>
-      </section>
+      </header>
+
+      <div className="mx-auto grid min-h-[calc(100vh-81px)] max-w-[1600px] lg:grid-cols-[minmax(0,1fr)_320px]">
+        <PdfSheetPreview event={event} layout={layout} />
+        <PdfPreviewInspector
+          currentTheme={currentTheme}
+          lightHref={lightHref}
+          darkHref={darkHref}
+          warnings={layout.warnings}
+          updatedAt={event.updatedAt}
+        />
+      </div>
     </main>
   );
 }
