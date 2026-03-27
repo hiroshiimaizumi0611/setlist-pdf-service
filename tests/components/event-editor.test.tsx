@@ -128,7 +128,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("button", { name: "緑 を下へ移動" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      "/api/events/event-nagoya-radhall/pdf?theme=light",
+      "/events/event-nagoya-radhall/pdf?theme=light",
     );
     expect(screen.getByRole("link", { name: "Proでテンプレート保存を有効化" })).toHaveAttribute(
       "href",
@@ -178,7 +178,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
     expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      "/api/events/event-nagoya-radhall/pdf?theme=dark",
+      "/events/event-nagoya-radhall/pdf?theme=dark",
     );
   });
 

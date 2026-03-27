@@ -37,9 +37,12 @@ describe("GET /api/events/[eventId]/pdf", () => {
     mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
     mocks.renderSetlistPdf.mockResolvedValue(pdfBytes);
 
-    const response = await GET(new Request("http://localhost/api/events/event-o-west/pdf"), {
-      params: Promise.resolve({ eventId: oWestEvent.id }),
-    });
+    const response = await GET(
+      new Request("http://localhost/api/events/event-o-west/pdf?theme=dark"),
+      {
+        params: Promise.resolve({ eventId: oWestEvent.id }),
+      },
+    );
 
     expect(runtime).toBe("nodejs");
     expect(response.status).toBe(200);
@@ -48,6 +51,12 @@ describe("GET /api/events/[eventId]/pdf", () => {
       'attachment; filename="20251126_spotify-o-west_setlist.pdf"',
     );
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(pdfBytes);
+    expect(mocks.renderSetlistPdf).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: oWestEvent,
+        theme: "dark",
+      }),
+    );
   });
 
   it("falls back to an unknown-venue filename when venue is missing", async () => {
