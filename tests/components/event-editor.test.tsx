@@ -161,6 +161,35 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
     expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
+
+    const shell = screen.getByRole("main");
+    expect(shell).toHaveClass("bg-[#0f0f10]");
+
+    const header = shell.querySelector("header");
+    expect(header).toBeTruthy();
+    if (!header) {
+      throw new Error("expected dark header shell");
+    }
+    expect(header).toHaveClass("bg-[#131313]/92");
+    expect(header).toHaveClass("border-[#fff6df]/10");
+
+    const rail = navigation.closest("aside");
+    expect(rail).toBeTruthy();
+    if (!rail) {
+      throw new Error("expected dark event rail");
+    }
+    expect(rail).toHaveClass("bg-[#161616]");
+    expect(rail).toHaveClass("lg:w-60");
+
+    const currentEventLink = within(navigation).getByRole("link", { current: "page" });
+    const currentEventCard = currentEventLink.closest("article");
+    expect(currentEventCard).toBeTruthy();
+    if (!currentEventCard) {
+      throw new Error("expected current event card");
+    }
+    expect(currentEventCard).toHaveClass("bg-[#3a3a3a]");
+    expect(currentEventCard).toHaveClass("text-[#f6c453]");
+    expect(currentEventCard).toHaveClass("border-[#f6c453]");
   });
 
   it("shows the template save form when the account is pro", () => {

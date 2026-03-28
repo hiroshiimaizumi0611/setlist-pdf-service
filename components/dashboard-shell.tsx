@@ -37,6 +37,9 @@ export type DashboardThemeStyles = {
   headerBrand: string;
   headerMeta: string;
   headerCurrentShow: string;
+  currentEventSurface: string;
+  currentEventText: string;
+  currentEventMeta: string;
 };
 
 const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
@@ -72,17 +75,20 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     headerBrand: "BACKSTAGE PRO",
     headerMeta: "LIVE PRODUCTION",
     headerCurrentShow: "text-[#1f1b16]",
+    currentEventSurface: "bg-[#f6c453]",
+    currentEventText: "text-[#1f1b16]",
+    currentEventMeta: "text-[#3f3310]",
   },
   dark: {
     page:
-      "bg-[#111111] text-[#f6f3ee] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.14),_transparent_28%),linear-gradient(180deg,#111111_0%,#171717_100%)]",
-    headerShell: "bg-black/85 text-[#f6f3ee]",
-    rail: "bg-[#191919]",
-    railBorder: "border-[#38332b]",
-    panel: "bg-[#171717]",
-    panelAlt: "bg-[#222222]",
-    panelMuted: "bg-[#1c1c1c]",
-    border: "border-[#38332b]",
+      "bg-[#0f0f10] text-[#f6f3ee] [background-image:linear-gradient(180deg,#0f0f10_0%,#151515_100%)]",
+    headerShell: "bg-[#131313]/92 text-[#f6f3ee]",
+    rail: "bg-[#161616]",
+    railBorder: "border-[#fff6df]/10",
+    panel: "bg-[#181818]",
+    panelAlt: "bg-[#232323]",
+    panelMuted: "bg-[#1b1b1b]",
+    border: "border-[#353534]",
     text: "text-[#f6f3ee]",
     mutedText: "text-[#bfb7aa]",
     accentBg: "bg-[#f6c453]",
@@ -105,6 +111,9 @@ const DASHBOARD_THEME_STYLES: Record<PdfThemeName, DashboardThemeStyles> = {
     headerBrand: "SHOWRUNNER",
     headerMeta: "LIVE VIEW",
     headerCurrentShow: "text-[#f6c453]",
+    currentEventSurface: "bg-[#3a3a3a]",
+    currentEventText: "text-[#f6c453]",
+    currentEventMeta: "text-[#fff6df]",
   },
 };
 
@@ -126,9 +135,9 @@ export function DashboardShell({
   return (
     <main className={`${theme.page} min-h-screen`}>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b-2 ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
+        className={`fixed inset-x-0 top-0 z-50 border-b ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
       >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <span
               className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
@@ -151,15 +160,15 @@ export function DashboardShell({
         </div>
       </header>
 
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col lg:block">
+      <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:block">
         <aside
-          className={`${theme.rail} ${theme.railBorder} border-b-4 px-4 pb-6 pt-20 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-full lg:w-64 lg:border-b-0 lg:border-r-2 lg:px-5 lg:pb-5 lg:pt-24`}
+          className={`${theme.rail} ${theme.railBorder} border-b px-4 pb-5 pt-18 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-full lg:w-60 lg:border-b-0 lg:border-r lg:px-5 lg:pb-4 lg:pt-16`}
         >
           {sidebar}
         </aside>
 
-        <div className="min-w-0 px-4 pb-8 pt-24 sm:px-6 lg:pl-72 lg:pr-8 lg:pt-28">
-          <section className={`border-l-8 ${theme.border} pl-5`}>
+        <div className="min-w-0 px-4 pb-8 pt-22 sm:px-6 lg:pl-[17.5rem] lg:pr-8 lg:pt-20">
+          <section className={`border-l-4 ${theme.border} pl-4`}>
             <p
               className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
             >
@@ -173,7 +182,7 @@ export function DashboardShell({
             </p>
           </section>
 
-          <div className="mt-6 space-y-6">{children}</div>
+          <div className="mt-5 space-y-5">{children}</div>
         </div>
       </div>
     </main>
