@@ -78,4 +78,22 @@ describe("pdf document token helpers", () => {
 
     expect(verifyPdfDocumentToken(tamperedToken)).toBeNull();
   });
+
+  it("rejects tokens with a malformed signature segment", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-28T00:00:00.000Z"));
+
+    const { signPdfDocumentToken, verifyPdfDocumentToken } = await import(
+      "../../lib/pdf/document-token"
+    );
+
+    const token = signPdfDocumentToken({
+      eventId: "event-o-west",
+      theme: "light",
+      expiresInSeconds: 60,
+    });
+    const [payload, signature] = token.split(".");
+
+    expect(verifyPdfDocumentToken(`${payload}.${signature}!`)).toBeNull();
+  });
 });

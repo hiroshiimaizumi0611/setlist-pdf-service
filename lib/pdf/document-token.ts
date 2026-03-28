@@ -16,6 +16,7 @@ type SignPdfDocumentTokenInput = {
 
 const TOKEN_SEPARATOR = ".";
 const TOKEN_SECRET = env.BETTER_AUTH_SECRET;
+const BASE64URL_SEGMENT_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 function base64UrlEncode(buffer: Buffer | Uint8Array) {
   return Buffer.from(buffer).toString("base64url");
@@ -23,6 +24,21 @@ function base64UrlEncode(buffer: Buffer | Uint8Array) {
 
 function base64UrlDecode(value: string) {
   return Buffer.from(value, "base64url");
+}
+
+function parseCanonicalBase64UrlSegment(value: string) {
+  if (!BASE64URL_SEGMENT_PATTERN.test(value)) {
+    return null;
+  }
+
+  const decoded = base64UrlDecode(value);
+  const canonical = base64UrlEncode(decoded);
+
+  if (canonical !== value) {
+    return null;
+  }
+
+  return decoded;
 }
 
 function signValue(value: string) {
@@ -64,17 +80,18 @@ export function signPdfDocumentToken({
 export function verifyPdfDocumentToken(token: string) {
   const [encodedPayload, encodedSignature] = token.split(TOKEN_SEPARATOR);
 
-  if (!encodedPayload || !encodedSignature || token.includes(TOKEN_SEPARATOR, token.indexOf(TOKEN_SEPARATOR) + 1)) {
+  if (
+    !encodedPayload ||
+    !encodedSignature ||
+    token.includes(TOKEN_SEPARATOR, token.indexOf(TOKEN_SEPARATOR) + 1)
+  ) {
     return null;
   }
 
-  let payloadBuffer: Buffer;
-  let signatureBuffer: Buffer;
+  const payloadBuffer = parseCanonicalBase64UrlSegment(encodedPayload);
+  const signatureBuffer = parseCanonicalBase64UrlSegment(encodedSignature);
 
-  try {
-    payloadBuffer = base64UrlDecode(encodedPayload);
-    signatureBuffer = base64UrlDecode(encodedSignature);
-  } catch {
+  if (!payloadBuffer || !signatureBuffer) {
     return null;
   }
 
