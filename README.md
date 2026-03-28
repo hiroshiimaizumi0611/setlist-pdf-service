@@ -4,6 +4,16 @@ Setlist PDF Service is a Next.js app for managing Japanese live-show setlists, d
 
 The app is prepared for Cloudflare Workers deployment with OpenNext, Better Auth, Stripe, and a Turso/libSQL database.
 
+## PDF Rendering Model
+
+Preview and download now share the same HTML document source.
+
+- `/events/[eventId]/pdf` renders the operator-facing preview shell.
+- `/events/[eventId]/pdf/document` renders the print document itself.
+- `/api/events/[eventId]/pdf` opens that document URL in a headless browser and returns the PDF download.
+
+That keeps theme selection, pagination, and paper output aligned end-to-end instead of maintaining separate preview and download renderers.
+
 ## What You Can Do
 
 - Sign up and sign in with email and password.
@@ -37,6 +47,8 @@ The landing page links to registration and login. After signing in, you can crea
 - Export the PDF from the event editor.
 - Visit `/settings/billing` to see the upgrade entrypoint.
 
+When you open the PDF preview, the preview shell embeds the same `/events/[eventId]/pdf/document` route that the download endpoint converts into a PDF.
+
 Stripe is optional for local development. If Stripe keys are missing, the app still runs and shows the billing UI in a safe test-friendly state.
 
 ## Cloudflare Deployment
@@ -47,6 +59,7 @@ Recommended production stack:
 - Turso for the application database
 - Better Auth for email/password auth
 - Stripe for Pro billing
+- Cloudflare Browser Rendering for PDF generation
 
 Install dependencies and build the Worker bundle:
 
@@ -74,6 +87,12 @@ Before the first production deploy, set these secrets in Cloudflare:
 - `STRIPE_PRO_MONTHLY_PRICE_ID`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
+Browser Rendering setup notes:
+
+- `wrangler.jsonc` already binds Browser Rendering as `BROWSER`.
+- Enable Browser Rendering for the Cloudflare account/environment that will run this Worker.
+- Local development and test flows fall back to bundled Playwright, while deployed PDF generation uses the Cloudflare `BROWSER` binding when available.
+
 Then deploy with:
 
 ```bash
@@ -100,7 +119,7 @@ If you want to test template saving locally, insert or configure an active Pro s
 
 ## E2E Notes
 
-Playwright runs against `http://localhost:3000` and starts a production `next start` server after migrations and build. That keeps Better Auth, server actions, and PDF export behavior aligned with the deployed app instead of relying on `next dev`.
+Playwright runs against `http://localhost:3000` and starts a production `next start` server after migrations and build. That keeps Better Auth, server actions, the embedded document preview, and PDF export behavior aligned with the deployed app instead of relying on `next dev`.
 
 ## Environment
 

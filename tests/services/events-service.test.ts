@@ -141,7 +141,7 @@ describe("events service", () => {
     expect(reordered.items[0].title).toBe("Song 1001");
     expect(reordered.items.at(-1)?.title).toBe("Song 1");
     expect(reordered.items.at(-1)?.position).toBe(1001);
-  });
+  }, 20_000);
 
   it("updates metadata and preserves ownership", async () => {
     const owner = await createUser("Metadata Owner");

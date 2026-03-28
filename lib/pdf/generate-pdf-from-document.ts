@@ -60,10 +60,10 @@ async function renderPdfWithBrowser(browser: PdfBrowser, documentUrl: string) {
   }
 }
 
-async function getCloudflareBrowserBinding() {
+function getCloudflareBrowserBinding() {
   try {
-    const cloudflareContext = await getCloudflareContext({ async: true });
-    return (cloudflareContext.env as { BROWSER?: unknown }).BROWSER;
+    return (getCloudflareContext() as { env?: { BROWSER?: unknown } }).env
+      ?.BROWSER;
   } catch {
     return undefined;
   }
@@ -92,7 +92,7 @@ export async function generatePdfFromDocument({
   documentUrl,
 }: GeneratePdfFromDocumentInput) {
   if (env.useCloudflareBrowserRendering) {
-    const browserBinding = await getCloudflareBrowserBinding();
+    const browserBinding = getCloudflareBrowserBinding();
 
     if (browserBinding) {
       return renderPdfWithCloudflareBrowser(documentUrl, browserBinding);

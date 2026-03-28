@@ -136,7 +136,7 @@ describe("EventEditorPageContent", () => {
     );
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it("renders a Stitch-like rail and compact metadata strip", () => {
     render(

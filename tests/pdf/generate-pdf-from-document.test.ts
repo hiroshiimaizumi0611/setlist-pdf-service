@@ -99,7 +99,7 @@ describe("generatePdfFromDocument", () => {
     const browserBinding = { name: "browser-binding" };
 
     mocks.env.useCloudflareBrowserRendering = true;
-    mocks.getCloudflareContext.mockResolvedValue({
+    mocks.getCloudflareContext.mockReturnValue({
       env: {
         BROWSER: browserBinding,
       },
@@ -111,7 +111,7 @@ describe("generatePdfFromDocument", () => {
       documentUrl: "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
     });
 
-    expect(mocks.getCloudflareContext).toHaveBeenCalledWith({ async: true });
+    expect(mocks.getCloudflareContext).toHaveBeenCalledWith();
     expect(mocks.cloudflareLaunch).toHaveBeenCalledWith(browserBinding);
     expect(mocks.cloudflarePage.goto).toHaveBeenCalledWith(
       "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
@@ -131,7 +131,7 @@ describe("generatePdfFromDocument", () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
     mocks.env.useCloudflareBrowserRendering = true;
-    mocks.getCloudflareContext.mockResolvedValue({
+    mocks.getCloudflareContext.mockReturnValue({
       env: {},
     });
     mocks.localLaunch.mockResolvedValue(mocks.localBrowser);
@@ -141,7 +141,7 @@ describe("generatePdfFromDocument", () => {
       documentUrl: "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
     });
 
-    expect(mocks.getCloudflareContext).toHaveBeenCalledWith({ async: true });
+    expect(mocks.getCloudflareContext).toHaveBeenCalledWith();
     expect(mocks.cloudflareLaunch).not.toHaveBeenCalled();
     expect(mocks.localLaunch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -156,21 +156,22 @@ describe("generatePdfFromDocument", () => {
     expect(result).toEqual(pdfBytes);
   });
 
-  it("falls back to local Playwright when loading Cloudflare context throws", async () => {
+  it("falls back to local Playwright for local node runtimes without a worker context", async () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
     mocks.env.useCloudflareBrowserRendering = true;
-    mocks.getCloudflareContext.mockRejectedValue(
-      new Error("Cloudflare context unavailable"),
-    );
+    mocks.getCloudflareContext.mockImplementation(() => {
+      throw new Error("Cloudflare context unavailable");
+    });
     mocks.localLaunch.mockResolvedValue(mocks.localBrowser);
     mocks.localPage.pdf.mockResolvedValue(pdfBytes);
 
     const result = await generatePdfFromDocument({
-      documentUrl: "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
+      documentUrl:
+        "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
     });
 
-    expect(mocks.getCloudflareContext).toHaveBeenCalledWith({ async: true });
+    expect(mocks.getCloudflareContext).toHaveBeenCalledWith();
     expect(mocks.cloudflareLaunch).not.toHaveBeenCalled();
     expect(mocks.localLaunch).toHaveBeenCalledOnce();
     expect(result).toEqual(pdfBytes);
@@ -186,7 +187,6 @@ describe("generatePdfFromDocument", () => {
       documentUrl: "http://localhost:3000/events/event-123/pdf/document?theme=light&token=signed",
     });
 
-    expect(mocks.getCloudflareContext).not.toHaveBeenCalled();
     expect(mocks.localLaunch).toHaveBeenCalledWith(
       expect.objectContaining({
         headless: true,
@@ -209,7 +209,7 @@ describe("generatePdfFromDocument", () => {
     const browserBinding = { name: "browser-binding" };
 
     mocks.env.useCloudflareBrowserRendering = true;
-    mocks.getCloudflareContext.mockResolvedValue({
+    mocks.getCloudflareContext.mockReturnValue({
       env: {
         BROWSER: browserBinding,
       },

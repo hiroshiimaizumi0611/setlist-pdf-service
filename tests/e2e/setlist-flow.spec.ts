@@ -79,6 +79,13 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     (form as HTMLFormElement).requestSubmit();
   });
   await expect(page).toHaveURL(/\/events\/.+/);
+  const eventUrl = new URL(page.url());
+  const eventId = eventUrl.pathname.split("/").at(-1);
+
+  if (!eventId) {
+    throw new Error("Event id is missing from the editor URL.");
+  }
+
   const pdfLink = page.getByRole("link", { name: "PDF出力" });
   const editorPdfHref = await pdfLink.getAttribute("href");
 
@@ -86,10 +93,12 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("PDF export link is missing.");
   }
 
-  const themeMatch = editorPdfHref.match(/[?&]theme=([^&]+)/);
-  const currentTheme = themeMatch?.[1];
+  const currentTheme = new URL(editorPdfHref, "http://localhost:3000").searchParams.get("theme");
 
-  expect(currentTheme).toBeDefined();
+  if (currentTheme !== "light" && currentTheme !== "dark") {
+    throw new Error(`Unexpected PDF theme value: ${currentTheme ?? "missing"}`);
+  }
+
   await expect(pdfLink).toHaveAttribute(
     "href",
     new RegExp(`^/events/.+/pdf\\?theme=${currentTheme}$`),
@@ -115,10 +124,27 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     }),
   ).toHaveAttribute("aria-current", "page");
 
+  const embeddedDocument = previewPage.locator('iframe[title="紙面プレビュー"]');
+  const embeddedDocumentHref = await embeddedDocument.getAttribute("src");
+
+  if (!embeddedDocumentHref) {
+    throw new Error("Embedded document URL is missing from the preview page.");
+  }
+
+  const embeddedDocumentUrl = new URL(embeddedDocumentHref);
+
+  expect(embeddedDocumentUrl.pathname).toBe(`/events/${eventId}/pdf/document`);
+  expect(embeddedDocumentUrl.searchParams.get("theme")).toBe(currentTheme);
+  await expect(
+    previewPage
+      .frameLocator('iframe[title="紙面プレビュー"]')
+      .locator("[data-pdf-document]"),
+  ).toHaveAttribute("data-theme", currentTheme);
+
   const previewPdfLink = previewPage.getByRole("link", { name: "PDF出力" });
   await expect(previewPdfLink).toHaveAttribute(
     "href",
-    new RegExp(`^/api/events/.+/pdf\\?theme=${currentTheme}$`),
+    new RegExp(`^/api/events/${eventId}/pdf\\?theme=${currentTheme}$`),
   );
   const pdfHref = await previewPdfLink.getAttribute("href");
 
@@ -126,7 +152,63 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("PDF export link is missing from the preview page.");
   }
 
-  const pdfResponse = await previewPage.context().request.get(new URL(pdfHref, previewPage.url()).toString());
+  const previewDownloadUrl = new URL(pdfHref, previewPage.url());
+  expect(previewDownloadUrl.pathname).toBe(`/api/events/${eventId}/pdf`);
+  expect(previewDownloadUrl.searchParams.get("theme")).toBe(currentTheme);
+  expect(previewDownloadUrl.searchParams.get("theme")).toBe(
+    embeddedDocumentUrl.searchParams.get("theme"),
+  );
+
+  const alternateTheme = currentTheme === "dark" ? "light" : "dark";
+  const alternateThemeLabel = alternateTheme === "dark" ? "DARK" : "LIGHT";
+
+  await previewPage.getByRole("link", { name: alternateThemeLabel }).click();
+  await previewPage.waitForLoadState("domcontentloaded");
+  await expect(previewPage).toHaveURL(
+    new RegExp(`^http://localhost:3000/events/${eventId}/pdf\\?theme=${alternateTheme}$`),
+  );
+  await expect(
+    previewPage.getByRole("link", { name: alternateThemeLabel }),
+  ).toHaveAttribute("aria-current", "page");
+
+  const switchedEmbeddedDocumentHref = await embeddedDocument.getAttribute("src");
+
+  if (!switchedEmbeddedDocumentHref) {
+    throw new Error("Embedded document URL is missing after switching preview theme.");
+  }
+
+  const switchedEmbeddedDocumentUrl = new URL(switchedEmbeddedDocumentHref);
+
+  expect(switchedEmbeddedDocumentUrl.pathname).toBe(`/events/${eventId}/pdf/document`);
+  expect(switchedEmbeddedDocumentUrl.searchParams.get("theme")).toBe(alternateTheme);
+  await expect(
+    previewPage
+      .frameLocator('iframe[title="紙面プレビュー"]')
+      .locator("[data-pdf-document]"),
+  ).toHaveAttribute("data-theme", alternateTheme);
+
+  await expect(previewPdfLink).toHaveAttribute(
+    "href",
+    new RegExp(`^/api/events/${eventId}/pdf\\?theme=${alternateTheme}$`),
+  );
+  const switchedPdfHref = await previewPdfLink.getAttribute("href");
+
+  if (!switchedPdfHref) {
+    throw new Error("PDF export link is missing after switching preview theme.");
+  }
+
+  const switchedPreviewDownloadUrl = new URL(switchedPdfHref, previewPage.url());
+  expect(switchedPreviewDownloadUrl.pathname).toBe(`/api/events/${eventId}/pdf`);
+  expect(switchedPreviewDownloadUrl.searchParams.get("theme")).toBe(
+    alternateTheme,
+  );
+  expect(switchedPreviewDownloadUrl.searchParams.get("theme")).toBe(
+    switchedEmbeddedDocumentUrl.searchParams.get("theme"),
+  );
+
+  const pdfResponse = await previewPage.context().request.get(
+    new URL(switchedPdfHref, previewPage.url()).toString(),
+  );
   const pdfBuffer = await pdfResponse.body();
 
   expect(pdfResponse.ok()).toBe(true);
