@@ -68,6 +68,20 @@ async function seedProSubscription(email: string) {
   });
 }
 
+async function expectEmbeddedPageNumbers(
+  previewPage: import("playwright/test").Page,
+  pageCount: number,
+) {
+  const embeddedPageNumbers = previewPage
+    .frameLocator('iframe[title="紙面プレビュー"]')
+    .locator("[data-pdf-page-number]");
+
+  await expect(embeddedPageNumbers).toHaveCount(pageCount);
+  await expect(embeddedPageNumbers).toHaveText(
+    Array.from({ length: pageCount }, (_, index) => `${index + 1} / ${pageCount}`),
+  );
+}
+
 test("supports the free-tier event flow, preview export, duplication, and upgrade", async ({
   page,
 }) => {
@@ -131,12 +145,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
 
   expect(Number.isNaN(pageCount)).toBe(false);
 
-  const embeddedPageNumbers = previewPage
-    .frameLocator('iframe[title="紙面プレビュー"]')
-    .locator("[data-pdf-page-number]");
-
-  expect(await embeddedPageNumbers.count()).toBe(pageCount);
-  await expect(embeddedPageNumbers.last()).toHaveText(`${pageCount} / ${pageCount}`);
+  await expectEmbeddedPageNumbers(previewPage, pageCount);
 
   const embeddedDocument = previewPage.locator('iframe[title="紙面プレビュー"]');
   const embeddedDocumentHref = await embeddedDocument.getAttribute("src");
@@ -200,8 +209,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
   ).toHaveAttribute("data-theme", alternateTheme);
-  expect(await embeddedPageNumbers.count()).toBe(pageCount);
-  await expect(embeddedPageNumbers.last()).toHaveText(`${pageCount} / ${pageCount}`);
+  await expectEmbeddedPageNumbers(previewPage, pageCount);
 
   await expect(previewPdfLink).toHaveAttribute(
     "href",
