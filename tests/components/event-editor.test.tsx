@@ -193,6 +193,42 @@ describe("EventEditorPageContent", () => {
     expect(setlistSection.querySelector('[data-editor-strip="edit-item"]')).not.toBeInTheDocument();
   });
 
+  it("keeps modal-triggered editing available for song, MC, and transition rows", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="dark"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+      />,
+    );
+
+    const rowExpectations = [
+      { variant: "song", title: "緑", itemType: "song" },
+      { variant: "mc", title: "MC", itemType: "mc" },
+      { variant: "transition", title: "転換", itemType: "transition" },
+    ] as const;
+
+    for (const rowExpectation of rowExpectations) {
+      const row = requireElement(
+        document.querySelector(`article[data-row-variant="${rowExpectation.variant}"]`),
+        `expected ${rowExpectation.variant} row`,
+      );
+
+      fireEvent.click(within(row).getByRole("button", { name: "編集" }));
+
+      const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+      expect(within(dialog).getByLabelText("項目種別")).toHaveValue(rowExpectation.itemType);
+      expect(within(dialog).getByLabelText("タイトル")).toHaveValue(rowExpectation.title);
+
+      fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
+      expect(
+        screen.queryByRole("dialog", { name: "セットリスト項目を編集" }),
+      ).not.toBeInTheDocument();
+    }
+  });
+
   it("keeps the edit modal scrollable on shorter viewports", () => {
     render(
       <EventEditorPageContent
@@ -473,6 +509,20 @@ describe("EventEditorPageContent", () => {
     expect(firstSongRow).toHaveAttribute("data-row-rhythm", "setlist");
     expect(within(firstSongRow).getByText("M01")).toHaveAttribute("data-row-cue", "song");
     expect(within(firstSongRow).getByText("緑")).toHaveAttribute("data-row-title", "song");
+    expect(firstSongRow.className).toContain("transition-colors");
+
+    const firstSongContent = requireElement(
+      firstSongRow.querySelector('[data-row-content="primary"]'),
+      "expected primary row content block",
+    );
+    expect(firstSongContent.className).toContain("py-3");
+
+    const firstSongActions = requireElement(
+      firstSongRow.querySelector('[data-row-actions="desktop"]'),
+      "expected desktop action cluster",
+    );
+    expect(firstSongActions.className).toContain("md:flex-nowrap");
+    expect(firstSongActions.className).toContain("items-center");
 
     const mcRow = requireElement(
       shell.querySelector('article[data-row-variant="mc"]'),
@@ -550,6 +600,31 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "キャンセル" })).toHaveAttribute(
       "href",
       "/events/event-nagoya-radhall?theme=light",
+    );
+  });
+
+  it("submits delete confirmation through deleteItemAction from the compact action cluster", async () => {
+    const deleteItemAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        pendingDeleteItemId="item-1"
+        updateItemAction={mockUpdateItemAction}
+        deleteItemAction={deleteItemAction}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "緑 の削除を確定" }));
+
+    await waitFor(() =>
+      expect(deleteItemAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        itemId: "item-1",
+      }),
     );
   });
 });

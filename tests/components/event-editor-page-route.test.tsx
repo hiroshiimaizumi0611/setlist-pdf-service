@@ -210,6 +210,7 @@ describe("EventEditorPage route wiring", () => {
 
     expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
     expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
 
     const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });

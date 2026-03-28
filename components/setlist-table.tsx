@@ -157,7 +157,7 @@ export function SetlistTable({
   return (
     <section className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}>
       <div
-        className={`flex flex-col gap-2 border-b-2 ${theme.border} px-5 py-4 sm:flex-row sm:items-end sm:justify-between`}
+        className={`flex flex-col gap-2 border-b-2 ${theme.border} px-5 py-3 sm:flex-row sm:items-end sm:justify-between`}
       >
         <div>
           <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">セットリスト</h2>
@@ -215,7 +215,7 @@ export function SetlistTable({
                 data-row-reorder-ready={reorderItemsAction ? "true" : "false"}
                 data-row-edit-ready={updateItemAction ? "true" : "false"}
                 data-row-drop-target={isDragTarget ? "true" : "false"}
-                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-4 ${
+                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-3 ${
                   isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
                 }`}
               >
@@ -224,13 +224,13 @@ export function SetlistTable({
                     data-row-drag-handle
                     aria-label={dragHandleLabel}
                     draggable={isReorderEnabled}
-                    className={`hidden h-9 w-9 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
+                    className={`hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
                   >
                     ⋮⋮
                   </div>
                   <div
                     data-row-cue="heading"
-                    className={`flex h-9 w-14 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
+                    className={`flex h-8 w-12 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
                   >
                     {item.title}
                   </div>
@@ -256,14 +256,14 @@ export function SetlistTable({
                       type="button"
                       onClick={() => setEditingItemId(item.id)}
                       disabled={!updateItemAction}
-                      className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
-                    >
-                      編集
-                    </button>
+                        className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
+                      >
+                        編集
+                      </button>
                     <Link
                       href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
                       aria-label={`${item.title} を削除`}
-                      className={`${theme.destructive} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                      className={`${theme.destructive} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
                     >
                       削除
                     </Link>
@@ -312,12 +312,12 @@ export function SetlistTable({
                 isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
               }`}
             >
-              <div className="grid md:grid-cols-[28px_4px_60px_minmax(0,1fr)_120px_180px]">
+              <div className="grid md:grid-cols-[24px_4px_56px_minmax(0,1fr)_88px_160px]">
                 <div
                   data-row-drag-handle
                   aria-label={dragHandleLabel}
                   draggable={isReorderEnabled}
-                  className={`hidden items-center justify-center border-b border-inherit px-2 py-4 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`}
+                  className={`hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
                   ⋮⋮
                 </div>
@@ -329,12 +329,12 @@ export function SetlistTable({
 
                 <div
                   data-row-cue={item.itemType}
-                  className={`flex items-center justify-center border-b border-inherit px-3 py-4 font-mono text-base font-black tracking-[0.16em] md:border-b-0 md:border-r ${itemTone.cue}`}
+                  className={`flex items-center justify-center border-b border-inherit px-2.5 py-3 font-mono text-sm font-black tracking-[0.16em] md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
                   {formatCue(items, index)}
                 </div>
 
-                <div className="min-w-0 px-4 py-4 md:px-5">
+                <div data-row-content="primary" className="min-w-0 px-4 py-3 md:px-4">
                   <p
                     data-row-label={item.itemType}
                     className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}
@@ -355,57 +355,52 @@ export function SetlistTable({
                       {item.title}
                     </p>
                     {item.artist ? (
-                      <p className={`mt-1 text-sm ${itemTone.muted}`}>{item.artist}</p>
+                      <p className={`mt-1 truncate text-xs ${itemTone.muted}`}>{item.artist}</p>
                     ) : null}
                     {item.notes ? (
-                      <p className={`mt-1 text-sm ${itemTone.muted}`}>{item.notes}</p>
+                      <p className={`mt-1 truncate text-xs ${itemTone.muted}`}>{item.notes}</p>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="flex items-center px-4 py-4 font-mono text-sm md:justify-center">
+                <div className="flex items-center px-3 py-3 font-mono text-sm md:justify-center">
                   <span className={itemTone.duration}>{formatDuration(item.durationSeconds)}</span>
                 </div>
 
                 <div
                   data-row-actions="desktop"
-                  className="flex flex-wrap justify-end gap-1 px-4 py-4"
+                  className="flex items-center gap-2 px-3 py-3 md:flex-nowrap md:justify-end"
                 >
                   <button
                     type="button"
                     onClick={() => setEditingItemId(item.id)}
                     disabled={!updateItemAction}
-                    className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                    className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
                   >
                     編集
                   </button>
                   {pendingDeleteItemId === item.id ? (
                     <>
-                      <form
-                        action={async () => {
-                          "use server";
-
+                      <button
+                        type="button"
+                        onClick={() => {
                           if (!deleteItemAction) {
                             return;
                           }
 
-                          await deleteItemAction({
+                          void deleteItemAction({
                             eventId,
                             itemId: item.id,
                           });
                         }}
+                        aria-label={`${item.title} の削除を確定`}
+                        className={`${theme.destructive} min-h-10 px-3 text-xs font-bold`}
                       >
-                        <button
-                          type="submit"
-                          aria-label={`${item.title} の削除を確定`}
-                          className={`${theme.destructive} min-h-11 px-3 text-xs font-bold`}
-                        >
-                          削除を確定
-                        </button>
-                      </form>
+                        削除を確定
+                      </button>
                       <Link
                         href={`/events/${eventId}?theme=${currentTheme}`}
-                        className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                        className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
                       >
                         キャンセル
                       </Link>
@@ -414,7 +409,7 @@ export function SetlistTable({
                     <Link
                       href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
                       aria-label={`${item.title} を削除`}
-                      className={`${theme.destructive} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
+                      className={`${theme.destructive} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
                     >
                       削除
                     </Link>
