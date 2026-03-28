@@ -39,6 +39,7 @@ describe("env build defaults", () => {
     expect(env.TURSO_DATABASE_URL).toMatch(
       /^file:.*node_modules\/\.cache\/setlist-pdf-service\/local\.sqlite$/,
     );
+    expect(env.useCloudflareBrowserRendering).toBe(false);
   });
 
   it("requires explicit config for managed production builds", async () => {
@@ -49,6 +50,18 @@ describe("env build defaults", () => {
     await expect(import("../../lib/env")).rejects.toThrow(
       "BETTER_AUTH_URL is required outside test/local development.",
     );
+  });
+
+  it("enables browser rendering for production runtime requests", async () => {
+    resetProductionLikeEnv();
+    process.env.BETTER_AUTH_SECRET =
+      "production-secret-for-better-auth-must-be-32-chars";
+    process.env.BETTER_AUTH_URL = "https://app.example.com";
+    process.env.TURSO_DATABASE_URL = "file:/tmp/setlist-pdf-service.sqlite";
+
+    const { env } = await import("../../lib/env");
+
+    expect(env.useCloudflareBrowserRendering).toBe(true);
   });
 
   it("treats CI=1 as a managed production build", async () => {

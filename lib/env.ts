@@ -19,6 +19,7 @@ const isManagedBuild =
   Boolean(process.env.VERCEL);
 const canUseDevelopmentDefaults =
   isTest || isLocalDev || (isBuildCommand && !isManagedBuild);
+const useCloudflareBrowserRendering = !isTest && !isLocalDev && !isBuildCommand;
 
 function defaultLocalDatabaseUrl() {
   const filePath = path.join(
@@ -118,6 +119,7 @@ const envSchema = z
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: raw.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       isTest,
       isLocalDev,
+      useCloudflareBrowserRendering,
       isRemoteDatabase,
       isStripeConfigured,
     };

@@ -4,7 +4,9 @@ import { oWestEvent } from "../fixtures/o-west-event";
 const mocks = vi.hoisted(() => ({
   requireAuthSession: vi.fn(),
   findEventWithItemsById: vi.fn(),
-  renderSetlistPdf: vi.fn(),
+  signPdfDocumentToken: vi.fn(),
+  buildPdfDocumentUrl: vi.fn(),
+  generatePdfFromDocument: vi.fn(),
 }));
 
 vi.mock("../../lib/auth", () => ({
@@ -15,8 +17,16 @@ vi.mock("../../lib/repositories/event-repository", () => ({
   findEventWithItemsById: mocks.findEventWithItemsById,
 }));
 
-vi.mock("../../lib/pdf/render-setlist-pdf", () => ({
-  renderSetlistPdf: mocks.renderSetlistPdf,
+vi.mock("../../lib/pdf/document-token", () => ({
+  signPdfDocumentToken: mocks.signPdfDocumentToken,
+}));
+
+vi.mock("../../lib/pdf/document-url", () => ({
+  buildPdfDocumentUrl: mocks.buildPdfDocumentUrl,
+}));
+
+vi.mock("../../lib/pdf/generate-pdf-from-document", () => ({
+  generatePdfFromDocument: mocks.generatePdfFromDocument,
 }));
 
 import { GET, runtime } from "../../app/api/events/[eventId]/pdf/route";
@@ -25,7 +35,9 @@ describe("GET /api/events/[eventId]/pdf", () => {
   beforeEach(() => {
     mocks.requireAuthSession.mockReset();
     mocks.findEventWithItemsById.mockReset();
-    mocks.renderSetlistPdf.mockReset();
+    mocks.signPdfDocumentToken.mockReset();
+    mocks.buildPdfDocumentUrl.mockReset();
+    mocks.generatePdfFromDocument.mockReset();
   });
 
   it("returns a downloadable PDF response", async () => {
@@ -35,7 +47,11 @@ describe("GET /api/events/[eventId]/pdf", () => {
       user: { id: oWestEvent.ownerUserId },
     });
     mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
-    mocks.renderSetlistPdf.mockResolvedValue(pdfBytes);
+    mocks.signPdfDocumentToken.mockReturnValue("signed-token");
+    mocks.buildPdfDocumentUrl.mockReturnValue(
+      "https://app.example.com/events/event-o-west/pdf/document?theme=dark&token=signed-token",
+    );
+    mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
 
     const response = await GET(
       new Request("http://localhost/api/events/event-o-west/pdf?theme=dark"),
@@ -51,12 +67,21 @@ describe("GET /api/events/[eventId]/pdf", () => {
       'attachment; filename="20251126_spotify-o-west_setlist.pdf"',
     );
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(pdfBytes);
-    expect(mocks.renderSetlistPdf).toHaveBeenCalledWith(
+    expect(mocks.signPdfDocumentToken).toHaveBeenCalledWith(
       expect.objectContaining({
-        event: oWestEvent,
+        eventId: oWestEvent.id,
         theme: "dark",
       }),
     );
+    expect(mocks.buildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "dark",
+      token: "signed-token",
+    });
+    expect(mocks.generatePdfFromDocument).toHaveBeenCalledWith({
+      documentUrl:
+        "https://app.example.com/events/event-o-west/pdf/document?theme=dark&token=signed-token",
+    });
   });
 
   it("falls back to an unknown-venue filename when venue is missing", async () => {
@@ -70,7 +95,11 @@ describe("GET /api/events/[eventId]/pdf", () => {
       venue: null,
       title: "Fallback title should not be used",
     });
-    mocks.renderSetlistPdf.mockResolvedValue(pdfBytes);
+    mocks.signPdfDocumentToken.mockReturnValue("signed-token");
+    mocks.buildPdfDocumentUrl.mockReturnValue(
+      "https://app.example.com/events/event-o-west/pdf/document?theme=light&token=signed-token",
+    );
+    mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
 
     const response = await GET(new Request("http://localhost/api/events/event-o-west/pdf"), {
       params: Promise.resolve({ eventId: oWestEvent.id }),
@@ -92,7 +121,11 @@ describe("GET /api/events/[eventId]/pdf", () => {
       ...oWestEvent,
       eventDate: new Date("2025-11-26T00:30:00+09:00"),
     });
-    mocks.renderSetlistPdf.mockResolvedValue(pdfBytes);
+    mocks.signPdfDocumentToken.mockReturnValue("signed-token");
+    mocks.buildPdfDocumentUrl.mockReturnValue(
+      "https://app.example.com/events/event-o-west/pdf/document?theme=light&token=signed-token",
+    );
+    mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
 
     const response = await GET(new Request("http://localhost/api/events/event-o-west/pdf"), {
       params: Promise.resolve({ eventId: oWestEvent.id }),

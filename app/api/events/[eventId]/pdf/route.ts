@@ -1,10 +1,14 @@
 import { requireAuthSession } from "@/lib/auth";
 import { formatEventDateForFilename } from "@/lib/pdf/format-event-date";
-import { renderSetlistPdf } from "@/lib/pdf/render-setlist-pdf";
+import { generatePdfFromDocument } from "@/lib/pdf/generate-pdf-from-document";
+import { signPdfDocumentToken } from "@/lib/pdf/document-token";
+import { buildPdfDocumentUrl } from "@/lib/pdf/document-url";
 import { findEventWithItemsById } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 
 export const runtime = "nodejs";
+
+const PDF_DOCUMENT_TOKEN_TTL_SECONDS = 60 * 5;
 
 type PdfRouteContext = {
   params: Promise<{
@@ -42,8 +46,8 @@ function buildFilename(event: {
   return `${date}_${venueSlug}_setlist.pdf`;
 }
 
-function buildFontUrl(request: Request) {
-  return new URL("/fonts/NotoSansJP-Regular.ttf", request.url).toString();
+function toArrayBuffer(bytes: Uint8Array) {
+  return Uint8Array.from(bytes).buffer;
 }
 
 export async function GET(request: Request, context: PdfRouteContext) {
@@ -56,14 +60,21 @@ export async function GET(request: Request, context: PdfRouteContext) {
       return Response.json({ error: "Event not found." }, { status: 404 });
     }
 
-    const pdfBytes = await renderSetlistPdf({
-      event,
-      fontUrl: buildFontUrl(request),
-      theme: resolveTheme(request),
+    const theme = resolveTheme(request);
+    const token = signPdfDocumentToken({
+      eventId: event.id,
+      theme,
+      expiresInSeconds: PDF_DOCUMENT_TOKEN_TTL_SECONDS,
     });
+    const documentUrl = buildPdfDocumentUrl({
+      eventId: event.id,
+      theme,
+      token,
+    });
+    const pdfBytes = await generatePdfFromDocument({ documentUrl });
     const filename = buildFilename(event);
 
-    return new Response(Uint8Array.from(pdfBytes).buffer as ArrayBuffer, {
+    return new Response(toArrayBuffer(pdfBytes), {
       status: 200,
       headers: {
         "content-type": "application/pdf",
