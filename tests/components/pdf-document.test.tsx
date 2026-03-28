@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PdfDocument } from "../../components/pdf-document";
 import { buildSetlistPdfLayout } from "../../lib/pdf/build-layout";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
+import { oWestEvent } from "../fixtures/o-west-event";
 
 function requireElement(value: Element | null, message: string): HTMLElement {
   if (!value) {
@@ -10,6 +11,10 @@ function requireElement(value: Element | null, message: string): HTMLElement {
   }
 
   return value as HTMLElement;
+}
+
+function scaleRowHeight(layoutHeight: number, value: number) {
+  return `${(value / layoutHeight) * 842}px`;
 }
 
 describe("PdfDocument", () => {
@@ -68,5 +73,73 @@ describe("PdfDocument", () => {
     expect(within(headingRow).getAllByText("EN")).toHaveLength(1);
     expect(within(page).getByText("UPDATED_AT: 2026/03/21 09:00")).toBeInTheDocument();
     expect(within(page).getByText("1 / 1")).toBeInTheDocument();
+  });
+
+  it("keeps multi-page rendered rows tied to the shared layout positions", () => {
+    const layout = buildSetlistPdfLayout({
+      event: oWestEvent,
+      theme: "dark",
+    });
+
+    expect(layout.pageCount).toBe(3);
+
+    render(
+      <PdfDocument
+        event={{
+          updatedAt: oWestEvent.updatedAt,
+        }}
+        layout={layout}
+      />,
+    );
+
+    const firstPage = screen.getByRole("article", {
+      name: "Setlist PDF page 1",
+    });
+    const secondPage = screen.getByRole("article", {
+      name: "Setlist PDF page 2",
+    });
+    const thirdPage = screen.getByRole("article", {
+      name: "Setlist PDF page 3",
+    });
+    const firstRowOnSecondPage = requireElement(
+      secondPage.querySelector("[data-pdf-row]"),
+      "expected positioned row on second page",
+    );
+    const firstRowOnThirdPage = requireElement(
+      thirdPage.querySelector("[data-pdf-row]"),
+      "expected positioned row on third page",
+    );
+
+    expect(screen.getAllByRole("article", { name: /Setlist PDF page/ })).toHaveLength(
+      layout.pageCount,
+    );
+    expect(firstPage.querySelectorAll("[data-pdf-row]")).toHaveLength(
+      layout.pages[0]!.rows.length,
+    );
+    expect(secondPage.querySelectorAll("[data-pdf-row]")).toHaveLength(
+      layout.pages[1]!.rows.length,
+    );
+    expect(thirdPage.querySelectorAll("[data-pdf-row]")).toHaveLength(
+      layout.pages[2]!.rows.length,
+    );
+    expect(firstRowOnSecondPage).toHaveAttribute(
+      "data-row-top",
+      String(layout.pages[1]!.rows[0]!.top),
+    );
+    expect(firstRowOnSecondPage).toHaveAttribute(
+      "data-row-height",
+      String(layout.pages[1]!.rows[0]!.height),
+    );
+    expect(firstRowOnSecondPage).toHaveStyle({ position: "absolute" });
+    expect(firstRowOnSecondPage).toHaveStyle({
+      top: scaleRowHeight(layout.pageSize.height, layout.pages[1]!.rows[0]!.top),
+      height: scaleRowHeight(layout.pageSize.height, layout.pages[1]!.rows[0]!.height),
+    });
+    expect(firstRowOnThirdPage).toHaveStyle({
+      top: scaleRowHeight(layout.pageSize.height, layout.pages[2]!.rows[0]!.top),
+      height: scaleRowHeight(layout.pageSize.height, layout.pages[2]!.rows[0]!.height),
+    });
+    expect(within(secondPage).getByText(layout.pages[1]!.footer.text)).toBeInTheDocument();
+    expect(within(thirdPage).getByText(layout.pages[2]!.footer.text)).toBeInTheDocument();
   });
 });

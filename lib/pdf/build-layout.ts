@@ -17,12 +17,20 @@ const MARGINS = {
 
 const HEADER_HEIGHT = 88;
 const FOOTER_HEIGHT = 18;
-const ROW_GAP = 4;
+const ROW_GAP = 6;
 const LABEL_COLUMN_WIDTH = 44;
 const SONG_CUE_PREFIX = "M";
 const SONG_TITLE_LIMIT = 24;
 const HEADING_TITLE_LIMIT = 20;
 const TRANSITION_TITLE_LIMIT = 18;
+// These virtual heights track the HTML document row boxes so pagination and paper output
+// stay in sync when rows are absolutely positioned into each page.
+const ROW_HEIGHTS = {
+  song: 32,
+  mc: 28,
+  transition: 32,
+  heading: 42,
+} as const;
 
 type RenderableRow = ReturnType<typeof buildRenderableItems<EventWithItems["items"][number]>>[number];
 
@@ -86,12 +94,13 @@ export type SetlistPdfLayout = {
 function getRowHeight(itemType: RenderableRow["itemType"]) {
   switch (itemType) {
     case "heading":
-      return 24;
+      return ROW_HEIGHTS.heading;
     case "mc":
+      return ROW_HEIGHTS.mc;
     case "transition":
-      return 22;
+      return ROW_HEIGHTS.transition;
     default:
-      return 20;
+      return ROW_HEIGHTS.song;
   }
 }
 

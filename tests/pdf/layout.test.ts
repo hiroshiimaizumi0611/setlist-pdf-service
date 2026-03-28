@@ -14,7 +14,7 @@ describe("buildSetlistPdfLayout", () => {
       theme: "dark",
     });
 
-    expect(firstLayout.pageCount).toBeGreaterThan(1);
+    expect(firstLayout.pageCount).toBe(3);
     expect(firstLayout.pageCount).toBe(firstLayout.pages.length);
     expect(firstLayout.pages.map((page) => page.pageNumber)).toEqual(
       Array.from({ length: firstLayout.pageCount }, (_, index) => index + 1),
@@ -22,6 +22,7 @@ describe("buildSetlistPdfLayout", () => {
     expect(firstLayout.pages.map((page) => page.rows.map((row) => row.id))).toEqual(
       secondLayout.pages.map((page) => page.rows.map((row) => row.id)),
     );
+    expect(firstLayout.pages.map((page) => page.rows.length)).toEqual([15, 16, 11]);
     expect(firstLayout.pages[0]?.footer.text).toBe(`1 / ${firstLayout.pageCount}`);
     expect(
       firstLayout.pages.every((page) =>

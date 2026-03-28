@@ -11,6 +11,11 @@ type PdfDocumentProps = {
   layout: SetlistPdfLayout;
 };
 
+const PRINT_PAGE_SIZE = {
+  width: 595,
+  height: 842,
+} as const;
+
 const DOCUMENT_STYLES = `
   :root {
     color-scheme: light;
@@ -39,14 +44,13 @@ const DOCUMENT_STYLES = `
   }
 
   [data-pdf-page] {
-    width: 210mm;
-    min-height: 297mm;
+    position: relative;
     margin: 0 auto 20px;
-    padding: 12mm;
     background: var(--document-page-background);
-    box-shadow: 0 24px 70px rgba(15, 12, 9, 0.18);
+    box-shadow: 0 24px 70px var(--document-shadow);
     break-after: page;
     page-break-after: always;
+    overflow: hidden;
   }
 
   [data-pdf-page]:last-child {
@@ -55,6 +59,7 @@ const DOCUMENT_STYLES = `
   }
 
   [data-pdf-header-band] {
+    position: absolute;
     border-top: 6px solid var(--document-accent);
     border-bottom: 2px solid var(--document-border-strong);
     background: linear-gradient(
@@ -65,37 +70,33 @@ const DOCUMENT_STYLES = `
     );
   }
 
-  [data-pdf-rows] {
-    margin-top: 18px;
-  }
-
   [data-pdf-row] {
-    position: relative;
+    position: absolute;
+    overflow: hidden;
   }
 
   [data-row-variant="song"] {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 18px;
+    gap: 0;
     align-items: stretch;
-    margin-top: 8px;
     border-bottom: 1px solid var(--document-border-soft);
     background: linear-gradient(
       90deg,
       var(--document-header-background) 0,
-      var(--document-header-background) 64px,
-      transparent 64px,
+      var(--document-header-background) var(--document-cue-width),
+      transparent var(--document-cue-width),
       transparent 100%
     );
   }
 
   [data-row-variant="mc"] {
-    margin: 16px 0;
-    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: var(--document-text-secondary);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.45em;
     text-transform: uppercase;
@@ -103,21 +104,15 @@ const DOCUMENT_STYLES = `
 
   [data-row-variant="transition"] {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 18px;
+    gap: 0;
     align-items: center;
-    margin: 18px 0;
-    padding: 12px 0;
     background: var(--document-emphasis-fill);
   }
 
   [data-row-variant="heading"] {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: 18px;
+    gap: 0;
     align-items: start;
-    margin: 26px 0 8px;
-    padding: 18px 0;
     border-top: 2px solid var(--document-border-strong);
     border-bottom: 2px solid var(--document-border-strong);
   }
@@ -133,47 +128,52 @@ const DOCUMENT_STYLES = `
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
   [data-row-variant="song"] [data-pdf-cue] {
-    font-size: 13px;
-    background: var(--document-header-background);
+    justify-content: center;
+    font-size: 11px;
   }
 
   [data-row-variant="transition"] [data-pdf-cue] {
-    font-size: 13px;
+    justify-content: center;
+    font-size: 11px;
   }
 
   [data-row-variant="heading"] [data-pdf-cue] {
     align-items: flex-start;
     justify-content: flex-start;
-    padding-left: 0;
-    font-size: 30px;
+    padding-left: 4px;
+    font-size: 20px;
     line-height: 1;
     letter-spacing: -0.04em;
   }
 
   [data-pdf-row-copy] {
     min-width: 0;
+    display: flex;
+    align-items: center;
   }
 
   [data-row-variant="song"] [data-pdf-row-copy] {
-    padding: 14px 0 14px;
-    font-size: 31px;
+    padding: 0 12px;
+    font-size: 15px;
     font-weight: 900;
-    line-height: 1.03;
+    line-height: 1;
     letter-spacing: -0.06em;
   }
 
   [data-row-variant="transition"] [data-pdf-row-copy] {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    padding: 0 12px;
     color: var(--document-accent);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.34em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
   }
 
@@ -185,20 +185,21 @@ const DOCUMENT_STYLES = `
   }
 
   [data-row-variant="heading"] [data-pdf-row-copy] {
-    font-size: 26px;
+    padding: 0 0 0 12px;
+    font-size: 20px;
     font-weight: 900;
     line-height: 1;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
   [data-pdf-footer] {
+    position: absolute;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
-    margin-top: 24px;
-    padding-top: 12px;
+    padding-top: 6px;
     border-top: 1px solid var(--document-border-soft);
   }
 
@@ -258,6 +259,7 @@ function formatUpdatedAt(value: Date | null | undefined) {
 function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
   const shadowColor =
     layout.theme.name === "dark" ? "rgba(0, 0, 0, 0.44)" : "rgba(15, 12, 9, 0.18)";
+  const cueWidth = scaleX(layout, layout.content.labelWidth);
 
   return {
     ["--document-canvas" as string]:
@@ -275,14 +277,44 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
     ["--document-emphasis-fill" as string]: layout.theme.emphasisFill,
     ["--document-cue-text" as string]:
       layout.theme.name === "dark" ? layout.theme.accentText : layout.theme.primaryText,
+    ["--document-cue-width" as string]: `${cueWidth}px`,
     ["--document-shadow" as string]: shadowColor,
   };
 }
 
-function PdfRow({ row }: { row: SetlistPdfRowLayout }) {
+function scaleX(layout: SetlistPdfLayout, value: number) {
+  return (value / layout.pageSize.width) * PRINT_PAGE_SIZE.width;
+}
+
+function scaleY(layout: SetlistPdfLayout, value: number) {
+  return (value / layout.pageSize.height) * PRINT_PAGE_SIZE.height;
+}
+
+function PdfRow({
+  layout,
+  row,
+}: {
+  layout: SetlistPdfLayout;
+  row: SetlistPdfRowLayout;
+}) {
+  const cueWidth = scaleX(layout, layout.content.labelWidth);
+  const rowStyle = {
+    left: `${scaleX(layout, layout.content.left)}px`,
+    top: `${scaleY(layout, row.top)}px`,
+    width: `${scaleX(layout, layout.content.width)}px`,
+    height: `${scaleY(layout, row.height)}px`,
+    gridTemplateColumns: `${cueWidth}px minmax(0, 1fr)`,
+  } satisfies CSSProperties;
+
   if (row.variant === "mc") {
     return (
-      <div data-pdf-row data-row-variant="mc">
+      <div
+        data-pdf-row
+        data-row-height={row.height}
+        data-row-top={row.top}
+        data-row-variant="mc"
+        style={rowStyle}
+      >
         <div data-pdf-row-copy>{row.displayText}</div>
       </div>
     );
@@ -290,7 +322,13 @@ function PdfRow({ row }: { row: SetlistPdfRowLayout }) {
 
   if (row.variant === "transition") {
     return (
-      <div data-pdf-row data-row-variant="transition">
+      <div
+        data-pdf-row
+        data-row-height={row.height}
+        data-row-top={row.top}
+        data-row-variant="transition"
+        style={rowStyle}
+      >
         <div data-pdf-cue>{row.cueLabel}</div>
         <div data-pdf-row-copy>{row.displayText}</div>
       </div>
@@ -301,7 +339,13 @@ function PdfRow({ row }: { row: SetlistPdfRowLayout }) {
     const headingTitle = row.displayText === row.cueLabel ? null : row.displayText;
 
     return (
-      <div data-pdf-row data-row-variant="heading">
+      <div
+        data-pdf-row
+        data-row-height={row.height}
+        data-row-top={row.top}
+        data-row-variant="heading"
+        style={rowStyle}
+      >
         <div data-pdf-cue>{row.cueLabel}</div>
         <div data-pdf-row-copy>{headingTitle}</div>
       </div>
@@ -309,7 +353,13 @@ function PdfRow({ row }: { row: SetlistPdfRowLayout }) {
   }
 
   return (
-    <div data-pdf-row data-row-variant="song">
+    <div
+      data-pdf-row
+      data-row-height={row.height}
+      data-row-top={row.top}
+      data-row-variant="song"
+      style={rowStyle}
+    >
       <div data-pdf-cue>{row.cueLabel}</div>
       <div data-pdf-row-copy>{row.displayText}</div>
     </div>
@@ -318,25 +368,47 @@ function PdfRow({ row }: { row: SetlistPdfRowLayout }) {
 
 function PdfDocumentPage({
   event,
+  layout,
   page,
 }: {
   event: Pick<EventWithItems, "updatedAt">;
+  layout: SetlistPdfLayout;
   page: SetlistPdfPageLayout;
 }) {
   const updatedAt = formatUpdatedAt(event.updatedAt);
+  const pageStyle = {
+    width: `${PRINT_PAGE_SIZE.width}px`,
+    height: `${PRINT_PAGE_SIZE.height}px`,
+  } satisfies CSSProperties;
+  const headerStyle = {
+    left: `${scaleX(layout, layout.margins.left)}px`,
+    top: `${scaleY(layout, page.header.top)}px`,
+    width: `${scaleX(layout, layout.content.width)}px`,
+    height: `${scaleY(layout, page.header.height)}px`,
+    padding: "12px 16px 14px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+  } satisfies CSSProperties;
+  const footerStyle = {
+    left: `${scaleX(layout, layout.content.left)}px`,
+    top: `${scaleY(layout, page.footer.top)}px`,
+    width: `${scaleX(layout, layout.content.width)}px`,
+  } satisfies CSSProperties;
 
   return (
     <article
       aria-label={`Setlist PDF page ${page.pageNumber}`}
       data-pdf-page
+      style={pageStyle}
     >
-      <header data-pdf-header-band style={{ padding: "16px 18px 18px" }}>
+      <header data-pdf-header-band style={headerStyle}>
         <div
           style={{
             color: "var(--document-accent)",
             fontFamily:
               'var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace',
-            fontSize: "29px",
+            fontSize: "20px",
             fontWeight: 900,
             letterSpacing: "-0.08em",
             textTransform: "uppercase",
@@ -346,10 +418,11 @@ function PdfDocumentPage({
         </div>
         <div
           style={{
-            marginTop: "10px",
-            fontSize: "22px",
+            marginTop: "8px",
+            fontSize: "18px",
             fontWeight: 800,
             letterSpacing: "-0.04em",
+            lineHeight: 1.05,
           }}
         >
           {page.header.title}
@@ -357,10 +430,10 @@ function PdfDocumentPage({
         {page.header.subtitle ? (
           <div
             style={{
-              marginTop: "8px",
+              marginTop: "6px",
               color: "var(--document-text-secondary)",
-              fontSize: "12px",
-              lineHeight: 1.65,
+              fontSize: "10px",
+              lineHeight: 1.4,
             }}
           >
             {page.header.subtitle}
@@ -368,13 +441,11 @@ function PdfDocumentPage({
         ) : null}
       </header>
 
-      <div data-pdf-rows>
-        {page.rows.map((row) => (
-          <PdfRow key={row.id} row={row} />
-        ))}
-      </div>
+      {page.rows.map((row) => (
+        <PdfRow key={row.id} layout={layout} row={row} />
+      ))}
 
-      <footer data-pdf-footer>
+      <footer data-pdf-footer style={footerStyle}>
         <div data-pdf-updated-at>
           {updatedAt ? <div>UPDATED_AT: {updatedAt}</div> : null}
           <div>EVENT PAGE: {page.pageNumber}</div>
@@ -399,6 +470,7 @@ export function PdfDocument({ event, layout }: PdfDocumentProps) {
         <PdfDocumentPage
           key={page.pageNumber}
           event={event}
+          layout={layout}
           page={page}
         />
       ))}
