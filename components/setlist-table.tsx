@@ -80,6 +80,8 @@ export function SetlistTable({
   deleteItemAction,
 }: SetlistTableProps) {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
+  const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = items.find((item) => item.id === editingItemId) ?? null;
   const itemTone =
@@ -145,21 +147,81 @@ export function SetlistTable({
         {items.map((item, index) => {
           const rowLabel = getRowLabel(item.itemType);
           const dragHandleLabel = `${item.title} をドラッグして並び替え`;
+          const isReorderEnabled = Boolean(reorderItemsAction);
+          const isDragTarget = dragOverItemId === item.id && draggingItemId !== item.id;
 
           if (item.itemType === "heading") {
             return (
               <article
                 key={item.id}
+                draggable={isReorderEnabled}
+                onDragStart={(event) => {
+                  if (!isReorderEnabled) {
+                    return;
+                  }
+
+                  setDraggingItemId(item.id);
+                  setDragOverItemId(item.id);
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", item.id);
+                }}
+                onDragOver={(event) => {
+                  if (!draggingItemId || draggingItemId === item.id) {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  setDragOverItemId(item.id);
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+
+                  if (!reorderItemsAction || !draggingItemId || draggingItemId === item.id) {
+                    setDraggingItemId(null);
+                    setDragOverItemId(null);
+                    return;
+                  }
+
+                  const nextItems = [...items];
+                  const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
+                  const targetIndex = nextItems.findIndex((candidate) => candidate.id === item.id);
+
+                  if (draggedIndex < 0 || targetIndex < 0) {
+                    setDraggingItemId(null);
+                    setDragOverItemId(null);
+                    return;
+                  }
+
+                  const [draggedItem] = nextItems.splice(draggedIndex, 1);
+                  nextItems.splice(targetIndex, 0, draggedItem);
+
+                  void reorderItemsAction({
+                    eventId,
+                    orderedItemIds: nextItems.map((candidate) => candidate.id),
+                  });
+
+                  setDraggingItemId(null);
+                  setDragOverItemId(null);
+                }}
+                onDragEnd={() => {
+                  setDraggingItemId(null);
+                  setDragOverItemId(null);
+                }}
                 data-row-variant="heading"
                 data-row-rhythm="setlist"
                 data-row-reorder-ready={reorderItemsAction ? "true" : "false"}
                 data-row-edit-ready={updateItemAction ? "true" : "false"}
-                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-4`}
+                data-row-drop-target={isDragTarget ? "true" : "false"}
+                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-4 ${
+                  isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
+                }`}
               >
                 <div className="flex items-center gap-4">
                   <div
                     data-row-drag-handle
                     aria-label={dragHandleLabel}
+                    draggable={isReorderEnabled}
                     className={`hidden h-9 w-9 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
                   >
                     ⋮⋮
@@ -212,16 +274,74 @@ export function SetlistTable({
           return (
             <article
               key={item.id}
+              draggable={isReorderEnabled}
+              onDragStart={(event) => {
+                if (!isReorderEnabled) {
+                  return;
+                }
+
+                setDraggingItemId(item.id);
+                setDragOverItemId(item.id);
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", item.id);
+              }}
+              onDragOver={(event) => {
+                if (!draggingItemId || draggingItemId === item.id) {
+                  return;
+                }
+
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                setDragOverItemId(item.id);
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+
+                if (!reorderItemsAction || !draggingItemId || draggingItemId === item.id) {
+                  setDraggingItemId(null);
+                  setDragOverItemId(null);
+                  return;
+                }
+
+                const nextItems = [...items];
+                const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
+                const targetIndex = nextItems.findIndex((candidate) => candidate.id === item.id);
+
+                if (draggedIndex < 0 || targetIndex < 0) {
+                  setDraggingItemId(null);
+                  setDragOverItemId(null);
+                  return;
+                }
+
+                const [draggedItem] = nextItems.splice(draggedIndex, 1);
+                nextItems.splice(targetIndex, 0, draggedItem);
+
+                void reorderItemsAction({
+                  eventId,
+                  orderedItemIds: nextItems.map((candidate) => candidate.id),
+                });
+
+                setDraggingItemId(null);
+                setDragOverItemId(null);
+              }}
+              onDragEnd={() => {
+                setDraggingItemId(null);
+                setDragOverItemId(null);
+              }}
               data-row-variant={item.itemType}
               data-row-rhythm="setlist"
               data-row-reorder-ready={reorderItemsAction ? "true" : "false"}
               data-row-edit-ready={updateItemAction ? "true" : "false"}
-              className={`group border-b ${theme.border} ${itemTone.row[item.itemType]} transition-colors`}
+              data-row-drop-target={isDragTarget ? "true" : "false"}
+              className={`group border-b ${theme.border} ${itemTone.row[item.itemType]} transition-colors ${
+                isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
+              }`}
             >
               <div className="grid md:grid-cols-[28px_4px_60px_minmax(0,1fr)_120px_180px]">
                 <div
                   data-row-drag-handle
                   aria-label={dragHandleLabel}
+                  draggable={isReorderEnabled}
                   className={`hidden items-center justify-center border-b border-inherit px-2 py-4 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
                   ⋮⋮

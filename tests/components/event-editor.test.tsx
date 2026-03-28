@@ -253,6 +253,66 @@ describe("EventEditorPageContent", () => {
     );
   });
 
+  it("submits desktop drag reorder through reorderItemsAction with the new ordered ids", async () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    expect(rows.length).toBeGreaterThan(1);
+
+    const firstRow = requireElement(rows[0], "expected first song row");
+    const secondRow = requireElement(rows[1], "expected second song row");
+
+    const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
+    expect(firstHandle).toHaveClass("hidden");
+    expect(firstHandle).toHaveAttribute("draggable", "true");
+    expect(firstRow).toHaveAttribute("draggable", "true");
+
+    fireEvent.dragStart(firstHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(secondRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.drop(secondRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    await waitFor(() =>
+      expect(reorderItemsAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        orderedItemIds: [
+          event.items[1].id,
+          event.items[0].id,
+          ...event.items.slice(2).map((item) => item.id),
+        ],
+      }),
+    );
+  });
+
   it("renders a Stitch-like rail and compact metadata strip", () => {
     render(
       <EventEditorPageContent
