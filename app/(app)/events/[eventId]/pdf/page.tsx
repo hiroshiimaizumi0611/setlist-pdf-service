@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { getEventForUser } from "@/lib/services/events-service";
 import { buildSetlistPdfLayout } from "@/lib/pdf/build-layout";
+import { buildPdfDocumentUrl } from "@/lib/pdf/document-url";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { PdfPreviewPage } from "@/components/pdf-preview-page";
 
@@ -57,12 +58,17 @@ export default async function EventPdfPreviewPage({
     event,
     theme: currentTheme,
   });
+  const documentHref = buildPdfDocumentUrl({
+    eventId: event.id,
+    theme: currentTheme,
+  });
 
   return (
     <PdfPreviewPage
       event={event}
       layout={layout}
       currentTheme={currentTheme}
+      documentHref={documentHref}
       downloadHref={`/api/events/${event.id}/pdf?theme=${currentTheme}`}
     />
   );

@@ -73,7 +73,10 @@ export function PdfPreviewInspector({
             <span className="h-1 w-1 bg-[#f6c453]" />
             PDFテーマ切替
           </h2>
-          <div className="grid grid-cols-2 gap-px border border-[#38332b] bg-[#38332b]">
+          <div
+            aria-label="PDFテーマ切替"
+            className="grid grid-cols-2 gap-px border border-[#38332b] bg-[#38332b]"
+          >
             <ThemeLink
               href={lightHref}
               label="LIGHT"

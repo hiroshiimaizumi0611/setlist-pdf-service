@@ -3,12 +3,12 @@ import type { SetlistPdfLayout } from "@/lib/pdf/build-layout";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { EventWithItems } from "@/lib/repositories/event-repository";
 import { PdfPreviewInspector } from "./pdf-preview-inspector";
-import { PdfSheetPreview } from "./pdf-sheet-preview";
 
 type PdfPreviewPageProps = {
   event: EventWithItems;
   layout: SetlistPdfLayout;
   currentTheme: PdfThemeName;
+  documentHref: string;
   downloadHref: string;
 };
 
@@ -32,6 +32,7 @@ export function PdfPreviewPage({
   event,
   layout,
   currentTheme,
+  documentHref,
   downloadHref,
 }: PdfPreviewPageProps) {
   const previewBaseHref = `/events/${event.id}/pdf`;
@@ -80,7 +81,25 @@ export function PdfPreviewPage({
       </header>
 
       <div className="mx-auto grid min-h-[calc(100vh-81px)] max-w-[1600px] lg:grid-cols-[minmax(0,1fr)_320px]">
-        <PdfSheetPreview event={event} layout={layout} />
+        <section
+          aria-label="紙面プレビュー"
+          className="min-h-full overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_35%),linear-gradient(180deg,_#101010_0%,_#050505_100%)] px-6 py-8 sm:px-8"
+        >
+          <div className="mx-auto flex max-w-[980px] flex-col gap-4">
+            <div className="flex items-center justify-between gap-3 border border-[#2f2a24] bg-[#121212]/90 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.24em] text-[#bfb7aa] shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur">
+              <span>Live Document</span>
+              <span className="text-[#f6c453]">{currentTheme} theme</span>
+            </div>
+            <div className="overflow-hidden rounded-[28px] border border-[#2f2a24] bg-[#0b0b0b] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
+              <iframe
+                key={documentHref}
+                title="紙面プレビュー"
+                src={documentHref}
+                className="h-[960px] w-full bg-white"
+              />
+            </div>
+          </div>
+        </section>
         <PdfPreviewInspector
           currentTheme={currentTheme}
           lightHref={lightHref}

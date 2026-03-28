@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockGetEventForUser: vi.fn(),
   mockBuildSetlistPdfLayout: vi.fn(),
+  mockBuildPdfDocumentUrl: vi.fn(),
   mockRedirect: vi.fn(),
   mockNotFound: vi.fn(),
 }));
@@ -26,6 +27,10 @@ vi.mock("@/lib/pdf/build-layout", () => ({
   buildSetlistPdfLayout: mocks.mockBuildSetlistPdfLayout,
 }));
 
+vi.mock("@/lib/pdf/document-url", () => ({
+  buildPdfDocumentUrl: mocks.mockBuildPdfDocumentUrl,
+}));
+
 import PdfPreviewPage from "../../app/(app)/events/[eventId]/pdf/page";
 
 describe("EventPdfPreviewPage route wiring", () => {
@@ -39,11 +44,12 @@ describe("EventPdfPreviewPage route wiring", () => {
     mocks.mockGetAuthSessionWithPlan.mockReset();
     mocks.mockGetEventForUser.mockReset();
     mocks.mockBuildSetlistPdfLayout.mockReset();
+    mocks.mockBuildPdfDocumentUrl.mockReset();
     mocks.mockRedirect.mockReset();
     mocks.mockNotFound.mockReset();
   });
 
-  it("passes the shared layout model to the preview shell for a dark preview request", async () => {
+  it("passes helper-built document and download urls to the preview shell for a dark preview request", async () => {
     mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -56,6 +62,9 @@ describe("EventPdfPreviewPage route wiring", () => {
     });
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+    );
 
     const result = await PdfPreviewPage({
       params: Promise.resolve({ eventId: oWestEvent.id }),
@@ -70,9 +79,16 @@ describe("EventPdfPreviewPage route wiring", () => {
       event: oWestEvent,
       theme: "dark",
     });
+    expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "dark",
+    });
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);
+    expect(result.props.documentHref).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+    );
     expect(result.props.downloadHref).toBe(
       `/api/events/${oWestEvent.id}/pdf?theme=dark`,
     );
@@ -91,6 +107,9 @@ describe("EventPdfPreviewPage route wiring", () => {
     });
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=light",
+    );
 
     const result = await PdfPreviewPage({
       params: Promise.resolve({ eventId: oWestEvent.id }),
@@ -101,7 +120,14 @@ describe("EventPdfPreviewPage route wiring", () => {
       event: oWestEvent,
       theme: "light",
     });
+    expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "light",
+    });
     expect(result.props.currentTheme).toBe("light");
+    expect(result.props.documentHref).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=light",
+    );
     expect(result.props.downloadHref).toBe(
       `/api/events/${oWestEvent.id}/pdf?theme=light`,
     );
@@ -118,6 +144,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(mocks.mockRedirect).toHaveBeenCalledWith("/login");
     expect(mocks.mockGetEventForUser).not.toHaveBeenCalled();
     expect(mocks.mockBuildSetlistPdfLayout).not.toHaveBeenCalled();
+    expect(mocks.mockBuildPdfDocumentUrl).not.toHaveBeenCalled();
   });
 
   it("returns notFound when the event cannot be loaded", async () => {
@@ -140,5 +167,6 @@ describe("EventPdfPreviewPage route wiring", () => {
 
     expect(mocks.mockNotFound).toHaveBeenCalled();
     expect(mocks.mockBuildSetlistPdfLayout).not.toHaveBeenCalled();
+    expect(mocks.mockBuildPdfDocumentUrl).not.toHaveBeenCalled();
   });
 });
