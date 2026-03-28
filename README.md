@@ -21,7 +21,7 @@ Use this manual spot-check pass before shipping PDF/editor polish changes:
 - Dark PDF preview: low density, medium density, high density single-page, very high density multi-page.
 - Downloaded PDF output: low density, medium density, high density single-page, very high density multi-page.
 - Light-theme spot checks: confirm structure, spacing, and pagination still read correctly.
-- Dark editor comparison: match [design/stitch/project-16774743705046066908/images/37b9f1721b8c43a09f38b1d7915f0243-setlist-editor-dark.png](/Users/hiroshiimaizumi/Documents/.worktrees/codex-setlist-pdf-service/setlist-pdf-service/design/stitch/project-16774743705046066908/images/37b9f1721b8c43a09f38b1d7915f0243-setlist-editor-dark.png) for layout, contrast, and density.
+- Dark editor comparison: match `design/stitch/project-16774743705046066908/images/37b9f1721b8c43a09f38b1d7915f0243-setlist-editor-dark.png` for layout, contrast, and density.
 
 ## What You Can Do
 
