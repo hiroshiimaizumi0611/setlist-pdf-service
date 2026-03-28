@@ -154,7 +154,6 @@ export function SetlistTable({
             return (
               <article
                 key={item.id}
-                draggable={isReorderEnabled}
                 onDragStart={(event) => {
                   if (!isReorderEnabled) {
                     return;
@@ -274,7 +273,6 @@ export function SetlistTable({
           return (
             <article
               key={item.id}
-              draggable={isReorderEnabled}
               onDragStart={(event) => {
                 if (!isReorderEnabled) {
                   return;

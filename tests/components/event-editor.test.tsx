@@ -282,7 +282,7 @@ describe("EventEditorPageContent", () => {
     const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
     expect(firstHandle).toHaveClass("hidden");
     expect(firstHandle).toHaveAttribute("draggable", "true");
-    expect(firstRow).toHaveAttribute("draggable", "true");
+    expect(firstRow).not.toHaveAttribute("draggable");
 
     fireEvent.dragStart(firstHandle, {
       dataTransfer: {
