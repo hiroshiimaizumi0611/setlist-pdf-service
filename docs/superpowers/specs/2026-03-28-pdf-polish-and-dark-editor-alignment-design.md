@@ -144,6 +144,39 @@ The PDF preview route and downloaded PDF must continue to come from the same doc
 
 This polish pass may change presentation, but it must not reintroduce separate render logic or parallel layout sources.
 
+### 5. Density-aware page fitting
+
+The PDF should no longer assume one fixed typography scale regardless of item count.
+
+Instead, the dark PDF should use a staged layout strategy that reacts to total content density while keeping readability first.
+
+Required behavior:
+
+- when the total number of rows is small, the PDF should use a looser presentation so a single A4 page feels balanced rather than sparse
+- when the total number of rows is moderate, the PDF should use the standard layout
+- when the total number of rows is high, the PDF may reduce font size, row height, and spacing in a controlled way
+- when readability would fall below the acceptable threshold, the document must move to a second page instead of continuing to shrink
+
+The preferred model is a small number of discrete layout presets rather than a fully continuous scaling formula.
+
+The target preset families are:
+
+- `relaxed`
+- `standard`
+- `compact`
+- `multi-page`
+
+The exact thresholds can be tuned during implementation, but the behavior must follow these rules:
+
+- `relaxed` is for low-density setlists and should visibly increase the size and spacing of all row types
+- `standard` is the default baseline
+- `compact` may reduce the size and spacing of songs, MC, transition, and heading rows together, but only within a readability-safe range
+- `multi-page` begins when the content would no longer be comfortably readable in `compact`
+
+This is not a one-page-at-all-costs requirement.
+
+If the document becomes too dense, multiple pages are the correct result.
+
 ## Editor Redesign
 
 ### 1. Dark-first visual alignment
@@ -195,6 +228,10 @@ The setlist row list should visually echo the PDF system more strongly:
 - the dark PDF header, metadata line, cue cells, dividers, and row spacing are updated toward the Stitch dark reference rather than the older looser rendering
 - preview and downloaded PDF continue to be generated from the same source document
 - preview and downloaded dark PDF remain visually equivalent in structure, row order, and theme treatment after the polish pass
+- low-density setlists use a visibly larger, more spacious presentation on a single A4 page
+- high-density setlists attempt a controlled compact layout before adding pages
+- if the compact layout would become hard to read, the PDF uses multiple pages instead of shrinking further
+- the same density-selection logic applies to songs, MC, transition, and heading rows as one coordinated layout system
 
 ### Editor
 
@@ -218,4 +255,9 @@ Validation should rely on:
 - downloaded PDF spot checks
 - editor screen checks in dark theme
 - spot checks that light theme still renders correctly after shared layout updates
+- spot checks of at least:
+  - a low-density setlist
+  - a medium-density setlist
+  - a high-density setlist that still fits on one page
+  - a very high-density setlist that correctly flows to multiple pages
 - existing automated tests staying green, with targeted test updates only where the visual contract or DOM structure changes
