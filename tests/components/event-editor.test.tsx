@@ -253,7 +253,7 @@ describe("EventEditorPageContent", () => {
     );
   });
 
-  it("submits desktop drag reorder through reorderItemsAction with the new ordered ids", async () => {
+  it("submits desktop drag reorder by inserting before the hovered row when dragging downward", async () => {
     const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
 
     render(
@@ -274,10 +274,10 @@ describe("EventEditorPageContent", () => {
     }
 
     const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
-    expect(rows.length).toBeGreaterThan(1);
+    expect(rows.length).toBeGreaterThan(2);
 
     const firstRow = requireElement(rows[0], "expected first song row");
-    const secondRow = requireElement(rows[1], "expected second song row");
+    const thirdRow = requireElement(rows[2], "expected third song row");
 
     const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
     expect(firstHandle).toHaveClass("hidden");
@@ -290,12 +290,12 @@ describe("EventEditorPageContent", () => {
         setData: vi.fn(),
       },
     });
-    fireEvent.dragOver(secondRow, {
+    fireEvent.dragOver(thirdRow, {
       dataTransfer: {
         dropEffect: "move",
       },
     });
-    fireEvent.drop(secondRow, {
+    fireEvent.drop(thirdRow, {
       dataTransfer: {
         dropEffect: "move",
       },
@@ -307,7 +307,71 @@ describe("EventEditorPageContent", () => {
         orderedItemIds: [
           event.items[1].id,
           event.items[0].id,
-          ...event.items.slice(2).map((item) => item.id),
+          event.items[2].id,
+          ...event.items.slice(3).map((item) => item.id),
+        ],
+      }),
+    );
+  });
+
+  it("submits desktop drag reorder by inserting before the hovered row when dragging upward", async () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    expect(rows.length).toBeGreaterThan(2);
+
+    const firstRow = requireElement(rows[0], "expected first song row");
+    const thirdRow = requireElement(rows[2], "expected third song row");
+
+    const thirdHandle = within(thirdRow).getByLabelText(
+      "Dendrobium をドラッグして並び替え",
+    );
+    expect(thirdHandle).toHaveClass("hidden");
+    expect(thirdHandle).toHaveAttribute("draggable", "true");
+    expect(thirdRow).not.toHaveAttribute("draggable");
+
+    fireEvent.dragStart(thirdHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(firstRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.drop(firstRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    await waitFor(() =>
+      expect(reorderItemsAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        orderedItemIds: [
+          event.items[2].id,
+          event.items[0].id,
+          event.items[1].id,
+          ...event.items.slice(3).map((item) => item.id),
         ],
       }),
     );

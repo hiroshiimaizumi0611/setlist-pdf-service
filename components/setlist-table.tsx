@@ -84,6 +84,35 @@ export function SetlistTable({
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = items.find((item) => item.id === editingItemId) ?? null;
+  const reorderItems = (targetItemId: string) => {
+    if (!reorderItemsAction || !draggingItemId || draggingItemId === targetItemId) {
+      setDraggingItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const nextItems = [...items];
+    const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
+    const targetIndex = nextItems.findIndex((candidate) => candidate.id === targetItemId);
+
+    if (draggedIndex < 0 || targetIndex < 0) {
+      setDraggingItemId(null);
+      setDragOverItemId(null);
+      return;
+    }
+
+    const [draggedItem] = nextItems.splice(draggedIndex, 1);
+    const insertionIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+    nextItems.splice(insertionIndex, 0, draggedItem);
+
+    void reorderItemsAction({
+      eventId,
+      orderedItemIds: nextItems.map((candidate) => candidate.id),
+    });
+
+    setDraggingItemId(null);
+    setDragOverItemId(null);
+  };
   const itemTone =
     currentTheme === "dark"
       ? {
@@ -175,33 +204,7 @@ export function SetlistTable({
                 }}
                 onDrop={(event) => {
                   event.preventDefault();
-
-                  if (!reorderItemsAction || !draggingItemId || draggingItemId === item.id) {
-                    setDraggingItemId(null);
-                    setDragOverItemId(null);
-                    return;
-                  }
-
-                  const nextItems = [...items];
-                  const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
-                  const targetIndex = nextItems.findIndex((candidate) => candidate.id === item.id);
-
-                  if (draggedIndex < 0 || targetIndex < 0) {
-                    setDraggingItemId(null);
-                    setDragOverItemId(null);
-                    return;
-                  }
-
-                  const [draggedItem] = nextItems.splice(draggedIndex, 1);
-                  nextItems.splice(targetIndex, 0, draggedItem);
-
-                  void reorderItemsAction({
-                    eventId,
-                    orderedItemIds: nextItems.map((candidate) => candidate.id),
-                  });
-
-                  setDraggingItemId(null);
-                  setDragOverItemId(null);
+                  reorderItems(item.id);
                 }}
                 onDragEnd={() => {
                   setDraggingItemId(null);
@@ -294,33 +297,7 @@ export function SetlistTable({
               }}
               onDrop={(event) => {
                 event.preventDefault();
-
-                if (!reorderItemsAction || !draggingItemId || draggingItemId === item.id) {
-                  setDraggingItemId(null);
-                  setDragOverItemId(null);
-                  return;
-                }
-
-                const nextItems = [...items];
-                const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
-                const targetIndex = nextItems.findIndex((candidate) => candidate.id === item.id);
-
-                if (draggedIndex < 0 || targetIndex < 0) {
-                  setDraggingItemId(null);
-                  setDragOverItemId(null);
-                  return;
-                }
-
-                const [draggedItem] = nextItems.splice(draggedIndex, 1);
-                nextItems.splice(targetIndex, 0, draggedItem);
-
-                void reorderItemsAction({
-                  eventId,
-                  orderedItemIds: nextItems.map((candidate) => candidate.id),
-                });
-
-                setDraggingItemId(null);
-                setDragOverItemId(null);
+                reorderItems(item.id);
               }}
               onDragEnd={() => {
                 setDraggingItemId(null);
