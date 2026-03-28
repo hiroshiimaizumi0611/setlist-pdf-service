@@ -45,6 +45,18 @@ Those are not isolated bugs. They indicate that the typographic system and align
 - auth page redesign
 - light-theme-first rethinking
 
+### Light theme handling
+
+The dark theme is the design target for this pass.
+
+The light theme may inherit shared spacing or typography fixes where those fixes come from shared layout code, but this task does not require a separate light-theme visual redesign.
+
+However:
+
+- light theme must remain functional
+- light theme must not regress structurally
+- preview and download parity must continue to hold in both themes if the same shared document logic is used
+
 ## Design Source Of Truth
 
 Primary reference:
@@ -172,38 +184,30 @@ The setlist row list should visually echo the PDF system more strongly:
 - MC / transition / heading rows should feel differentiated in the same family as the paper design
 - action controls should stay functional but visually secondary
 
-## Component Impact
-
-PDF-facing components likely affected:
-
-- `components/pdf-document.tsx`
-- `components/pdf-preview-page.tsx`
-- `components/pdf-preview-inspector.tsx`
-- `lib/pdf/build-layout.ts`
-
-Editor-facing components likely affected:
-
-- `components/dashboard-shell.tsx`
-- `components/event-editor-page-content.tsx`
-- `components/event-metadata-form.tsx`
-- `components/setlist-item-form.tsx`
-- `components/setlist-table.tsx`
-- related shared theme helpers
-
 ## Acceptance Criteria
 
 ### PDF
 
-- the first song row no longer looks visually different from later song rows
-- transition rows feel optically centered like MC rows
-- the dark PDF feels materially closer to Stitch in hierarchy, spacing, and color usage
-- preview and downloaded PDF remain driven by the same source document
+- the first song row uses the same title sizing, baseline rhythm, and vertical alignment system as later song rows
+- song rows read as one repeated rhythm when comparing `M01` through later songs in the dark PDF
+- transition rows appear optically centered like MC rows when viewed in the dark PDF preview and in the downloaded dark PDF
+- heading rows are intentionally separated from normal song rows and remain visually consistent with the dark production-sheet hierarchy
+- the dark PDF header, metadata line, cue cells, dividers, and row spacing are updated toward the Stitch dark reference rather than the older looser rendering
+- preview and downloaded PDF continue to be generated from the same source document
+- preview and downloaded dark PDF remain visually equivalent in structure, row order, and theme treatment after the polish pass
 
 ### Editor
 
-- the editor feels visibly closer to the Stitch dark reference
-- the shell and row list share more of the PDF’s typographic and visual language
-- feature behavior remains intact while the atmosphere becomes more “backstage production tool” and less “generic app”
+- the top bar, left rail, metadata strip, add-item strip, and setlist row list are all visually adjusted toward the Stitch dark reference
+- the editor uses flatter, denser dark surfaces than the current implementation
+- the setlist row list shares a clearer visual relationship with the dark PDF through cue treatment, title hierarchy, and row rhythm
+- existing editor behavior remains intact for creating, editing, reordering, deleting, previewing, and exporting items
+
+### Light theme regression boundary
+
+- if shared typography or spacing changes affect light theme, the light theme must still render correctly
+- no new light-theme-specific redesign work is required for this task
+- no preview/download parity regression is allowed in light theme
 
 ## Validation
 
@@ -213,4 +217,5 @@ Validation should rely on:
 - screenshot checks of the rendered PDF preview
 - downloaded PDF spot checks
 - editor screen checks in dark theme
+- spot checks that light theme still renders correctly after shared layout updates
 - existing automated tests staying green, with targeted test updates only where the visual contract or DOM structure changes
