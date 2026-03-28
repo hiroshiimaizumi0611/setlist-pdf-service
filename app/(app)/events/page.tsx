@@ -15,7 +15,6 @@ export const dynamic = "force-dynamic";
 type EventsPageProps = {
   searchParams?: Promise<{
     theme?: string | string[];
-    deleteEvent?: string | string[];
   }>;
 };
 
@@ -60,9 +59,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
-  const pendingDeleteEventId = Array.isArray(resolvedSearchParams?.deleteEvent)
-    ? (resolvedSearchParams?.deleteEvent[0] ?? null)
-    : (resolvedSearchParams?.deleteEvent ?? null);
   const { session, currentPlan } = authSession;
   const events = await listEventSummaries({ userId: session.user.id });
 
@@ -80,7 +76,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       event={null}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
-      pendingDeleteEventId={pendingDeleteEventId}
       updateItemAction={updateEventItemAction}
       createEventAction={createDraftEvent}
       duplicateEventAction={duplicateEventFormAction}

@@ -98,11 +98,10 @@ describe("EventEditorPage route wiring", () => {
 
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.pendingDeleteItemId).toBe("item-2");
-    expect(result.props.pendingDeleteEventId).toBeNull();
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
   });
 
-  it("maps deleteEvent search params into pendingDeleteEventId", async () => {
+  it("keeps delete event handling wired without route-level modal state", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: { user: { id: "user-1" } },
       currentPlan: { plan: "free" },
@@ -136,11 +135,9 @@ describe("EventEditorPage route wiring", () => {
       params: Promise.resolve({ eventId: "event-nagoya-radhall" }),
       searchParams: Promise.resolve({
         theme: "dark",
-        deleteEvent: "event-nagoya-radhall",
       }),
     });
 
-    expect(result.props.pendingDeleteEventId).toBe("event-nagoya-radhall");
     expect(result.props.deleteEventAction).toBe(mockDeleteEventFormAction);
   });
 

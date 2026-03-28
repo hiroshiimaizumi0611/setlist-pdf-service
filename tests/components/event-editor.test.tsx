@@ -55,6 +55,7 @@ const event = {
 
 const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
 const mockDeleteEventAction = vi.fn().mockResolvedValue(undefined);
+const mockDuplicateEventAction = vi.fn().mockResolvedValue(undefined);
 
 function requireElement(value: Element | null, message: string): HTMLElement {
   if (!value) {
@@ -72,6 +73,7 @@ describe("EventEditorPageContent", () => {
         event={event}
         currentTheme="light"
         currentPlan="free"
+        duplicateEventAction={mockDuplicateEventAction}
         updateItemAction={mockUpdateItemAction}
         deleteEventAction={mockDeleteEventAction}
       />,
@@ -81,7 +83,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "このセットリストを削除" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "このセットリストを削除" })).toBeInTheDocument();
     expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
     expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
     expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
@@ -94,6 +96,8 @@ describe("EventEditorPageContent", () => {
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",
     );
+    expect(within(navigation).getAllByRole("button", { name: "複製" }).length).toBeGreaterThan(0);
+    expect(within(navigation).getAllByRole("button", { name: "削除" }).length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Date")).toHaveValue("2026-03-28");
     expect(screen.getByLabelText("Venue")).toHaveValue("RADHALL");
     expect(screen.getByLabelText("Show Title")).toHaveValue("2026.03.28 名古屋 RADHALL");
@@ -422,23 +426,29 @@ describe("EventEditorPageContent", () => {
     );
   });
 
-  it("renders whole-event delete confirmation in the sidebar and current editor", () => {
+  it("opens a delete confirmation modal from the sidebar and current editor", async () => {
     render(
       <EventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
         currentPlan="free"
-        pendingDeleteEventId={event.id}
         updateItemAction={mockUpdateItemAction}
         deleteEventAction={mockDeleteEventAction}
       />,
     );
 
-    expect(
-      screen.getByRole("button", { name: "2026.03.28 名古屋 RADHALL の削除を確定" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "現在のセットリスト削除を確定" })).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole("button", { name: "削除" })[0]);
+    const sidebarDialog = screen.getByRole("dialog", { name: "このセットリストを削除しますか？" });
+    expect(sidebarDialog).toBeInTheDocument();
+    expect(within(sidebarDialog).getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "このセットリストを削除しますか？" })).not.toBeInTheDocument(),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "このセットリストを削除" }));
+    expect(screen.getByRole("dialog", { name: "このセットリストを削除しますか？" })).toBeInTheDocument();
   });
 
   it("renders a Stitch-like rail and compact metadata strip", () => {
