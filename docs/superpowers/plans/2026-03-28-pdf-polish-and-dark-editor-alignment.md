@@ -124,7 +124,10 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/pdf/build-layout.ts tests/pdf/layout.test.ts lib/pdf/density-presets.ts tests/pdf/density-presets.test.ts
+git add lib/pdf/build-layout.ts tests/pdf/layout.test.ts
+# If created in this task, also add:
+#   lib/pdf/density-presets.ts
+#   tests/pdf/density-presets.test.ts
 git commit -m "feat: add density-aware pdf layout presets"
 ```
 
@@ -219,14 +222,49 @@ Run: `npm run test -- tests/components/pdf-preview-page.test.tsx tests/component
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Run the focused end-to-end parity flow**
+
+Run: `npm run test:e2e -- tests/e2e/setlist-flow.spec.ts`
+
+Expected: PASS
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add components/pdf-preview-page.tsx tests/components/pdf-preview-page.test.tsx tests/components/pdf-document.test.tsx tests/e2e/setlist-flow.spec.ts
 git commit -m "test: cover density-aware pdf parity"
 ```
 
-## Task 4: Push the Editor Shell Toward Stitch Dark
+## Task 4: Add Explicit Visual Spot-Check Coverage
+
+**Files:**
+- Modify: `README.md` only if a lightweight developer checklist note is useful
+- No test files required unless automation support is added
+
+- [ ] **Step 1: Define the manual visual validation checklist**
+
+Write down the exact visual cases that must be checked before closing the work:
+
+- dark PDF preview with a low-density setlist
+- dark PDF preview with a medium-density setlist
+- dark PDF preview with a high-density single-page setlist
+- dark PDF preview with a very high-density multi-page setlist
+- downloaded PDF output for those same density cases
+- light-theme spot checks for structural regressions
+- dark editor comparison against the Stitch dark editor reference
+
+- [ ] **Step 2: Add the checklist to a durable place if needed**
+
+If the checklist is not already obvious from the task plan, add a short section to `README.md` or another existing developer-facing doc. Keep it brief and specific.
+
+- [ ] **Step 3: Commit if documentation changed**
+
+```bash
+git add README.md
+git commit -m "docs: add visual validation checklist for pdf polish"
+```
+
+## Task 5: Push the Editor Shell Toward Stitch Dark
 
 **Files:**
 - Modify: `components/dashboard-shell.tsx`
@@ -281,7 +319,7 @@ git add components/dashboard-shell.tsx components/event-editor-page-content.tsx 
 git commit -m "feat: tune dark editor shell toward stitch"
 ```
 
-## Task 5: Align Metadata, Add-Item Strip, and Setlist Rows With the PDF Tone
+## Task 6: Align Metadata, Add-Item Strip, and Setlist Rows With the PDF Tone
 
 **Files:**
 - Modify: `components/event-metadata-form.tsx`
@@ -336,7 +374,7 @@ git add components/event-metadata-form.tsx components/setlist-item-form.tsx comp
 git commit -m "feat: align editor rows with polished pdf tone"
 ```
 
-## Task 6: Run the Full Regression Suite and Close the Loop
+## Task 7: Run the Full Regression Suite and Close the Loop
 
 **Files:**
 - Modify only what the verification results require
@@ -373,7 +411,19 @@ Run: `npm run cf:check`
 
 Expected: PASS or only non-blocking dry-run warnings with exit code 0
 
-- [ ] **Step 5: Commit any final fixes**
+- [ ] **Step 5: Complete the explicit visual spot checks**
+
+Confirm all of the following against the Stitch refs and the real rendered output:
+
+- low-density dark PDF preview looks balanced on one page
+- medium-density dark PDF preview uses the expected standard rhythm
+- high-density dark PDF preview stays readable on one page when compact mode is selected
+- very high-density dark PDF preview correctly flows to multiple pages instead of shrinking too far
+- downloaded PDFs match the same structure seen in preview for those density cases
+- dark editor shell and row styling are visibly closer to the Stitch dark editor reference
+- light theme still renders correctly after shared layout changes
+
+- [ ] **Step 6: Commit any final fixes**
 
 ```bash
 git add -A
