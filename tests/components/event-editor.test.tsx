@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
@@ -134,10 +134,7 @@ describe("EventEditorPageContent", () => {
     expect(setlistSection.querySelector("details")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /上へ移動/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /下へ移動/ })).not.toBeInTheDocument();
-    expect(within(firstSongRow).getByRole("link", { name: "編集" })).toHaveAttribute(
-      "href",
-      `/events/${event.id}?theme=light&editItem=${event.items[0].id}`,
-    );
+    expect(within(firstSongRow).getByRole("button", { name: "編集" })).toBeInTheDocument();
     expect(within(firstSongRow).getByText("削除")).toBeInTheDocument();
     const desktopActions = requireElement(
       firstSongRow.querySelector('[data-row-actions="desktop"]'),
@@ -160,30 +157,40 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
   }, 20_000);
 
-  it("shows a route-driven edit form without inline row expansion", () => {
+  it("opens a centered edit modal with current item values and closes without changing row structure", () => {
     render(
       <EventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
         currentPlan="free"
-        editingItemId="item-1"
         updateItemAction={mockUpdateItemAction}
       />,
     );
 
-    expect(screen.queryByRole("heading", { name: "セットリスト編集" })).not.toBeInTheDocument();
-    const editPanel = screen.getByRole("heading", { name: "編集対象" }).closest("section");
-    expect(editPanel).toBeTruthy();
-    if (!editPanel) {
-      throw new Error("expected edit panel");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
     }
-    expect(within(editPanel).getByLabelText("項目種別")).toHaveValue("song");
-    expect(within(editPanel).getByLabelText("タイトル")).toHaveValue("緑");
-    expect(within(editPanel).getByRole("link", { name: "編集を閉じる" })).toHaveAttribute(
-      "href",
-      "/events/event-nagoya-radhall?theme=light",
-    );
+    const rowCountBeforeOpen = setlistSection.querySelectorAll("article").length;
+
+    fireEvent.click(screen.getAllByRole("button", { name: "編集" })[0]);
+
+    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("項目種別")).toHaveValue("song");
+    expect(within(dialog).getByLabelText("タイトル")).toHaveValue("緑");
+    expect(within(dialog).getByLabelText("アーティスト")).toHaveValue("");
+    expect(within(dialog).getByRole("button", { name: "キャンセル" })).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
+
+    expect(screen.queryByRole("dialog", { name: "セットリスト項目を編集" })).not.toBeInTheDocument();
+    expect(setlistSection.querySelectorAll("article")).toHaveLength(rowCountBeforeOpen);
+    expect(setlistSection.querySelector('[data-editor-strip="edit-item"]')).not.toBeInTheDocument();
   });
 
   it("renders a Stitch-like rail and compact metadata strip", () => {

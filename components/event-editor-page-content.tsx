@@ -17,7 +17,6 @@ type EventEditorPageContentProps = {
   event: EventWithItems | null;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
-  editingItemId?: string | null;
   pendingDeleteItemId?: string | null;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
@@ -83,19 +82,11 @@ function parseOptionalNumber(value: FormDataEntryValue | null) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-const ITEM_TYPE_OPTIONS: Array<{ value: SetlistItemType; label: string }> = [
-  { value: "song", label: "曲" },
-  { value: "mc", label: "MC" },
-  { value: "transition", label: "転換" },
-  { value: "heading", label: "見出し" },
-];
-
 export function EventEditorPageContent({
   events,
   event,
   currentTheme,
   currentPlan,
-  editingItemId,
   pendingDeleteItemId,
   createEventAction,
   duplicateEventAction,
@@ -108,7 +99,6 @@ export function EventEditorPageContent({
 }: EventEditorPageContentProps) {
   const theme = getDashboardThemeStyles(currentTheme);
   const currentEventId = event?.id ?? null;
-  const editingItem = event && editingItemId ? event.items.find((item) => item.id === editingItemId) ?? null : null;
   const lightHref = event ? `/events/${event.id}?theme=light` : "/events?theme=light";
   const darkHref = event ? `/events/${event.id}?theme=dark` : "/events?theme=dark";
   const sidebarChrome = (
@@ -264,125 +254,6 @@ export function EventEditorPageContent({
           currentTheme={currentTheme}
           addItemAction={addItemFormAction}
         />
-
-        {editingItem ? (
-          <section
-            data-editor-strip="edit-item"
-            className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}
-          >
-            <div className={`flex flex-col gap-2 border-b-2 ${theme.border} px-4 py-3 sm:flex-row sm:items-center sm:justify-between`}>
-              <div>
-                <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
-                  Edit Route
-                </p>
-                <h2 className="mt-1 font-mono text-xl font-black tracking-[-0.05em]">
-                  編集対象
-                </h2>
-              </div>
-              <Link
-                href={`/events/${event.id}?theme=${currentTheme}`}
-                className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
-              >
-                編集を閉じる
-              </Link>
-            </div>
-
-            <form
-              action={async (formData: FormData) => {
-                "use server";
-
-                if (!updateItemAction) {
-                  return;
-                }
-
-                await updateItemAction({
-                  eventId: event.id,
-                  itemId: editingItem.id,
-                  itemType: String(formData.get("itemType") ?? editingItem.itemType) as SetlistItemType,
-                  title: String(formData.get("title") ?? ""),
-                  artist: String(formData.get("artist") ?? "") || null,
-                  durationSeconds: parseOptionalNumber(formData.get("durationSeconds")),
-                  notes: String(formData.get("notes") ?? "") || null,
-                });
-              }}
-              aria-label={`${editingItem.title} の編集フォーム`}
-              className="grid gap-4 px-4 py-4"
-            >
-              <div className="grid gap-3 md:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]">
-                <label className="grid gap-2 text-sm font-medium">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.28em]">項目種別</span>
-                  <select
-                    name="itemType"
-                    defaultValue={editingItem.itemType}
-                    className={`${theme.input} min-h-10 px-4 py-2.5`}
-                  >
-                    {ITEM_TYPE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="grid gap-2 text-sm font-medium">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.28em]">タイトル</span>
-                  <input
-                    type="text"
-                    name="title"
-                    defaultValue={editingItem.title}
-                    required
-                    className={`${theme.input} min-h-10 px-4 py-2.5`}
-                  />
-                </label>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <label className="grid gap-2 text-sm font-medium">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.28em]">アーティスト</span>
-                  <input
-                    type="text"
-                    name="artist"
-                    defaultValue={editingItem.artist ?? ""}
-                    placeholder="任意"
-                    className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
-                  />
-                </label>
-
-                <label className="grid gap-2 text-sm font-medium">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.28em]">尺(秒)</span>
-                  <input
-                    type="number"
-                    min="0"
-                    name="durationSeconds"
-                    defaultValue={editingItem.durationSeconds ?? ""}
-                    placeholder="任意"
-                    className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
-                  />
-                </label>
-
-                <label className="grid gap-2 text-sm font-medium">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.28em]">メモ</span>
-                  <input
-                    type="text"
-                    name="notes"
-                    defaultValue={editingItem.notes ?? ""}
-                    placeholder="任意"
-                    className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
-                  />
-                </label>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className={`${theme.buttonPrimary} min-h-10 px-5 text-sm font-black tracking-[0.14em] uppercase`}
-                >
-                  変更を保存
-                </button>
-              </div>
-            </form>
-          </section>
-        ) : null}
       </div>
 
       <SetlistTable

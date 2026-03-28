@@ -98,7 +98,7 @@ describe("EventEditorPage route wiring", () => {
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
   });
 
-  it("maps editItem search params into editingItemId", async () => {
+  it("does not expose editItem search params once editing is modal-driven", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -145,7 +145,7 @@ describe("EventEditorPage route wiring", () => {
     });
 
     expect(result.props.currentTheme).toBe("light");
-    expect(result.props.editingItemId).toBe("item-9");
+    expect(result.props.editingItemId).toBeUndefined();
   });
 
   it(

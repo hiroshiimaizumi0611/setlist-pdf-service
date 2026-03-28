@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import type { SetlistItemRecord } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
+import { SetlistItemEditModal } from "./setlist-item-edit-modal";
 
 type SetlistTableProps = {
   currentTheme: PdfThemeName;
@@ -75,7 +79,9 @@ export function SetlistTable({
   reorderItemsAction,
   deleteItemAction,
 }: SetlistTableProps) {
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
+  const editingItem = items.find((item) => item.id === editingItemId) ?? null;
   const itemTone =
     currentTheme === "dark"
       ? {
@@ -182,12 +188,14 @@ export function SetlistTable({
                     data-row-actions="desktop"
                     className="flex items-center gap-1 opacity-100 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
                   >
-                    <Link
-                      href={`/events/${eventId}?theme=${currentTheme}&editItem=${item.id}`}
+                    <button
+                      type="button"
+                      onClick={() => setEditingItemId(item.id)}
+                      disabled={!updateItemAction}
                       className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
                     >
                       編集
-                    </Link>
+                    </button>
                     <Link
                       href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
                       aria-label={`${item.title} を削除`}
@@ -268,12 +276,14 @@ export function SetlistTable({
                   data-row-actions="desktop"
                   className="flex flex-wrap justify-end gap-1 px-4 py-4"
                 >
-                  <Link
-                    href={`/events/${eventId}?theme=${currentTheme}&editItem=${item.id}`}
+                  <button
+                    type="button"
+                    onClick={() => setEditingItemId(item.id)}
+                    disabled={!updateItemAction}
                     className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
                   >
                     編集
-                  </Link>
+                  </button>
                   {pendingDeleteItemId === item.id ? (
                     <>
                       <form
@@ -320,6 +330,16 @@ export function SetlistTable({
           );
         })}
       </div>
+
+      {editingItem ? (
+        <SetlistItemEditModal
+          currentTheme={currentTheme}
+          eventId={eventId}
+          item={editingItem}
+          updateItemAction={updateItemAction}
+          onClose={() => setEditingItemId(null)}
+        />
+      ) : null}
     </section>
   );
 }
