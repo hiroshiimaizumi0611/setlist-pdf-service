@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
@@ -122,18 +122,27 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByText("EN")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
-    expect(screen.getAllByText("編集").length).toBeGreaterThan(0);
-    fireEvent.click(screen.getAllByText("編集")[1]);
-    const editForm = screen.getByRole("form", {
-      name: "ねえ！もう実験は終わりにしよう！ の編集フォーム",
-    });
-    expect(within(editForm).getByLabelText("項目種別")).toHaveValue("song");
-    expect(within(editForm).getByLabelText("タイトル")).toHaveValue(
-      "ねえ！もう実験は終わりにしよう！",
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+    const firstSongRow = requireElement(
+      setlistSection.querySelector('article[data-row-variant="song"]'),
+      "expected first song row",
     );
-    expect(within(editForm).getByLabelText("タイトル")).toBeRequired();
-    expect(screen.getByRole("button", { name: "ねえ！もう実験は終わりにしよう！ を上へ移動" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "緑 を下へ移動" })).toBeInTheDocument();
+    expect(setlistSection.querySelector("details")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /上へ移動/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /下へ移動/ })).not.toBeInTheDocument();
+    expect(within(firstSongRow).getByText("編集")).toBeInTheDocument();
+    expect(within(firstSongRow).getByText("削除")).toBeInTheDocument();
+    const desktopActions = requireElement(
+      firstSongRow.querySelector('[data-row-actions="desktop"]'),
+      "expected desktop action cluster",
+    );
+    expect(within(desktopActions).getByText("編集")).toBeInTheDocument();
+    expect(within(desktopActions).getByText("削除")).toBeInTheDocument();
+    expect(within(firstSongRow).getByLabelText("緑 をドラッグして並び替え")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
       "/events/event-nagoya-radhall/pdf?theme=light",
