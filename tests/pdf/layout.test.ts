@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildSetlistPdfLayout } from "../../lib/pdf/build-layout";
+import { DENSITY_PRESETS } from "../../lib/pdf/density-presets";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { oWestEvent } from "../fixtures/o-west-event";
 
@@ -212,5 +213,47 @@ describe("buildSetlistPdfLayout", () => {
 
     expect(layout.densityPreset).toBe(densityPreset);
     expect(layout.pageCount).toBe(pageCount);
+  });
+
+  it("expands relaxed single-page layouts so low-density sheets do not stay top-packed", () => {
+    const layout = buildSetlistPdfLayout({
+      event: buildSyntheticEvent([
+        { id: "row-1", itemType: "song", title: "Song 01" },
+        { id: "row-2", itemType: "song", title: "Song 02" },
+        { id: "row-3", itemType: "song", title: "Song 03" },
+      ]),
+      theme: "dark",
+    });
+    const lastRow = layout.pages[0]!.rows.at(-1)!;
+    const lastRowBottom = lastRow.top + lastRow.height;
+
+    expect(layout.densityPreset).toBe("relaxed");
+    expect(layout.pageCount).toBe(1);
+    expect(layout.pageGeometry.rowExpansion).toBeGreaterThan(1);
+    expect(layout.pageGeometry.rowGap).toBeGreaterThan(DENSITY_PRESETS.relaxed.rowGap);
+    expect(layout.pageGeometry.rowHeights.song).toBeGreaterThan(
+      DENSITY_PRESETS.relaxed.rowHeights.song,
+    );
+    expect(lastRowBottom - layout.pageGeometry.contentTop).toBeGreaterThan(320);
+  });
+
+  it("expands standard single-page layouts when the sheet would otherwise look sparse", () => {
+    const layout = buildSetlistPdfLayout({
+      event: nagoyaRadhallEvent,
+      theme: "dark",
+    });
+    const firstRow = layout.pages[0]!.rows[0]!;
+    const lastRow = layout.pages[0]!.rows.at(-1)!;
+    const usedHeight = lastRow.top + lastRow.height - firstRow.top;
+
+    expect(layout.densityPreset).toBe("standard");
+    expect(layout.pageCount).toBe(1);
+    expect(layout.pageGeometry.rowExpansion).toBeGreaterThan(1);
+    expect(layout.pageGeometry.rowGap).toBeGreaterThan(DENSITY_PRESETS.standard.rowGap);
+    expect(layout.pageGeometry.rowHeights.song).toBeGreaterThan(
+      DENSITY_PRESETS.standard.rowHeights.song,
+    );
+    expect(usedHeight).toBeGreaterThan(400);
+    expect(firstRow.top).toBeGreaterThan(layout.pageGeometry.contentTop);
   });
 });

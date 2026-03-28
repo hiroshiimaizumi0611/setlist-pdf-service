@@ -29,6 +29,10 @@ type DensityMetrics = {
   footerPageSize: string;
 };
 
+function scaleDensityMetric(value: number, factor: number) {
+  return `${Number((value * factor).toFixed(2))}px`;
+}
+
 const A4_PAGE_SIZE_MM = {
   width: 210,
   height: 297,
@@ -267,62 +271,67 @@ const DOCUMENT_STYLES = `
   }
 `;
 
-function getDensityMetrics(densityPreset: SetlistPdfLayout["densityPreset"]): DensityMetrics {
+function getDensityMetrics(
+  densityPreset: SetlistPdfLayout["densityPreset"],
+  rowExpansion: number,
+): DensityMetrics {
+  const typographyScale = Math.min(1.48, 1 + (Math.max(1, rowExpansion) - 1) * 0.28);
+
   switch (densityPreset) {
     case "relaxed":
       return {
-        headerBorderTop: "4px",
-        headerBandPadding: "14px 18px 16px",
-        kickerSize: "21px",
-        titleSize: "19px",
-        metaSize: "10.5px",
-        cuePadding: "10px 8px",
-        cueFontSize: "11.5px",
-        songFontSize: "17px",
-        transitionFontSize: "11.5px",
-        headingCueSize: "22px",
-        headingTitleSize: "21px",
-        rowCopyPadding: "14px",
-        footerTopPadding: "7px",
-        footerMetaSize: "10px",
-        footerPageSize: "12px",
+        headerBorderTop: scaleDensityMetric(4, Math.min(1.18, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(14, typographyScale)} ${scaleDensityMetric(18, typographyScale)} ${scaleDensityMetric(16, typographyScale)}`,
+        kickerSize: scaleDensityMetric(21, typographyScale),
+        titleSize: scaleDensityMetric(19, typographyScale),
+        metaSize: scaleDensityMetric(10.5, Math.min(1.18, typographyScale)),
+        cuePadding: `${scaleDensityMetric(10, typographyScale)} ${scaleDensityMetric(8, typographyScale)}`,
+        cueFontSize: scaleDensityMetric(11.5, typographyScale),
+        songFontSize: scaleDensityMetric(17, typographyScale),
+        transitionFontSize: scaleDensityMetric(11.5, typographyScale),
+        headingCueSize: scaleDensityMetric(22, typographyScale),
+        headingTitleSize: scaleDensityMetric(21, typographyScale),
+        rowCopyPadding: scaleDensityMetric(14, typographyScale),
+        footerTopPadding: scaleDensityMetric(7, Math.min(1.15, typographyScale)),
+        footerMetaSize: scaleDensityMetric(10, Math.min(1.15, typographyScale)),
+        footerPageSize: scaleDensityMetric(12, Math.min(1.12, typographyScale)),
       };
     case "compact":
       return {
-        headerBorderTop: "3px",
-        headerBandPadding: "10px 14px 12px",
-        kickerSize: "18px",
-        titleSize: "16px",
-        metaSize: "9px",
-        cuePadding: "7px 6px",
-        cueFontSize: "10px",
-        songFontSize: "13px",
-        transitionFontSize: "10px",
-        headingCueSize: "18px",
-        headingTitleSize: "18px",
-        rowCopyPadding: "10px",
-        footerTopPadding: "5px",
-        footerMetaSize: "9px",
-        footerPageSize: "11px",
+        headerBorderTop: scaleDensityMetric(3, Math.min(1.08, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(10, typographyScale)} ${scaleDensityMetric(14, typographyScale)} ${scaleDensityMetric(12, typographyScale)}`,
+        kickerSize: scaleDensityMetric(18, typographyScale),
+        titleSize: scaleDensityMetric(16, typographyScale),
+        metaSize: scaleDensityMetric(9, Math.min(1.14, typographyScale)),
+        cuePadding: `${scaleDensityMetric(7, typographyScale)} ${scaleDensityMetric(6, typographyScale)}`,
+        cueFontSize: scaleDensityMetric(10, typographyScale),
+        songFontSize: scaleDensityMetric(13, typographyScale),
+        transitionFontSize: scaleDensityMetric(10, typographyScale),
+        headingCueSize: scaleDensityMetric(18, typographyScale),
+        headingTitleSize: scaleDensityMetric(18, typographyScale),
+        rowCopyPadding: scaleDensityMetric(10, typographyScale),
+        footerTopPadding: scaleDensityMetric(5, Math.min(1.1, typographyScale)),
+        footerMetaSize: scaleDensityMetric(9, Math.min(1.1, typographyScale)),
+        footerPageSize: scaleDensityMetric(11, Math.min(1.08, typographyScale)),
       };
     case "standard":
     default:
       return {
-        headerBorderTop: "4px",
-        headerBandPadding: "12px 16px 14px",
-        kickerSize: "20px",
-        titleSize: "18px",
-        metaSize: "10px",
-        cuePadding: "8px 7px",
-        cueFontSize: "11px",
-        songFontSize: "15px",
-        transitionFontSize: "11px",
-        headingCueSize: "20px",
-        headingTitleSize: "20px",
-        rowCopyPadding: "12px",
-        footerTopPadding: "6px",
-        footerMetaSize: "10px",
-        footerPageSize: "12px",
+        headerBorderTop: scaleDensityMetric(4, Math.min(1.14, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(12, typographyScale)} ${scaleDensityMetric(16, typographyScale)} ${scaleDensityMetric(14, typographyScale)}`,
+        kickerSize: scaleDensityMetric(20, typographyScale),
+        titleSize: scaleDensityMetric(18, typographyScale),
+        metaSize: scaleDensityMetric(10, Math.min(1.16, typographyScale)),
+        cuePadding: `${scaleDensityMetric(8, typographyScale)} ${scaleDensityMetric(7, typographyScale)}`,
+        cueFontSize: scaleDensityMetric(11, typographyScale),
+        songFontSize: scaleDensityMetric(15, typographyScale),
+        transitionFontSize: scaleDensityMetric(11, typographyScale),
+        headingCueSize: scaleDensityMetric(20, typographyScale),
+        headingTitleSize: scaleDensityMetric(20, typographyScale),
+        rowCopyPadding: scaleDensityMetric(12, typographyScale),
+        footerTopPadding: scaleDensityMetric(6, Math.min(1.12, typographyScale)),
+        footerMetaSize: scaleDensityMetric(10, Math.min(1.12, typographyScale)),
+        footerPageSize: scaleDensityMetric(12, Math.min(1.1, typographyScale)),
       };
   }
 }
@@ -347,7 +356,10 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
   const shadowColor =
     layout.theme.name === "dark" ? "rgba(0, 0, 0, 0.44)" : "rgba(15, 12, 9, 0.18)";
   const cueWidth = scaleX(layout, layout.content.labelWidth);
-  const densityMetrics = getDensityMetrics(layout.densityPreset);
+  const densityMetrics = getDensityMetrics(
+    layout.densityPreset,
+    layout.pageGeometry.rowExpansion,
+  );
 
   return {
     ["--document-canvas" as string]:
@@ -379,7 +391,10 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
     ["--document-heading-cue-size" as string]: densityMetrics.headingCueSize,
     ["--document-heading-title-size" as string]: densityMetrics.headingTitleSize,
     ["--document-row-copy-padding" as string]: densityMetrics.rowCopyPadding,
-    ["--document-transition-gap" as string]: layout.densityPreset === "compact" ? "6px" : "8px",
+    ["--document-transition-gap" as string]:
+      layout.densityPreset === "compact"
+        ? scaleDensityMetric(6, Math.min(1.08, layout.pageGeometry.rowExpansion))
+        : scaleDensityMetric(8, Math.min(1.16, layout.pageGeometry.rowExpansion)),
     ["--document-footer-padding-top" as string]: densityMetrics.footerTopPadding,
     ["--document-footer-meta-size" as string]: densityMetrics.footerMetaSize,
     ["--document-footer-page-size" as string]: densityMetrics.footerPageSize,

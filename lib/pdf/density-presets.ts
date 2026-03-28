@@ -45,6 +45,31 @@ export const DENSITY_PRESETS: Record<
   },
 };
 
+const SINGLE_PAGE_EXPANSION_CONFIG: Record<
+  SetlistPdfDensityPreset,
+  {
+    targetFillRatio: number;
+    maxExpansion: number;
+    topOffsetRatio: number;
+  }
+> = {
+  relaxed: {
+    targetFillRatio: 0.76,
+    maxExpansion: 2.8,
+    topOffsetRatio: 0.34,
+  },
+  standard: {
+    targetFillRatio: 0.72,
+    maxExpansion: 1.6,
+    topOffsetRatio: 0.3,
+  },
+  compact: {
+    targetFillRatio: 0.86,
+    maxExpansion: 1.08,
+    topOffsetRatio: 0.18,
+  },
+};
+
 const RELAXED_MAX_EFFECTIVE_ROWS = 6;
 const STANDARD_MAX_EFFECTIVE_ROWS = 16;
 
@@ -62,4 +87,8 @@ export function getDensityPreset(effectiveRowDensity: number): SetlistPdfDensity
   }
 
   return "compact";
+}
+
+export function getSinglePageExpansionConfig(preset: SetlistPdfDensityPreset) {
+  return SINGLE_PAGE_EXPANSION_CONFIG[preset];
 }
