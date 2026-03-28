@@ -98,6 +98,56 @@ describe("EventEditorPage route wiring", () => {
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
   });
 
+  it("maps editItem search params into editingItemId", async () => {
+    mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+
+    mockListEventSummaries.mockResolvedValue([
+      {
+        id: "event-nagoya-radhall",
+        ownerUserId: "user-1",
+        title: "2026.03.28 名古屋 RADHALL",
+        venue: "RADHALL",
+        eventDate: new Date("2026-03-28T09:00:00.000Z"),
+        notes: "本番用セットリスト",
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        itemCount: 8,
+      },
+    ]);
+
+    mockGetEventForUser.mockResolvedValue({
+      id: "event-nagoya-radhall",
+      ownerUserId: "user-1",
+      title: "2026.03.28 名古屋 RADHALL",
+      venue: "RADHALL",
+      eventDate: new Date("2026-03-28T09:00:00.000Z"),
+      notes: "本番用セットリスト",
+      createdAt: baseTimestamp,
+      updatedAt: baseTimestamp,
+      items: [],
+    });
+
+    const result = await EventEditorPage({
+      params: Promise.resolve({ eventId: "event-nagoya-radhall" }),
+      searchParams: Promise.resolve({
+        theme: "light",
+        editItem: "item-9",
+      }),
+    });
+
+    expect(result.props.currentTheme).toBe("light");
+    expect(result.props.editingItemId).toBe("item-9");
+  });
+
   it(
     "keeps the dark shell composition connected at the route level",
     async () => {

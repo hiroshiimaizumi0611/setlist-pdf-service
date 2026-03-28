@@ -26,6 +26,7 @@ type EventEditorPageProps = {
   searchParams?: Promise<{
     theme?: string | string[];
     deleteItem?: string | string[];
+    editItem?: string | string[];
   }>;
 };
 
@@ -35,6 +36,10 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
 }
 
 function resolveDeleteItem(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function resolveEditItem(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }
 
@@ -83,6 +88,7 @@ export default async function EventEditorPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const pendingDeleteItemId = resolveDeleteItem(resolvedSearchParams?.deleteItem);
+  const editingItemId = resolveEditItem(resolvedSearchParams?.editItem);
   const { session, currentPlan } = authSession;
 
   const [events, event] = await Promise.all([
@@ -117,6 +123,7 @@ export default async function EventEditorPage({
       event={event}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
+      editingItemId={editingItemId}
       pendingDeleteItemId={pendingDeleteItemId}
       createEventAction={createDraftEvent}
       duplicateEventAction={duplicateEventFormAction}

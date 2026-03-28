@@ -154,7 +154,7 @@ export function SetlistTable({
                   <div
                     data-row-drag-handle
                     aria-label={dragHandleLabel}
-                    className={`flex h-9 w-9 items-center justify-center border ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
+                    className={`hidden h-9 w-9 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
                   >
                     ⋮⋮
                   </div>
@@ -182,12 +182,12 @@ export function SetlistTable({
                     data-row-actions="desktop"
                     className="flex items-center gap-1 opacity-100 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
                   >
-                    <button
-                      type="button"
-                      className={`${theme.buttonSecondary} min-h-11 px-3 text-xs font-bold`}
+                    <Link
+                      href={`/events/${eventId}?theme=${currentTheme}&editItem=${item.id}`}
+                      className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
                     >
                       編集
-                    </button>
+                    </Link>
                     <Link
                       href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
                       aria-label={`${item.title} を削除`}
@@ -214,7 +214,7 @@ export function SetlistTable({
                 <div
                   data-row-drag-handle
                   aria-label={dragHandleLabel}
-                  className={`flex items-center justify-center border-b border-inherit px-2 py-4 font-mono text-[11px] font-black tracking-[0.28em] md:border-b-0 md:border-r ${itemTone.cue}`}
+                  className={`hidden items-center justify-center border-b border-inherit px-2 py-4 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
                   ⋮⋮
                 </div>
@@ -268,12 +268,12 @@ export function SetlistTable({
                   data-row-actions="desktop"
                   className="flex flex-wrap justify-end gap-1 px-4 py-4"
                 >
-                  <button
-                    type="button"
+                  <Link
+                    href={`/events/${eventId}?theme=${currentTheme}&editItem=${item.id}`}
                     className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-3 text-xs font-bold`}
                   >
                     編集
-                  </button>
+                  </Link>
                   {pendingDeleteItemId === item.id ? (
                     <>
                       <form
