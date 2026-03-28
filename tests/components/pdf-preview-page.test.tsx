@@ -129,7 +129,8 @@ describe("PdfPreviewPage", () => {
       />,
     );
 
-    expect(screen.getByText("1 / 2")).toBeInTheDocument();
-    expect(screen.getByText("2 / 2")).toBeInTheDocument();
+    expect(screen.getByText("1 / 3")).toBeInTheDocument();
+    expect(screen.getByText("2 / 3")).toBeInTheDocument();
+    expect(screen.getByText("3 / 3")).toBeInTheDocument();
   });
 });

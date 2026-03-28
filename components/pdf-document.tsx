@@ -11,9 +11,9 @@ type PdfDocumentProps = {
   layout: SetlistPdfLayout;
 };
 
-const PRINT_PAGE_SIZE = {
-  width: 595,
-  height: 842,
+const A4_PAGE_SIZE_MM = {
+  width: 210,
+  height: 297,
 } as const;
 
 const DOCUMENT_STYLES = `
@@ -277,17 +277,17 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
     ["--document-emphasis-fill" as string]: layout.theme.emphasisFill,
     ["--document-cue-text" as string]:
       layout.theme.name === "dark" ? layout.theme.accentText : layout.theme.primaryText,
-    ["--document-cue-width" as string]: `${cueWidth}px`,
+    ["--document-cue-width" as string]: cueWidth,
     ["--document-shadow" as string]: shadowColor,
   };
 }
 
 function scaleX(layout: SetlistPdfLayout, value: number) {
-  return (value / layout.pageSize.width) * PRINT_PAGE_SIZE.width;
+  return `${Number(((value / layout.pageSize.width) * A4_PAGE_SIZE_MM.width).toFixed(3))}mm`;
 }
 
 function scaleY(layout: SetlistPdfLayout, value: number) {
-  return (value / layout.pageSize.height) * PRINT_PAGE_SIZE.height;
+  return `${Number(((value / layout.pageSize.height) * A4_PAGE_SIZE_MM.height).toFixed(3))}mm`;
 }
 
 function PdfRow({
@@ -299,11 +299,11 @@ function PdfRow({
 }) {
   const cueWidth = scaleX(layout, layout.content.labelWidth);
   const rowStyle = {
-    left: `${scaleX(layout, layout.content.left)}px`,
-    top: `${scaleY(layout, row.top)}px`,
-    width: `${scaleX(layout, layout.content.width)}px`,
-    height: `${scaleY(layout, row.height)}px`,
-    gridTemplateColumns: `${cueWidth}px minmax(0, 1fr)`,
+    left: scaleX(layout, layout.content.left),
+    top: scaleY(layout, row.top),
+    width: scaleX(layout, layout.content.width),
+    height: scaleY(layout, row.height),
+    gridTemplateColumns: `${cueWidth} minmax(0, 1fr)`,
   } satisfies CSSProperties;
 
   if (row.variant === "mc") {
@@ -377,23 +377,23 @@ function PdfDocumentPage({
 }) {
   const updatedAt = formatUpdatedAt(event.updatedAt);
   const pageStyle = {
-    width: `${PRINT_PAGE_SIZE.width}px`,
-    height: `${PRINT_PAGE_SIZE.height}px`,
+    width: `${A4_PAGE_SIZE_MM.width}mm`,
+    height: `${A4_PAGE_SIZE_MM.height}mm`,
   } satisfies CSSProperties;
   const headerStyle = {
-    left: `${scaleX(layout, layout.margins.left)}px`,
-    top: `${scaleY(layout, page.header.top)}px`,
-    width: `${scaleX(layout, layout.content.width)}px`,
-    height: `${scaleY(layout, page.header.height)}px`,
+    left: scaleX(layout, layout.margins.left),
+    top: scaleY(layout, page.header.top),
+    width: scaleX(layout, layout.content.width),
+    height: scaleY(layout, page.header.height),
     padding: "12px 16px 14px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
   } satisfies CSSProperties;
   const footerStyle = {
-    left: `${scaleX(layout, layout.content.left)}px`,
-    top: `${scaleY(layout, page.footer.top)}px`,
-    width: `${scaleX(layout, layout.content.width)}px`,
+    left: scaleX(layout, layout.content.left),
+    top: scaleY(layout, page.footer.top),
+    width: scaleX(layout, layout.content.width),
   } satisfies CSSProperties;
 
   return (

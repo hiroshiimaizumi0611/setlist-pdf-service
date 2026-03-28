@@ -59,9 +59,14 @@ describe("renderSetlistPdf", () => {
     });
 
     const expectedDisplayText = layout.pages[0]?.rows[0]?.displayText;
+    const expectedRow = layout.pages[0]?.rows[0];
+    const expectedTextX = layout.content.left + 76 + 14;
+    const expectedTextY =
+      layout.pageSize.height - (expectedRow?.top ?? 0) - (expectedRow?.height ?? 0) + 4;
 
     expect(expectedDisplayText).toMatch(/…$/);
     expect(expectedDisplayText).toBeDefined();
+    expect(expectedRow?.itemType).toBe("song");
 
     const pdfBytes = await renderSetlistPdf({
       event,
@@ -79,7 +84,7 @@ describe("renderSetlistPdf", () => {
     expect(pdfBytes.byteLength).toBeLessThan(2_000_000);
 
     const songRowMatch = combinedContent.match(
-      /1 0 0 1 126 640 Tm\s+<([0-9A-F]+)> Tj/,
+      new RegExp(`1 0 0 1 ${expectedTextX} ${expectedTextY} Tm\\s+<([0-9A-F]+)> Tj`),
     );
 
     expect(songRowMatch?.[1]).toBeDefined();

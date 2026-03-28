@@ -13,8 +13,8 @@ function requireElement(value: Element | null, message: string): HTMLElement {
   return value as HTMLElement;
 }
 
-function scaleRowHeight(layoutHeight: number, value: number) {
-  return `${(value / layoutHeight) * 842}px`;
+function scaleToMm(layoutSize: number, physicalSizeMm: number, value: number) {
+  return `${Number(((value / layoutSize) * physicalSizeMm).toFixed(3))}mm`;
 }
 
 describe("PdfDocument", () => {
@@ -62,6 +62,7 @@ describe("PdfDocument", () => {
 
     expect(document).toHaveAttribute("data-theme", "light");
     expect(styleTag.textContent).toContain("@page");
+    expect(page).toHaveStyle({ width: "210mm", height: "297mm" });
     expect(within(page).getByText("SETLIST_PRODUCTION_SHEET")).toBeInTheDocument();
     expect(within(page).getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
     expect(within(songRow).getByText("M01")).toBeInTheDocument();
@@ -132,12 +133,12 @@ describe("PdfDocument", () => {
     );
     expect(firstRowOnSecondPage).toHaveStyle({ position: "absolute" });
     expect(firstRowOnSecondPage).toHaveStyle({
-      top: scaleRowHeight(layout.pageSize.height, layout.pages[1]!.rows[0]!.top),
-      height: scaleRowHeight(layout.pageSize.height, layout.pages[1]!.rows[0]!.height),
+      top: scaleToMm(layout.pageSize.height, 297, layout.pages[1]!.rows[0]!.top),
+      height: scaleToMm(layout.pageSize.height, 297, layout.pages[1]!.rows[0]!.height),
     });
     expect(firstRowOnThirdPage).toHaveStyle({
-      top: scaleRowHeight(layout.pageSize.height, layout.pages[2]!.rows[0]!.top),
-      height: scaleRowHeight(layout.pageSize.height, layout.pages[2]!.rows[0]!.height),
+      top: scaleToMm(layout.pageSize.height, 297, layout.pages[2]!.rows[0]!.top),
+      height: scaleToMm(layout.pageSize.height, 297, layout.pages[2]!.rows[0]!.height),
     });
     expect(within(secondPage).getByText(layout.pages[1]!.footer.text)).toBeInTheDocument();
     expect(within(thirdPage).getByText(layout.pages[2]!.footer.text)).toBeInTheDocument();
