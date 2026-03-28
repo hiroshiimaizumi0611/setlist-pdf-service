@@ -16,6 +16,8 @@ describe("PdfPreviewPage", () => {
     const documentHref =
       "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark";
 
+    expect(layout.densityPreset).toBe("standard");
+
     render(
       <PdfPreviewPage
         event={{
@@ -121,6 +123,8 @@ describe("PdfPreviewPage", () => {
       theme: "dark",
     });
     const documentHref = `http://localhost:3000/events/${oWestEvent.id}/pdf/document?theme=dark`;
+
+    expect(layout.densityPreset).toBe("compact");
 
     render(
       <PdfPreviewPage
