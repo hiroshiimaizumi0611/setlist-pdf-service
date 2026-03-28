@@ -16,8 +16,14 @@ type PdfPage = {
     options: {
       waitUntil: "networkidle";
     },
-  ): Promise<unknown>;
+  ): Promise<PdfResponse | null>;
   pdf(options: PdfOptions): Promise<Uint8Array | ArrayBuffer>;
+};
+
+type PdfResponse = {
+  ok(): boolean;
+  status(): number;
+  url(): string;
 };
 
 type PdfBrowser = {
@@ -38,9 +44,15 @@ async function renderPdfWithBrowser(browser: PdfBrowser, documentUrl: string) {
   try {
     const page = await browser.newPage();
 
-    await page.goto(documentUrl, {
+    const response = await page.goto(documentUrl, {
       waitUntil: "networkidle",
     });
+
+    if (!response?.ok()) {
+      const status = response?.status() ?? "NO_RESPONSE";
+      const responseUrl = response?.url() ?? documentUrl;
+      throw new Error(`Failed to load PDF document: ${status} ${responseUrl}`);
+    }
 
     return toUint8Array(await page.pdf(PDF_OPTIONS));
   } finally {
