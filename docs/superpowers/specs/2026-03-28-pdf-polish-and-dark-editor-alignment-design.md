@@ -66,7 +66,7 @@ Primary reference:
 
 Secondary references:
 
-- `design/stitch/project-16774743705046066908/screens/1a5dd724f19843948b2f6459eb6f2d34-pdf-preview.html`
+- `design/stitch/project-16774743705046066908/screens/1a5dd724f19843948b2f6459eb6f2d34-pdf-preview-light.html`
 - `design/stitch/project-16774743705046066908/screens/8d426adf04034b19bceac56faa05e789-setlist-editor-light.html`
 
 The dark PDF preview and dark setlist editor are the primary visual references.
