@@ -305,6 +305,9 @@ download API が Browser Rendering を使うときは、user cookie をそのま
 - `lib/pdf/document-token.ts`
   - 内部 access token の生成/検証
 
+- `lib/pdf/document-url.ts`
+  - preview / download / local fallback の全経路で共通に使う絶対URL生成
+
 - `lib/pdf/generate-pdf-from-document.ts`
   - local/prod runtime 差し替えの facade
 
