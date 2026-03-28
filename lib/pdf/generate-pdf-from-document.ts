@@ -48,14 +48,19 @@ async function renderPdfWithBrowser(browser: PdfBrowser, documentUrl: string) {
   }
 }
 
-async function renderPdfWithCloudflareBrowser(documentUrl: string) {
-  const cloudflareContext = await getCloudflareContext({ async: true });
-  const browserBinding = (cloudflareContext.env as { BROWSER?: unknown }).BROWSER;
-
-  if (!browserBinding) {
-    throw new Error('Cloudflare Browser Rendering binding "BROWSER" is not configured.');
+async function getCloudflareBrowserBinding() {
+  try {
+    const cloudflareContext = await getCloudflareContext({ async: true });
+    return (cloudflareContext.env as { BROWSER?: unknown }).BROWSER;
+  } catch {
+    return undefined;
   }
+}
 
+async function renderPdfWithCloudflareBrowser(
+  documentUrl: string,
+  browserBinding: unknown,
+) {
   const { launch } = await import("@cloudflare/playwright");
   const browser = await launch(browserBinding as Parameters<typeof launch>[0]);
 
@@ -75,7 +80,11 @@ export async function generatePdfFromDocument({
   documentUrl,
 }: GeneratePdfFromDocumentInput) {
   if (env.useCloudflareBrowserRendering) {
-    return renderPdfWithCloudflareBrowser(documentUrl);
+    const browserBinding = await getCloudflareBrowserBinding();
+
+    if (browserBinding) {
+      return renderPdfWithCloudflareBrowser(documentUrl, browserBinding);
+    }
   }
 
   return renderPdfWithLocalPlaywright(documentUrl);

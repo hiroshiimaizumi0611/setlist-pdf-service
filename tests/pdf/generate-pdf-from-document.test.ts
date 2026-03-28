@@ -107,6 +107,35 @@ describe("generatePdfFromDocument", () => {
     expect(result).toEqual(pdfBytes);
   });
 
+  it("falls back to local Playwright when the browser binding is unavailable", async () => {
+    const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+
+    mocks.env.useCloudflareBrowserRendering = true;
+    mocks.getCloudflareContext.mockResolvedValue({
+      env: {},
+    });
+    mocks.localLaunch.mockResolvedValue(mocks.localBrowser);
+    mocks.localPage.pdf.mockResolvedValue(pdfBytes);
+
+    const result = await generatePdfFromDocument({
+      documentUrl: "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
+    });
+
+    expect(mocks.getCloudflareContext).toHaveBeenCalledWith({ async: true });
+    expect(mocks.cloudflareLaunch).not.toHaveBeenCalled();
+    expect(mocks.localLaunch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headless: true,
+      }),
+    );
+    expect(mocks.localPage.goto).toHaveBeenCalledWith(
+      "https://app.example.com/events/event-123/pdf/document?theme=dark&token=signed",
+      { waitUntil: "networkidle" },
+    );
+    expect(mocks.localBrowser.close).toHaveBeenCalledOnce();
+    expect(result).toEqual(pdfBytes);
+  });
+
   it("falls back to Playwright locally", async () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
