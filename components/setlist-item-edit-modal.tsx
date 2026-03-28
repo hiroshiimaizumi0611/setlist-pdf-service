@@ -69,7 +69,7 @@ export function SetlistItemEditModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="setlist-item-edit-modal-title"
-        className={`w-full max-w-3xl overflow-hidden border-2 ${theme.border} ${theme.panel}`}
+        className={`max-h-[calc(100vh-4rem)] w-full max-w-3xl overflow-y-auto border-2 ${theme.border} ${theme.panel}`}
       >
         <div className={`flex items-center justify-between gap-4 border-b-2 ${theme.border} px-5 py-4`}>
           <div>

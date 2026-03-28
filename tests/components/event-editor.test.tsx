@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
@@ -191,6 +191,66 @@ describe("EventEditorPageContent", () => {
     expect(screen.queryByRole("dialog", { name: "セットリスト項目を編集" })).not.toBeInTheDocument();
     expect(setlistSection.querySelectorAll("article")).toHaveLength(rowCountBeforeOpen);
     expect(setlistSection.querySelector('[data-editor-strip="edit-item"]')).not.toBeInTheDocument();
+  });
+
+  it("keeps the edit modal scrollable on shorter viewports", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+      />,
+    );
+
+    fireEvent.click(screen.getAllByRole("button", { name: "編集" })[0]);
+
+    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+    expect(dialog).toHaveClass("max-h-[calc(100vh-4rem)]");
+    expect(dialog).toHaveClass("overflow-y-auto");
+  });
+
+  it("submits modal edits through updateItemAction and closes after save", async () => {
+    const updateItemAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={updateItemAction}
+      />,
+    );
+
+    fireEvent.click(screen.getAllByRole("button", { name: "編集" })[0]);
+
+    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+    fireEvent.change(within(dialog).getByLabelText("タイトル"), {
+      target: { value: "緑 (改)" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("アーティスト"), {
+      target: { value: "Test Artist" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "変更を保存" }));
+
+    await waitFor(() =>
+      expect(updateItemAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        itemId: "item-1",
+        itemType: "song",
+        title: "緑 (改)",
+        artist: "Test Artist",
+        durationSeconds: null,
+        notes: null,
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "セットリスト項目を編集" }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it("renders a Stitch-like rail and compact metadata strip", () => {
