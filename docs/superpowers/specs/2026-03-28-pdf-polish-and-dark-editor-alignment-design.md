@@ -164,18 +164,25 @@ The target preset families are:
 - `relaxed`
 - `standard`
 - `compact`
-- `multi-page`
 
 The exact thresholds can be tuned during implementation, but the behavior must follow these rules:
 
 - `relaxed` is for low-density setlists and should visibly increase the size and spacing of all row types
 - `standard` is the default baseline
 - `compact` may reduce the size and spacing of songs, MC, transition, and heading rows together, but only within a readability-safe range
-- `multi-page` begins when the content would no longer be comfortably readable in `compact`
+- once content would no longer be comfortably readable in `compact`, the document must paginate to an additional page instead of introducing a smaller preset
 
 This is not a one-page-at-all-costs requirement.
 
 If the document becomes too dense, multiple pages are the correct result.
+
+This density-aware behavior is primarily being designed against the dark PDF reference.
+
+If the density selection logic is implemented in shared PDF layout code, the same structural logic may also affect light theme. In that case:
+
+- the light PDF must continue to render correctly
+- no separate light-theme-specific density design pass is required in this task
+- preview/download parity must still hold for whichever density preset or pagination outcome is selected
 
 ## Editor Redesign
 
