@@ -55,6 +55,14 @@ const event = {
 
 const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
 
+function requireElement(value: Element | null, message: string): HTMLElement {
+  if (!value) {
+    throw new Error(message);
+  }
+
+  return value as HTMLElement;
+}
+
 describe("EventEditorPageContent", () => {
   it("renders the editor affordances for a free account", () => {
     render(
@@ -235,32 +243,39 @@ describe("EventEditorPageContent", () => {
     expect(within(firstSongRow).getByText("M01")).toHaveAttribute("data-row-cue", "song");
     expect(within(firstSongRow).getByText("緑")).toHaveAttribute("data-row-title", "song");
 
-    const mcRow = shell.querySelector('article[data-row-variant="mc"]');
-    expect(mcRow).toBeTruthy();
-    if (!mcRow) {
-      throw new Error("expected MC row");
-    }
+    const mcRow = requireElement(
+      shell.querySelector('article[data-row-variant="mc"]'),
+      "expected MC row",
+    );
     expect(mcRow).toHaveAttribute("data-row-variant", "mc");
     expect(within(mcRow).getByText("MC / TALK")).toHaveAttribute("data-row-label", "mc");
-    expect(mcRow.querySelector('[data-row-title="mc"]')).toHaveTextContent("MC");
+    expect(
+      requireElement(
+        mcRow.querySelector('[data-row-title="mc"]'),
+        "expected MC row title",
+      ),
+    ).toHaveTextContent("MC");
 
-    const transitionRow = shell.querySelector('article[data-row-variant="transition"]');
-    expect(transitionRow).toBeTruthy();
-    if (!transitionRow) {
-      throw new Error("expected transition row");
-    }
+    const transitionRow = requireElement(
+      shell.querySelector('article[data-row-variant="transition"]'),
+      "expected transition row",
+    );
     expect(transitionRow).toHaveAttribute("data-row-variant", "transition");
     expect(within(transitionRow).getByText("CHANGEOVER")).toHaveAttribute(
       "data-row-label",
       "transition",
     );
-    expect(transitionRow.querySelector('[data-row-title="transition"]')).toHaveTextContent("転換");
+    expect(
+      requireElement(
+        transitionRow.querySelector('[data-row-title="transition"]'),
+        "expected transition row title",
+      ),
+    ).toHaveTextContent("転換");
 
-    const headingRow = shell.querySelector('article[data-row-variant="heading"]');
-    expect(headingRow).toBeTruthy();
-    if (!headingRow) {
-      throw new Error("expected heading row");
-    }
+    const headingRow = requireElement(
+      shell.querySelector('article[data-row-variant="heading"]'),
+      "expected heading row",
+    );
     expect(headingRow).toHaveAttribute("data-row-variant", "heading");
     expect(within(headingRow).getByText("SECTION BREAK")).toHaveAttribute(
       "data-row-label",
