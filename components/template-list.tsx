@@ -1,6 +1,7 @@
 import type { listTemplates } from "@/lib/services/templates-service";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
+import { FormPendingButton } from "./form-pending-button";
 
 type TemplateListProps = {
   templates: Awaited<ReturnType<typeof listTemplates>>;
@@ -51,12 +52,11 @@ export function TemplateList({
               <input type="hidden" name="templateId" value={template.id} />
               <input type="hidden" name="title" value={`${template.name} Copy`} />
               <input type="hidden" name="theme" value={currentTheme} />
-              <button
-                type="submit"
+              <FormPendingButton
+                idleLabel="このテンプレートで公演作成"
+                pendingLabel="公演作成中..."
                 className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm font-bold`}
-              >
-                このテンプレートで公演作成
-              </button>
+              />
             </form>
           </article>
         ))}

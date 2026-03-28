@@ -12,6 +12,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { ExportPdfButton } from "./export-pdf-button";
 import { TemplateSaveButton } from "./template-save-button";
 import { EventDeleteControl } from "./event-delete-control";
+import { FormPendingButton } from "./form-pending-button";
 
 type EventEditorPageContentProps = {
   events: EventSummary[];
@@ -120,12 +121,11 @@ export function EventEditorPageContent({
 
       <form action={createEventAction} className="contents">
         <input type="hidden" name="theme" value={currentTheme} />
-        <button
-          type="submit"
+        <FormPendingButton
+          idleLabel="新規公演作成"
+          pendingLabel="作成中..."
           className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
-        >
-          新規公演作成
-        </button>
+        />
       </form>
 
       <Link

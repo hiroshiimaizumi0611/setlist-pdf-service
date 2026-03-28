@@ -3,6 +3,7 @@ import type { EventSummary } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
 import { EventDeleteControl } from "./event-delete-control";
+import { FormPendingButton } from "./form-pending-button";
 
 type EventListProps = {
   events: EventSummary[];
@@ -97,12 +98,11 @@ export function EventList({
                       <form action={duplicateEventAction}>
                         <input type="hidden" name="eventId" value={event.id} />
                         <input type="hidden" name="theme" value={currentTheme} />
-                        <button
-                          type="submit"
+                        <FormPendingButton
+                          idleLabel="複製"
+                          pendingLabel="複製中..."
                           className={`${theme.buttonSecondary} min-h-9 px-3 text-[10px] font-black uppercase tracking-[0.2em]`}
-                        >
-                          複製
-                        </button>
+                        />
                       </form>
                     ) : null}
 
