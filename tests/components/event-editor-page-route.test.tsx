@@ -5,12 +5,14 @@ const {
   mockGetAuthSessionWithPlan,
   mockListEventSummaries,
   mockGetEventForUser,
+  mockCreateDraftEventFormAction,
   mockDeleteEventFormAction,
   mockUpdateEventItemAction,
 } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockListEventSummaries: vi.fn(),
   mockGetEventForUser: vi.fn(),
+  mockCreateDraftEventFormAction: vi.fn(),
   mockDeleteEventFormAction: vi.fn(),
   mockUpdateEventItemAction: vi.fn(),
 }));
@@ -31,7 +33,7 @@ vi.mock("@/lib/services/events-service", () => ({
 
 vi.mock("@/app/(app)/events/actions", () => ({
   addEventItemAction: vi.fn(),
-  createEventAction: vi.fn(),
+  createDraftEventFormAction: mockCreateDraftEventFormAction,
   deleteEventFormAction: mockDeleteEventFormAction,
   deleteEventItemAction: vi.fn(),
   duplicateEventFormAction: vi.fn(),
@@ -139,6 +141,7 @@ describe("EventEditorPage route wiring", () => {
     });
 
     expect(result.props.deleteEventAction).toBe(mockDeleteEventFormAction);
+    expect(result.props.createEventAction).toBe(mockCreateDraftEventFormAction);
   });
 
   it("does not expose editItem search params once editing is modal-driven", async () => {

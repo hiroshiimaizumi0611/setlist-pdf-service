@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import {
-  createEventAction,
+  createDraftEventFormAction,
   deleteEventFormAction,
   duplicateEventFormAction,
   updateEventItemAction,
@@ -23,33 +23,6 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   return candidate === "dark" ? "dark" : "light";
 }
 
-function buildDraftEventInput() {
-  const now = new Date();
-  const token = new Intl.DateTimeFormat("ja-JP-u-ca-gregory", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "Asia/Tokyo",
-  })
-    .format(now)
-    .replaceAll("/", ".");
-  const eventDate = new Date(
-    `${new Intl.DateTimeFormat("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      timeZone: "Asia/Tokyo",
-    }).format(now)}T00:00:00.000Z`,
-  );
-
-  return {
-    title: `${token} 新規公演`,
-    venue: "",
-    eventDate,
-    notes: "本番用セットリスト",
-  };
-}
-
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const authSession = await getAuthSessionWithPlan();
 
@@ -62,14 +35,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const { session, currentPlan } = authSession;
   const events = await listEventSummaries({ userId: session.user.id });
 
-  async function createDraftEvent(formData: FormData) {
-    "use server";
-
-    const event = await createEventAction(buildDraftEventInput());
-    const theme = resolveTheme(formData.get("theme")?.toString());
-    redirect(`/events/${event.id}?theme=${theme}`);
-  }
-
   return (
     <EventEditorPageContent
       events={events}
@@ -77,7 +42,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
       updateItemAction={updateEventItemAction}
-      createEventAction={createDraftEvent}
+      createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}
       deleteEventAction={deleteEventFormAction}
     />

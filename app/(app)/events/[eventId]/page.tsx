@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import {
   addEventItemAction,
-  createEventAction,
+  createDraftEventFormAction,
   deleteEventFormAction,
   deleteEventItemAction,
   duplicateEventFormAction,
@@ -37,33 +37,6 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
 
 function resolveDeleteItem(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
-}
-
-function buildDraftEventInput() {
-  const now = new Date();
-  const token = new Intl.DateTimeFormat("ja-JP-u-ca-gregory", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "Asia/Tokyo",
-  })
-    .format(now)
-    .replaceAll("/", ".");
-  const eventDate = new Date(
-    `${new Intl.DateTimeFormat("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      timeZone: "Asia/Tokyo",
-    }).format(now)}T00:00:00.000Z`,
-  );
-
-  return {
-    title: `${token} 新規公演`,
-    venue: "",
-    eventDate,
-    notes: "本番用セットリスト",
-  };
 }
 
 export { EventEditorPageContent };
@@ -104,14 +77,6 @@ export default async function EventEditorPage({
     notFound();
   }
 
-  async function createDraftEvent(formData: FormData) {
-    "use server";
-
-    const draft = await createEventAction(buildDraftEventInput());
-    const theme = resolveTheme(formData.get("theme")?.toString());
-    redirect(`/events/${draft.id}?theme=${theme}`);
-  }
-
   return (
     <EventEditorPageContent
       events={events}
@@ -119,7 +84,7 @@ export default async function EventEditorPage({
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
       pendingDeleteItemId={pendingDeleteItemId}
-      createEventAction={createDraftEvent}
+      createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}
       deleteEventAction={deleteEventFormAction}
       updateMetadataAction={updateEventMetadataAction}

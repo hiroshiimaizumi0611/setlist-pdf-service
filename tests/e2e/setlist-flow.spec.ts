@@ -100,6 +100,15 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("Event id is missing from the editor URL.");
   }
 
+  await page.getByRole("button", { name: "新規公演作成" }).click();
+  await expect(page).toHaveURL(/\/events\/.+/, { timeout: 15_000 });
+  const secondEventUrl = new URL(page.url());
+  const secondEventId = secondEventUrl.pathname.split("/").at(-1);
+
+  if (!secondEventId || secondEventId === eventId) {
+    throw new Error("Second event was not created from the editor sidebar.");
+  }
+
   await expect(page.locator('[data-editor-strip="metadata"]')).toBeVisible();
   await expect(page.locator('[data-editor-strip="add-item"]')).toBeVisible();
   await page.getByPlaceholder("曲名や進行メモを入力").fill("E2E opener");
