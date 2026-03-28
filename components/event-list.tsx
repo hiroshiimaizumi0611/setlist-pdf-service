@@ -33,12 +33,12 @@ export function EventList({
   const theme = getDashboardThemeStyles(currentTheme);
 
   return (
-    <nav aria-label="公演ナビゲーション" className="flex h-full flex-col gap-3">
+    <nav aria-label="公演ナビゲーション" className="flex h-full flex-col gap-2">
       <div className={`px-2 font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
         Upcoming &amp; Recent
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         {events.length === 0 ? (
           <div
             className={`border-2 ${theme.border} ${theme.panelMuted} px-3 py-4 text-sm leading-6 ${theme.mutedText}`}
@@ -52,23 +52,25 @@ export function EventList({
             return (
               <article
                 key={event.id}
-                className={`border-l-4 ${isCurrent ? theme.accentBorder : theme.railBorder} ${
-                  isCurrent ? `${theme.accentBg} ${theme.accentText}` : `${theme.panel} ${theme.border}`
+                className={`border-l-4 ${
+                  isCurrent
+                    ? `${theme.accentBorder} ${theme.currentEventSurface} ${theme.currentEventText}`
+                    : `border-transparent ${theme.panel} ${theme.border}`
                 } transition ${theme.panelHover}`}
               >
                 <Link
                   href={`/events/${event.id}?theme=${currentTheme}`}
                   aria-current={isCurrent ? "page" : undefined}
-                  className="block px-3 py-3"
+                  className="block px-3 py-2.5"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-1">
+                    <div className="min-w-0 space-y-0.5">
                       <p className="truncate font-mono text-[13px] font-bold tracking-[-0.03em]">
                         {event.title}
                       </p>
                       <p
                         className={`text-[11px] uppercase tracking-[0.2em] ${
-                          isCurrent ? theme.currentMutedText : theme.mutedText
+                          isCurrent ? theme.currentEventMeta : theme.mutedText
                         }`}
                       >
                         {[event.venue || "会場未設定", formatEventDate(event.eventDate)].join(" / ")}
@@ -77,7 +79,7 @@ export function EventList({
 
                     <span
                       className={`shrink-0 border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.18em] ${
-                        isCurrent ? "border-[#3f3310] text-[#3f3310]" : theme.pill
+                        isCurrent ? "border-[#f6c453]/40 text-[#fff6df]" : theme.pill
                       }`}
                     >
                       {String(event.itemCount).padStart(2, "0")}
@@ -92,7 +94,7 @@ export function EventList({
                     <button
                       type="submit"
                       className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
-                        isCurrent ? "text-[#3f3310]" : theme.mutedText
+                        isCurrent ? theme.currentEventMeta : theme.mutedText
                       } transition hover:opacity-80`}
                     >
                       この公演を複製

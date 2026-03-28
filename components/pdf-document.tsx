@@ -11,6 +11,24 @@ type PdfDocumentProps = {
   layout: SetlistPdfLayout;
 };
 
+type DensityMetrics = {
+  headerBorderTop: string;
+  headerBandPadding: string;
+  kickerSize: string;
+  titleSize: string;
+  metaSize: string;
+  cuePadding: string;
+  cueFontSize: string;
+  songFontSize: string;
+  transitionFontSize: string;
+  headingCueSize: string;
+  headingTitleSize: string;
+  rowCopyPadding: string;
+  footerTopPadding: string;
+  footerMetaSize: string;
+  footerPageSize: string;
+};
+
 const A4_PAGE_SIZE_MM = {
   width: 210,
   height: 297,
@@ -60,12 +78,12 @@ const DOCUMENT_STYLES = `
 
   [data-pdf-header-band] {
     position: absolute;
-    border-top: 6px solid var(--document-accent);
-    border-bottom: 2px solid var(--document-border-strong);
+    border-top: var(--document-header-border-top) solid var(--document-accent);
+    border-bottom: 1px solid var(--document-border-strong);
     background: linear-gradient(
       135deg,
       var(--document-header-background) 0%,
-      var(--document-header-background) 72%,
+      var(--document-header-background) 68%,
       var(--document-accent-wash) 100%
     );
   }
@@ -96,25 +114,27 @@ const DOCUMENT_STYLES = `
     text-align: center;
     color: var(--document-text-secondary);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 12px;
+    font-size: var(--document-transition-font-size);
     font-weight: 700;
-    letter-spacing: 0.45em;
+    letter-spacing: 0.42em;
     text-transform: uppercase;
   }
 
   [data-row-variant="transition"] {
-    display: grid;
-    gap: 0;
+    display: flex;
     align-items: center;
+    justify-content: center;
     background: var(--document-emphasis-fill);
+    border-top: 1px solid var(--document-border-soft);
+    border-bottom: 1px solid var(--document-border-soft);
   }
 
   [data-row-variant="heading"] {
     display: grid;
     gap: 0;
     align-items: start;
-    border-top: 2px solid var(--document-border-strong);
-    border-bottom: 2px solid var(--document-border-strong);
+    border-top: 1px solid var(--document-border-strong);
+    border-bottom: 1px solid var(--document-border-strong);
   }
 
   [data-pdf-cue] {
@@ -122,7 +142,7 @@ const DOCUMENT_STYLES = `
     align-items: center;
     justify-content: center;
     min-height: 100%;
-    padding: 10px 8px;
+    padding: var(--document-cue-padding);
     color: var(--document-cue-text);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
     font-weight: 800;
@@ -133,19 +153,24 @@ const DOCUMENT_STYLES = `
 
   [data-row-variant="song"] [data-pdf-cue] {
     justify-content: center;
-    font-size: 11px;
+    font-size: var(--document-cue-font-size);
   }
 
   [data-row-variant="transition"] [data-pdf-cue] {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--document-cue-width);
     justify-content: center;
-    font-size: 11px;
+    font-size: var(--document-cue-font-size);
+    opacity: 0.92;
+    z-index: 1;
   }
 
   [data-row-variant="heading"] [data-pdf-cue] {
     align-items: flex-start;
     justify-content: flex-start;
     padding-left: 4px;
-    font-size: 20px;
+    font-size: var(--document-heading-cue-size);
     line-height: 1;
     letter-spacing: -0.04em;
   }
@@ -157,8 +182,8 @@ const DOCUMENT_STYLES = `
   }
 
   [data-row-variant="song"] [data-pdf-row-copy] {
-    padding: 0 12px;
-    font-size: 15px;
+    padding: 0 var(--document-row-copy-padding);
+    font-size: var(--document-song-font-size);
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.06em;
@@ -167,11 +192,13 @@ const DOCUMENT_STYLES = `
   [data-row-variant="transition"] [data-pdf-row-copy] {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 0 12px;
+    justify-content: center;
+    width: 100%;
+    gap: var(--document-transition-gap);
+    padding: 0 calc(var(--document-cue-width) + var(--document-row-copy-padding));
     color: var(--document-accent);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 11px;
+    font-size: var(--document-transition-font-size);
     font-weight: 800;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -185,8 +212,8 @@ const DOCUMENT_STYLES = `
   }
 
   [data-row-variant="heading"] [data-pdf-row-copy] {
-    padding: 0 0 0 12px;
-    font-size: 20px;
+    padding: 0 0 0 var(--document-row-copy-padding);
+    font-size: var(--document-heading-title-size);
     font-weight: 900;
     line-height: 1;
     letter-spacing: 0.12em;
@@ -199,14 +226,14 @@ const DOCUMENT_STYLES = `
     align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
-    padding-top: 6px;
+    padding-top: var(--document-footer-padding-top);
     border-top: 1px solid var(--document-border-soft);
   }
 
   [data-pdf-updated-at] {
     color: var(--document-text-secondary);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 10px;
+    font-size: var(--document-footer-meta-size);
     line-height: 1.5;
     letter-spacing: 0.08em;
   }
@@ -214,7 +241,7 @@ const DOCUMENT_STYLES = `
   [data-pdf-page-number] {
     color: var(--document-cue-text);
     font-family: var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace;
-    font-size: 12px;
+    font-size: var(--document-footer-page-size);
     font-weight: 800;
     letter-spacing: 0.24em;
   }
@@ -240,6 +267,66 @@ const DOCUMENT_STYLES = `
   }
 `;
 
+function getDensityMetrics(densityPreset: SetlistPdfLayout["densityPreset"]): DensityMetrics {
+  switch (densityPreset) {
+    case "relaxed":
+      return {
+        headerBorderTop: "4px",
+        headerBandPadding: "14px 18px 16px",
+        kickerSize: "21px",
+        titleSize: "19px",
+        metaSize: "10.5px",
+        cuePadding: "10px 8px",
+        cueFontSize: "11.5px",
+        songFontSize: "17px",
+        transitionFontSize: "11.5px",
+        headingCueSize: "22px",
+        headingTitleSize: "21px",
+        rowCopyPadding: "14px",
+        footerTopPadding: "7px",
+        footerMetaSize: "10px",
+        footerPageSize: "12px",
+      };
+    case "compact":
+      return {
+        headerBorderTop: "3px",
+        headerBandPadding: "10px 14px 12px",
+        kickerSize: "18px",
+        titleSize: "16px",
+        metaSize: "9px",
+        cuePadding: "7px 6px",
+        cueFontSize: "10px",
+        songFontSize: "13px",
+        transitionFontSize: "10px",
+        headingCueSize: "18px",
+        headingTitleSize: "18px",
+        rowCopyPadding: "10px",
+        footerTopPadding: "5px",
+        footerMetaSize: "9px",
+        footerPageSize: "11px",
+      };
+    case "standard":
+    default:
+      return {
+        headerBorderTop: "4px",
+        headerBandPadding: "12px 16px 14px",
+        kickerSize: "20px",
+        titleSize: "18px",
+        metaSize: "10px",
+        cuePadding: "8px 7px",
+        cueFontSize: "11px",
+        songFontSize: "15px",
+        transitionFontSize: "11px",
+        headingCueSize: "20px",
+        headingTitleSize: "20px",
+        rowCopyPadding: "12px",
+        footerTopPadding: "6px",
+        footerMetaSize: "10px",
+        footerPageSize: "12px",
+      };
+  }
+}
+
 function formatUpdatedAt(value: Date | null | undefined) {
   if (!value) {
     return null;
@@ -260,6 +347,7 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
   const shadowColor =
     layout.theme.name === "dark" ? "rgba(0, 0, 0, 0.44)" : "rgba(15, 12, 9, 0.18)";
   const cueWidth = scaleX(layout, layout.content.labelWidth);
+  const densityMetrics = getDensityMetrics(layout.densityPreset);
 
   return {
     ["--document-canvas" as string]:
@@ -279,6 +367,22 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
       layout.theme.name === "dark" ? layout.theme.accentText : layout.theme.primaryText,
     ["--document-cue-width" as string]: cueWidth,
     ["--document-shadow" as string]: shadowColor,
+    ["--document-header-border-top" as string]: densityMetrics.headerBorderTop,
+    ["--document-header-padding" as string]: densityMetrics.headerBandPadding,
+    ["--document-kicker-size" as string]: densityMetrics.kickerSize,
+    ["--document-title-size" as string]: densityMetrics.titleSize,
+    ["--document-meta-size" as string]: densityMetrics.metaSize,
+    ["--document-cue-padding" as string]: densityMetrics.cuePadding,
+    ["--document-cue-font-size" as string]: densityMetrics.cueFontSize,
+    ["--document-song-font-size" as string]: densityMetrics.songFontSize,
+    ["--document-transition-font-size" as string]: densityMetrics.transitionFontSize,
+    ["--document-heading-cue-size" as string]: densityMetrics.headingCueSize,
+    ["--document-heading-title-size" as string]: densityMetrics.headingTitleSize,
+    ["--document-row-copy-padding" as string]: densityMetrics.rowCopyPadding,
+    ["--document-transition-gap" as string]: layout.densityPreset === "compact" ? "6px" : "8px",
+    ["--document-footer-padding-top" as string]: densityMetrics.footerTopPadding,
+    ["--document-footer-meta-size" as string]: densityMetrics.footerMetaSize,
+    ["--document-footer-page-size" as string]: densityMetrics.footerPageSize,
   };
 }
 
@@ -309,6 +413,8 @@ function PdfRow({
   if (row.variant === "mc") {
     return (
       <div
+        data-centering-family="callout"
+        data-density-preset={layout.densityPreset}
         data-pdf-row
         data-row-height={row.height}
         data-row-top={row.top}
@@ -323,6 +429,8 @@ function PdfRow({
   if (row.variant === "transition") {
     return (
       <div
+        data-centering-family="callout"
+        data-density-preset={layout.densityPreset}
         data-pdf-row
         data-row-height={row.height}
         data-row-top={row.top}
@@ -340,10 +448,12 @@ function PdfRow({
 
     return (
       <div
+        data-density-preset={layout.densityPreset}
         data-pdf-row
         data-row-height={row.height}
         data-row-top={row.top}
         data-row-variant="heading"
+        data-title-treatment="heading"
         style={rowStyle}
       >
         <div data-pdf-cue>{row.cueLabel}</div>
@@ -354,10 +464,12 @@ function PdfRow({
 
   return (
     <div
+      data-density-preset={layout.densityPreset}
       data-pdf-row
       data-row-height={row.height}
       data-row-top={row.top}
       data-row-variant="song"
+      data-title-treatment="song"
       style={rowStyle}
     >
       <div data-pdf-cue>{row.cueLabel}</div>
@@ -385,7 +497,7 @@ function PdfDocumentPage({
     top: scaleY(layout, page.header.top),
     width: scaleX(layout, layout.content.width),
     height: scaleY(layout, page.header.height),
-    padding: "12px 16px 14px",
+    padding: "var(--document-header-padding)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
@@ -408,7 +520,7 @@ function PdfDocumentPage({
             color: "var(--document-accent)",
             fontFamily:
               'var(--font-geist-mono), "SFMono-Regular", "Roboto Mono", monospace',
-            fontSize: "20px",
+            fontSize: "var(--document-kicker-size)",
             fontWeight: 900,
             letterSpacing: "-0.08em",
             textTransform: "uppercase",
@@ -418,8 +530,8 @@ function PdfDocumentPage({
         </div>
         <div
           style={{
-            marginTop: "8px",
-            fontSize: "18px",
+            marginTop: "6px",
+            fontSize: "var(--document-title-size)",
             fontWeight: 800,
             letterSpacing: "-0.04em",
             lineHeight: 1.05,
@@ -430,10 +542,10 @@ function PdfDocumentPage({
         {page.header.subtitle ? (
           <div
             style={{
-              marginTop: "6px",
+              marginTop: "4px",
               color: "var(--document-text-secondary)",
-              fontSize: "10px",
-              lineHeight: 1.4,
+              fontSize: "var(--document-meta-size)",
+              lineHeight: 1.35,
             }}
           >
             {page.header.subtitle}
@@ -461,6 +573,7 @@ export function PdfDocument({ event, layout }: PdfDocumentProps) {
     <main
       aria-label="Setlist PDF document"
       data-pdf-document
+      data-density-preset={layout.densityPreset}
       data-theme={layout.theme.name}
       role="document"
       style={getDocumentVariables(layout)}

@@ -102,8 +102,8 @@ export function EventEditorPageContent({
   const lightHref = event ? `/events/${event.id}?theme=light` : "/events?theme=light";
   const darkHref = event ? `/events/${event.id}?theme=dark` : "/events?theme=dark";
   const sidebarChrome = (
-    <div className="space-y-4">
-      <section className={`border-2 ${theme.border} ${theme.panel} px-4 py-4`}>
+    <div className="space-y-3">
+      <section className={`border ${theme.railBorder} ${theme.panelMuted} px-4 py-4`}>
         <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
           {theme.headerMeta === "LIVE VIEW" ? "BACKSTAGE ACCESS" : "PRODUCTION"}
         </p>
@@ -157,7 +157,7 @@ export function EventEditorPageContent({
           />
         }
       >
-        <section className={`border-2 ${theme.border} ${theme.panel} p-6`}>
+        <section className={`border ${theme.border} ${theme.panel} p-6`}>
           <p className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
             編集待機
           </p>
@@ -232,27 +232,29 @@ export function EventEditorPageContent({
         </>
       }
     >
-      <EventMetadataForm
-        event={event}
-        currentTheme={currentTheme}
-        updateMetadataAction={metadataFormAction}
-        headerActions={
-          <TemplateSaveButton
-            plan={currentPlan}
-            currentTheme={currentTheme}
-            mode="event"
-            sourceEventId={event.id}
-            defaultName={event.title}
-            defaultDescription={event.notes ?? ""}
-            saveTemplateAction={saveTemplateAction}
-          />
-        }
-      />
+      <div className="space-y-3">
+        <EventMetadataForm
+          event={event}
+          currentTheme={currentTheme}
+          updateMetadataAction={metadataFormAction}
+          headerActions={
+            <TemplateSaveButton
+              plan={currentPlan}
+              currentTheme={currentTheme}
+              mode="event"
+              sourceEventId={event.id}
+              defaultName={event.title}
+              defaultDescription={event.notes ?? ""}
+              saveTemplateAction={saveTemplateAction}
+            />
+          }
+        />
 
-      <SetlistItemForm
-        currentTheme={currentTheme}
-        addItemAction={addItemFormAction}
-      />
+        <SetlistItemForm
+          currentTheme={currentTheme}
+          addItemAction={addItemFormAction}
+        />
+      </div>
 
       <SetlistTable
         currentTheme={currentTheme}

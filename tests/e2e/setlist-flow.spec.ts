@@ -68,6 +68,20 @@ async function seedProSubscription(email: string) {
   });
 }
 
+async function expectEmbeddedPageNumbers(
+  previewPage: import("playwright/test").Page,
+  pageCount: number,
+) {
+  const embeddedPageNumbers = previewPage
+    .frameLocator('iframe[title="紙面プレビュー"]')
+    .locator("[data-pdf-page-number]");
+
+  await expect(embeddedPageNumbers).toHaveCount(pageCount);
+  await expect(embeddedPageNumbers).toHaveText(
+    Array.from({ length: pageCount }, (_, index) => `${index + 1} / ${pageCount}`),
+  );
+}
+
 test("supports the free-tier event flow, preview export, duplication, and upgrade", async ({
   page,
 }) => {
@@ -85,6 +99,18 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   if (!eventId) {
     throw new Error("Event id is missing from the editor URL.");
   }
+
+  await expect(page.locator('[data-editor-strip="metadata"]')).toBeVisible();
+  await expect(page.locator('[data-editor-strip="add-item"]')).toBeVisible();
+  await page.getByPlaceholder("曲名や進行メモを入力").fill("E2E opener");
+  await page.getByRole("button", { name: "ADD TO SET" }).click();
+  await expect(page.locator('[data-row-variant="song"]').first()).toBeVisible();
+  await expect(
+    page.locator('[data-row-variant="song"] [data-row-cue="song"]').first(),
+  ).toHaveText("M01");
+  await expect(
+    page.locator('[data-row-variant="song"] [data-row-title="song"]').first(),
+  ).toHaveText("E2E opener");
 
   const pdfLink = page.getByRole("link", { name: "PDF出力" });
   const editorPdfHref = await pdfLink.getAttribute("href");
@@ -123,6 +149,15 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
       name: currentTheme === "dark" ? "DARK" : "LIGHT",
     }),
   ).toHaveAttribute("aria-current", "page");
+
+  const pageCountBadge = previewPage.getByText(/^[0-9]+ pages$/);
+  await expect(pageCountBadge).toBeVisible();
+  const pageCountText = (await pageCountBadge.textContent()) ?? "";
+  const pageCount = Number.parseInt(pageCountText, 10);
+
+  expect(Number.isNaN(pageCount)).toBe(false);
+
+  await expectEmbeddedPageNumbers(previewPage, pageCount);
 
   const embeddedDocument = previewPage.locator('iframe[title="紙面プレビュー"]');
   const embeddedDocumentHref = await embeddedDocument.getAttribute("src");
@@ -186,6 +221,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
   ).toHaveAttribute("data-theme", alternateTheme);
+  await expectEmbeddedPageNumbers(previewPage, pageCount);
 
   await expect(previewPdfLink).toHaveAttribute(
     "href",

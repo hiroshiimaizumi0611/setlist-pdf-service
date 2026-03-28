@@ -1,3 +1,4 @@
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const {
@@ -95,5 +96,77 @@ describe("EventEditorPage route wiring", () => {
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.pendingDeleteItemId).toBe("item-2");
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
+  });
+
+  it("keeps the dark shell composition connected at the route level", async () => {
+    mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+
+    mockListEventSummaries.mockResolvedValue([
+      {
+        id: "event-nagoya-radhall",
+        ownerUserId: "user-1",
+        title: "2026.03.28 名古屋 RADHALL",
+        venue: "RADHALL",
+        eventDate: new Date("2026-03-28T09:00:00.000Z"),
+        notes: "本番用セットリスト",
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        itemCount: 8,
+      },
+      {
+        id: "event-shibuya-quattro",
+        ownerUserId: "user-1",
+        title: "2026.03.20 渋谷 CLUB QUATTRO",
+        venue: "CLUB QUATTRO",
+        eventDate: new Date("2026-03-20T09:00:00.000Z"),
+        notes: "複製元候補",
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        itemCount: 6,
+      },
+    ]);
+
+    mockGetEventForUser.mockResolvedValue({
+      id: "event-nagoya-radhall",
+      ownerUserId: "user-1",
+      title: "2026.03.28 名古屋 RADHALL",
+      venue: "RADHALL",
+      eventDate: new Date("2026-03-28T09:00:00.000Z"),
+      notes: "本番用セットリスト",
+      createdAt: baseTimestamp,
+      updatedAt: baseTimestamp,
+      items: [],
+    });
+
+    const result = await EventEditorPage({
+      params: Promise.resolve({ eventId: "event-nagoya-radhall" }),
+      searchParams: Promise.resolve({
+        theme: "dark",
+      }),
+    });
+
+    render(result);
+
+    expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
+    expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
+
+    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    const currentEventLink = within(navigation).getByRole("link", { current: "page" });
+    const currentEventCard = currentEventLink.closest("article");
+    expect(currentEventCard).toBeTruthy();
+    if (!currentEventCard) {
+      throw new Error("expected current event card");
+    }
+    expect(currentEventCard).toHaveClass("bg-[#3a3a3a]");
+    expect(currentEventCard).toHaveClass("text-[#f6c453]");
   });
 });

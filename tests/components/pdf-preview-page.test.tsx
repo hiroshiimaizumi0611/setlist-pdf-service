@@ -16,6 +16,8 @@ describe("PdfPreviewPage", () => {
     const documentHref =
       "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark";
 
+    expect(layout.densityPreset).toBe("standard");
+
     render(
       <PdfPreviewPage
         event={{
@@ -122,6 +124,8 @@ describe("PdfPreviewPage", () => {
     });
     const documentHref = `http://localhost:3000/events/${oWestEvent.id}/pdf/document?theme=dark`;
 
+    expect(layout.densityPreset).toBe("compact");
+
     render(
       <PdfPreviewPage
         event={{
@@ -147,5 +151,88 @@ describe("PdfPreviewPage", () => {
     expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
     expect(screen.queryByText("2 / 3")).not.toBeInTheDocument();
     expect(screen.queryByText("3 / 3")).not.toBeInTheDocument();
+  });
+
+  it("keeps relaxed density preview and download links aligned to the shared layout source", () => {
+    const layout = buildSetlistPdfLayout({
+      event: {
+        title: "2026.03.28 Relaxed Density Check",
+        venue: "RADHALL",
+        eventDate: new Date("2026-03-28T09:00:00.000Z"),
+        notes: "Density test fixture",
+        items: [
+          {
+            id: "row-1",
+            eventId: "event-relaxed-density",
+            position: 1,
+            itemType: "song" as const,
+            title: "Song 01",
+            artist: null,
+            durationSeconds: null,
+            notes: null,
+            createdAt: new Date("2026-03-28T09:00:00.000Z"),
+            updatedAt: new Date("2026-03-28T09:00:00.000Z"),
+          },
+          {
+            id: "row-2",
+            eventId: "event-relaxed-density",
+            position: 2,
+            itemType: "song" as const,
+            title: "Song 02",
+            artist: null,
+            durationSeconds: null,
+            notes: null,
+            createdAt: new Date("2026-03-28T09:00:00.000Z"),
+            updatedAt: new Date("2026-03-28T09:00:00.000Z"),
+          },
+          {
+            id: "row-3",
+            eventId: "event-relaxed-density",
+            position: 3,
+            itemType: "song" as const,
+            title: "Song 03",
+            artist: null,
+            durationSeconds: null,
+            notes: null,
+            createdAt: new Date("2026-03-28T09:00:00.000Z"),
+            updatedAt: new Date("2026-03-28T09:00:00.000Z"),
+          },
+        ],
+      },
+      theme: "light",
+    });
+    const documentHref =
+      "http://localhost:3000/events/event-relaxed-density/pdf/document?theme=light";
+    const downloadHref = "/api/events/event-relaxed-density/pdf?theme=light";
+
+    expect(layout.densityPreset).toBe("relaxed");
+    expect(layout.pageCount).toBe(1);
+
+    render(
+      <PdfPreviewPage
+        event={{
+          id: "event-relaxed-density",
+          ownerUserId: "user-1",
+          title: "2026.03.28 Relaxed Density Check",
+          venue: "RADHALL",
+          eventDate: new Date("2026-03-28T09:00:00.000Z"),
+          notes: "Density test fixture",
+          createdAt: new Date("2026-03-21T00:00:00.000Z"),
+          updatedAt: new Date("2026-03-21T00:00:00.000Z"),
+          items: [],
+        }}
+        layout={layout}
+        currentTheme="light"
+        documentHref={documentHref}
+        downloadHref={downloadHref}
+      />,
+    );
+
+    expect(screen.getByText("1 pages")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
+      "href",
+      downloadHref,
+    );
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute("src", documentHref);
   });
 });

@@ -108,15 +108,22 @@ export function SetlistTable({
     currentTheme === "dark"
       ? {
           row: {
-            song: "bg-[#2a2a2a] hover:bg-[#333]",
-            mc: "bg-[#2a2a2a] hover:bg-[#333]",
-            transition: "bg-[#0e0e0e] hover:bg-[#131313] border-y border-[#4d4732]/10",
-            heading: "bg-[#131313]",
+            song: "bg-[#181818] hover:bg-[#202020]",
+            mc: "bg-[#202020] hover:bg-[#2a2a2a]",
+            transition: "bg-[#111111] hover:bg-[#171717] border-y border-[#4d4732]/20",
+            heading: "bg-[#141414]",
+          },
+          strip: {
+            song: "bg-[#00dbe8]",
+            mc: "bg-[#e9c400]",
+            transition: "bg-[#4d4732]",
+            heading: "bg-transparent",
           },
           cue: "text-[#f6c453]",
           subtitle: "text-[#bfb7aa]",
           muted: "text-[#bfb7aa]",
-          headingBorder: "border-primary-container/30",
+          headingBorder: "border-[#f6c453]/30",
+          duration: "text-[#d0c6ab]",
         }
       : {
           row: {
@@ -125,10 +132,17 @@ export function SetlistTable({
             transition: "bg-[#f7f1e3] hover:bg-[#fffdf8] border-y border-[#1f1b16]",
             heading: "bg-[#ffffff]",
           },
+          strip: {
+            song: "bg-[#1f1b16]",
+            mc: "bg-[#c99a23]",
+            transition: "bg-[#5f5649]",
+            heading: "bg-transparent",
+          },
           cue: "text-[#1f1b16]",
           subtitle: "text-[#5f5649]",
           muted: "text-[#5f5649]",
           headingBorder: "border-[#1f1b16]/20",
+          duration: "text-[#5f5649]",
         };
 
   return (
@@ -159,11 +173,14 @@ export function SetlistTable({
             return (
               <article
                 key={item.id}
-                className={`group border-b-2 ${theme.border} ${itemTone.row.heading} px-4 py-4`}
+                data-row-variant="heading"
+                data-row-rhythm="setlist"
+                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-4`}
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`flex h-10 w-14 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
+                    data-row-cue="heading"
+                    className={`flex h-9 w-14 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
                   >
                     {item.title}
                   </div>
@@ -174,7 +191,10 @@ export function SetlistTable({
                       {rowLabel}
                     </span>
                     <div className={`hidden h-px flex-1 bg-current/20 sm:block ${itemTone.muted}`} />
-                    <span className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}>
+                    <span
+                      data-row-label="heading"
+                      className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}
+                    >
                       SECTION BREAK
                     </span>
                   </div>
@@ -339,24 +359,38 @@ export function SetlistTable({
           return (
             <article
               key={item.id}
-              className={`group border-b-2 ${theme.border} ${itemTone.row[item.itemType]} transition-colors`}
+              data-row-variant={item.itemType}
+              data-row-rhythm="setlist"
+              className={`group border-b ${theme.border} ${itemTone.row[item.itemType]} transition-colors`}
             >
-              <div className="grid md:grid-cols-[60px_minmax(0,1fr)_120px_180px]">
+              <div className="grid md:grid-cols-[4px_60px_minmax(0,1fr)_120px_180px]">
                 <div
-                  className={`flex items-center justify-center border-b-2 border-inherit px-3 py-4 font-mono text-lg font-black md:border-b-0 md:border-r-2 ${itemTone.cue}`}
+                  aria-hidden="true"
+                  className={`${itemTone.strip[item.itemType]} min-h-full`}
+                />
+
+                <div
+                  data-row-cue={item.itemType}
+                  className={`flex items-center justify-center border-b border-inherit px-3 py-4 font-mono text-base font-black tracking-[0.16em] md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
                   {formatCue(items, index)}
                 </div>
 
                 <div className="min-w-0 px-4 py-4 md:px-5">
-                  <p className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}>
+                  <p
+                    data-row-label={item.itemType}
+                    className={`font-mono text-[10px] uppercase tracking-[0.28em] ${itemTone.subtitle}`}
+                  >
                     {rowLabel}
                   </p>
                   <div className="mt-1 min-w-0">
                     <p
+                      data-row-title={item.itemType}
                       className={`truncate ${
                         item.itemType === "transition"
-                          ? "font-bold text-base opacity-60"
+                          ? "font-bold text-base uppercase tracking-[0.08em] opacity-60"
+                          : item.itemType === "mc"
+                            ? "font-bold text-lg tracking-[0.03em]"
                           : "font-bold text-lg"
                       }`}
                     >
@@ -371,7 +405,9 @@ export function SetlistTable({
                   </div>
                 </div>
 
-                <div className="flex items-center px-4 py-4 font-mono text-sm md:justify-center">
+                <div
+                  className={`flex items-center px-4 py-4 font-mono text-sm md:justify-center ${itemTone.duration}`}
+                >
                   {formatDuration(item.durationSeconds)}
                 </div>
 

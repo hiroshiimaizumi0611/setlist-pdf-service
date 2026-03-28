@@ -55,6 +55,14 @@ const event = {
 
 const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
 
+function requireElement(value: Element | null, message: string): HTMLElement {
+  if (!value) {
+    throw new Error(message);
+  }
+
+  return value as HTMLElement;
+}
+
 describe("EventEditorPageContent", () => {
   it("renders the editor affordances for a free account", () => {
     render(
@@ -161,6 +169,119 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
     expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
+
+    const shell = screen.getByRole("main");
+    expect(shell).toHaveClass("bg-[#0f0f10]");
+
+    const header = shell.querySelector("header");
+    expect(header).toBeTruthy();
+    if (!header) {
+      throw new Error("expected dark header shell");
+    }
+    expect(header).toHaveClass("bg-[#131313]/92");
+    expect(header).toHaveClass("border-[#fff6df]/10");
+
+    const rail = navigation.closest("aside");
+    expect(rail).toBeTruthy();
+    if (!rail) {
+      throw new Error("expected dark event rail");
+    }
+    expect(rail).toHaveClass("bg-[#161616]");
+    expect(rail).toHaveClass("lg:w-60");
+
+    const currentEventLink = within(navigation).getByRole("link", { current: "page" });
+    const currentEventCard = currentEventLink.closest("article");
+    expect(currentEventCard).toBeTruthy();
+    if (!currentEventCard) {
+      throw new Error("expected current event card");
+    }
+    expect(currentEventCard).toHaveClass("bg-[#3a3a3a]");
+    expect(currentEventCard).toHaveClass("text-[#f6c453]");
+    expect(currentEventCard).toHaveClass("border-[#f6c453]");
+
+    const metadataStrip = screen.getByText("Show Info").closest("section");
+    expect(metadataStrip).toBeTruthy();
+    if (!metadataStrip) {
+      throw new Error("expected metadata strip");
+    }
+    expect(metadataStrip).toHaveAttribute("data-editor-strip", "metadata");
+    expect(within(metadataStrip).getByText("Compact metadata strip for the printed show sheet.")).toHaveAttribute(
+      "data-strip-description",
+      "supporting",
+    );
+    expect(within(metadataStrip).getByRole("status", { name: "Sheet Theme" })).toHaveAttribute(
+      "data-strip-field-tone",
+      "muted",
+    );
+    expect(within(metadataStrip).getByRole("button", { name: "Save Metadata" })).toHaveAttribute(
+      "data-strip-action",
+      "metadata-save",
+    );
+
+    const addStrip = screen.getByText("Add Production Item").closest("section");
+    expect(addStrip).toBeTruthy();
+    if (!addStrip) {
+      throw new Error("expected add-item strip");
+    }
+    expect(addStrip).toHaveAttribute("data-editor-strip", "add-item");
+    expect(within(addStrip).getByRole("button", { name: "ADD TO SET" })).toHaveAttribute(
+      "data-strip-action",
+      "add-item",
+    );
+    expect(within(addStrip).getByText("追加設定").closest("summary")).toHaveAttribute(
+      "data-strip-action",
+      "toggle-advanced",
+    );
+
+    const firstSongRow = screen.getByText("緑").closest("article");
+    expect(firstSongRow).toBeTruthy();
+    if (!firstSongRow) {
+      throw new Error("expected first song row");
+    }
+    expect(firstSongRow).toHaveAttribute("data-row-variant", "song");
+    expect(firstSongRow).toHaveAttribute("data-row-rhythm", "setlist");
+    expect(within(firstSongRow).getByText("M01")).toHaveAttribute("data-row-cue", "song");
+    expect(within(firstSongRow).getByText("緑")).toHaveAttribute("data-row-title", "song");
+
+    const mcRow = requireElement(
+      shell.querySelector('article[data-row-variant="mc"]'),
+      "expected MC row",
+    );
+    expect(mcRow).toHaveAttribute("data-row-variant", "mc");
+    expect(within(mcRow).getByText("MC / TALK")).toHaveAttribute("data-row-label", "mc");
+    expect(
+      requireElement(
+        mcRow.querySelector('[data-row-title="mc"]'),
+        "expected MC row title",
+      ),
+    ).toHaveTextContent("MC");
+
+    const transitionRow = requireElement(
+      shell.querySelector('article[data-row-variant="transition"]'),
+      "expected transition row",
+    );
+    expect(transitionRow).toHaveAttribute("data-row-variant", "transition");
+    expect(within(transitionRow).getByText("CHANGEOVER")).toHaveAttribute(
+      "data-row-label",
+      "transition",
+    );
+    expect(
+      requireElement(
+        transitionRow.querySelector('[data-row-title="transition"]'),
+        "expected transition row title",
+      ),
+    ).toHaveTextContent("転換");
+
+    const headingRow = requireElement(
+      shell.querySelector('article[data-row-variant="heading"]'),
+      "expected heading row",
+    );
+    expect(headingRow).toHaveAttribute("data-row-variant", "heading");
+    expect(within(headingRow).getByText("SECTION BREAK")).toHaveAttribute(
+      "data-row-label",
+      "heading",
+    );
+    expect(within(headingRow).getByText("EN")).toHaveAttribute("data-row-cue", "heading");
   });
 
   it("shows the template save form when the account is pro", () => {
