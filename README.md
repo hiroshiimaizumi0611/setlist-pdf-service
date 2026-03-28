@@ -14,6 +14,15 @@ Preview and download now share the same HTML document source.
 
 That keeps theme selection, pagination, and paper output aligned end-to-end instead of maintaining separate preview and download renderers.
 
+## Visual Validation Checklist
+
+Use this manual spot-check pass before shipping PDF/editor polish changes:
+
+- Dark PDF preview: low density, medium density, high density single-page, very high density multi-page.
+- Downloaded PDF output: the same four density cases above.
+- Light-theme spot checks: confirm structure, spacing, and pagination still read correctly.
+- Dark editor comparison: match the Stitch dark editor reference for layout, contrast, and density.
+
 ## What You Can Do
 
 - Sign up and sign in with email and password.
