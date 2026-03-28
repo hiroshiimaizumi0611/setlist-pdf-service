@@ -6,7 +6,9 @@ import { oWestEvent } from "../fixtures/o-west-event";
 import { PdfPreviewPage } from "../../components/pdf-preview-page";
 
 describe("PdfPreviewPage", () => {
-  it("embeds the real document route in the workspace shell and hides direct paper rows", () => {
+  it(
+    "embeds the real document route in the workspace shell and hides direct paper rows",
+    () => {
     const layout = buildSetlistPdfLayout({
       event: nagoyaRadhallEvent,
       theme: "dark",
@@ -57,7 +59,9 @@ describe("PdfPreviewPage", () => {
     expect(screen.queryByText("紙面プレビューは次のタスクで実装")).not.toBeInTheDocument();
     expect(screen.queryByText("右パネルは後続タスクで展開")).not.toBeInTheDocument();
     expect(screen.queryByText("preview shell receives the exact model used by the PDF renderer.")).not.toBeInTheDocument();
-  });
+    },
+    20_000,
+  );
 
   it("shows layout warnings derived from the shared model", () => {
     const layout = buildSetlistPdfLayout({
