@@ -100,6 +100,18 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("Event id is missing from the editor URL.");
   }
 
+  await expect(page.locator('[data-editor-strip="metadata"]')).toBeVisible();
+  await expect(page.locator('[data-editor-strip="add-item"]')).toBeVisible();
+  await page.getByPlaceholder("曲名や進行メモを入力").fill("E2E opener");
+  await page.getByRole("button", { name: "ADD TO SET" }).click();
+  await expect(page.locator('[data-row-variant="song"]').first()).toBeVisible();
+  await expect(
+    page.locator('[data-row-variant="song"] [data-row-cue="song"]').first(),
+  ).toHaveText("M01");
+  await expect(
+    page.locator('[data-row-variant="song"] [data-row-title="song"]').first(),
+  ).toHaveText("E2E opener");
+
   const pdfLink = page.getByRole("link", { name: "PDF出力" });
   const editorPdfHref = await pdfLink.getAttribute("href");
 

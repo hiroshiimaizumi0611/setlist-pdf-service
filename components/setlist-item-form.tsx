@@ -18,21 +18,30 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
   const theme = getDashboardThemeStyles(currentTheme);
   const checkedTab =
     "peer-checked:border-[#f6c453] peer-checked:bg-[#f6c453] peer-checked:text-[#1f1b16] peer-checked:hover:bg-[#ffda78]";
+  const stripFrame =
+    currentTheme === "dark"
+      ? "bg-[#1a1a1a] shadow-[inset_0_1px_0_rgba(255,246,223,0.04)]"
+      : theme.panelAlt;
+  const stripBand = currentTheme === "dark" ? "bg-[#141414]" : theme.panelMuted;
+  const stripDivider = currentTheme === "dark" ? "bg-[#2b2a28]" : "bg-[#d7cfbe]";
 
   return (
-    <section className={`overflow-hidden border-2 ${theme.border} ${theme.panelAlt}`}>
-      <div className={`border-b-2 ${theme.border} px-4 py-3`}>
+    <section
+      data-editor-strip="add-item"
+      className={`overflow-hidden border-2 ${theme.border} ${stripFrame}`}
+    >
+      <div className={`border-b ${theme.border} px-4 py-3`}>
         <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
           Add Production Item
         </p>
-        <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>
+        <p className={`mt-1 text-sm leading-5 ${theme.mutedText}`}>
           Compact one-line strip for live edits and quick inserts.
         </p>
       </div>
 
       <form action={addItemAction} className="px-4 py-4">
-        <div className="grid gap-3 md:grid-cols-[minmax(15rem,18rem)_minmax(0,1fr)_auto]">
-          <fieldset className="min-w-0">
+        <div className={`grid gap-px ${stripDivider} md:grid-cols-[minmax(16rem,19rem)_minmax(0,1fr)_auto]`}>
+          <fieldset className={`min-w-0 ${stripBand} p-2`}>
             <legend className="sr-only">項目種別</legend>
             <div className="grid grid-cols-2 gap-1 sm:grid-cols-4">
               {ITEM_TYPE_OPTIONS.map((option) => (
@@ -45,7 +54,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
                     className="peer sr-only"
                   />
                   <span
-                    className={`${theme.buttonSecondary} flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase transition ${checkedTab}`}
+                    className={`${theme.buttonSecondary} flex min-h-10 items-center justify-center px-3 text-[11px] font-black tracking-[0.18em] uppercase transition ${checkedTab}`}
                   >
                     {option.label}
                   </span>
@@ -54,30 +63,32 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
             </div>
           </fieldset>
 
-          <label className="grid min-w-0 gap-2">
+          <label className={`grid min-w-0 gap-2 ${stripBand} px-4 py-3`}>
             <span className="sr-only">タイトル</span>
             <input
               type="text"
               name="title"
               placeholder="曲名や進行メモを入力"
               required
-              className={`${theme.input} min-h-11 px-4 py-3`}
+              className={`${theme.input} min-h-10 px-4 py-2.5 text-sm font-semibold tracking-[0.04em]`}
             />
           </label>
 
           <button
             type="submit"
-            className={`${theme.buttonPrimary} min-h-11 px-6 text-sm font-black tracking-[0.14em] uppercase`}
+            data-strip-action="add-item"
+            className={`${theme.buttonPrimary} min-h-10 px-6 text-sm font-black tracking-[0.14em] uppercase`}
           >
             ADD TO SET
           </button>
         </div>
 
         <details
-          className={`mt-3 border-t-2 ${theme.border} pt-3`}
+          className={`mt-3 border-t ${theme.border} pt-3`}
         >
           <summary
-            className={`${theme.buttonSecondary} inline-flex min-h-11 cursor-pointer items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            data-strip-action="toggle-advanced"
+            className={`${theme.buttonSecondary} inline-flex min-h-10 cursor-pointer items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
           >
             追加設定
           </summary>
@@ -91,7 +102,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
                 type="text"
                 name="artist"
                 placeholder="任意"
-                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
               />
             </label>
 
@@ -104,7 +115,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
                 min="0"
                 name="durationSeconds"
                 placeholder="任意"
-                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
               />
             </label>
 
@@ -116,7 +127,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
                 type="text"
                 name="notes"
                 placeholder="転換やキューの補足"
-                className={`${theme.inputMuted} min-h-11 px-4 py-3`}
+                className={`${theme.inputMuted} min-h-10 px-4 py-2.5`}
               />
             </label>
           </div>

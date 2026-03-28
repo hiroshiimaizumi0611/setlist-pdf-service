@@ -33,17 +33,30 @@ export function EventMetadataForm({
 }: EventMetadataFormProps) {
   const theme = getDashboardThemeStyles(currentTheme);
   const themeLabel = currentTheme === "light" ? "Light" : "Dark";
+  const stripFrame =
+    currentTheme === "dark"
+      ? "bg-[#141414] shadow-[inset_0_1px_0_rgba(255,246,223,0.04)]"
+      : "bg-[#f7f1e3]";
+  const stripDivider = currentTheme === "dark" ? "bg-[#2b2a28]" : "bg-[#d7cfbe]";
+  const fieldPanel = currentTheme === "dark" ? "bg-[#161616]" : theme.panel;
+  const footerText = currentTheme === "dark" ? "text-[#91897c]" : theme.mutedText;
 
   return (
-    <section className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}>
+    <section
+      data-editor-strip="metadata"
+      className={`overflow-hidden border-2 ${theme.border} ${stripFrame}`}
+    >
       <div
-        className={`flex flex-col gap-3 border-b-2 ${theme.border} px-4 py-3 md:flex-row md:items-center md:justify-between`}
+        className={`flex flex-col gap-3 border-b ${theme.border} px-4 py-3 md:flex-row md:items-center md:justify-between`}
       >
         <div className="space-y-1">
           <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
             Show Info
           </p>
-          <p className={`text-sm leading-6 ${theme.mutedText}`}>
+          <p
+            data-strip-description="supporting"
+            className={`text-sm leading-5 ${theme.mutedText}`}
+          >
             Compact metadata strip for the printed show sheet.
           </p>
         </div>
@@ -51,8 +64,8 @@ export function EventMetadataForm({
         {headerActions ? <div className="flex flex-wrap gap-3">{headerActions}</div> : null}
       </div>
 
-      <form action={updateMetadataAction} className="grid gap-px bg-black/10 md:grid-cols-4">
-        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+      <form action={updateMetadataAction} className={`grid gap-px ${stripDivider} md:grid-cols-4`}>
+        <label className={`grid gap-2 px-4 py-3 ${fieldPanel}`}>
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Date
           </span>
@@ -61,11 +74,11 @@ export function EventMetadataForm({
             name="eventDate"
             defaultValue={formatDateInput(event.eventDate)}
             aria-label="Date"
-            className={`${theme.input} min-h-11 px-3 py-2`}
+            className={`${theme.input} min-h-10 px-3 py-2`}
           />
         </label>
 
-        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+        <label className={`grid gap-2 px-4 py-3 ${fieldPanel}`}>
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Venue
           </span>
@@ -74,11 +87,11 @@ export function EventMetadataForm({
             name="venue"
             defaultValue={event.venue ?? ""}
             aria-label="Venue"
-            className={`${theme.input} min-h-11 px-3 py-2`}
+            className={`${theme.input} min-h-10 px-3 py-2`}
           />
         </label>
 
-        <label className={`grid gap-2 px-4 py-3 ${theme.panel}`}>
+        <label className={`grid gap-2 px-4 py-3 ${fieldPanel}`}>
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Show Title
           </span>
@@ -88,24 +101,27 @@ export function EventMetadataForm({
             defaultValue={event.title}
             required
             aria-label="Show Title"
-            className={`${theme.input} min-h-11 px-3 py-2`}
+            className={`${theme.input} min-h-10 px-3 py-2`}
           />
         </label>
 
         <div
           role="status"
           aria-label="Sheet Theme"
+          data-strip-field-tone="muted"
           className={`grid gap-2 px-4 py-3 ${theme.panelMuted}`}
         >
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Sheet Theme
           </span>
-          <div className={`flex min-h-11 items-center border ${theme.border} px-3 font-mono text-sm font-black uppercase tracking-[0.18em] ${theme.panel}`}>
+          <div
+            className={`flex min-h-10 items-center border ${theme.border} px-3 font-mono text-sm font-black uppercase tracking-[0.18em] ${fieldPanel}`}
+          >
             {themeLabel}
           </div>
         </div>
 
-        <label className={`grid gap-2 px-4 py-3 md:col-span-4 ${theme.panel}`}>
+        <label className={`grid gap-2 px-4 py-3 md:col-span-4 ${fieldPanel}`}>
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Notes
           </span>
@@ -117,13 +133,16 @@ export function EventMetadataForm({
           />
         </label>
 
-        <div className={`flex items-center justify-between gap-3 border-t-2 ${theme.border} bg-transparent px-4 py-3 md:col-span-4`}>
-          <p className={`font-mono text-[10px] uppercase tracking-[0.3em] ${theme.mutedText}`}>
+        <div
+          className={`flex items-center justify-between gap-3 border-t ${theme.border} bg-transparent px-4 py-3 md:col-span-4`}
+        >
+          <p className={`font-mono text-[10px] uppercase tracking-[0.3em] ${footerText}`}>
             Updated for print output and live edits
           </p>
           <button
             type="submit"
-            className={`${theme.buttonSecondary} min-h-11 px-5 text-sm font-black tracking-[0.14em] uppercase`}
+            data-strip-action="metadata-save"
+            className={`${theme.buttonSecondary} min-h-10 px-5 text-sm font-black tracking-[0.14em] uppercase`}
           >
             Save Metadata
           </button>

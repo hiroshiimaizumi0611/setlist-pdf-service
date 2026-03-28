@@ -232,27 +232,29 @@ export function EventEditorPageContent({
         </>
       }
     >
-      <EventMetadataForm
-        event={event}
-        currentTheme={currentTheme}
-        updateMetadataAction={metadataFormAction}
-        headerActions={
-          <TemplateSaveButton
-            plan={currentPlan}
-            currentTheme={currentTheme}
-            mode="event"
-            sourceEventId={event.id}
-            defaultName={event.title}
-            defaultDescription={event.notes ?? ""}
-            saveTemplateAction={saveTemplateAction}
-          />
-        }
-      />
+      <div className="space-y-3">
+        <EventMetadataForm
+          event={event}
+          currentTheme={currentTheme}
+          updateMetadataAction={metadataFormAction}
+          headerActions={
+            <TemplateSaveButton
+              plan={currentPlan}
+              currentTheme={currentTheme}
+              mode="event"
+              sourceEventId={event.id}
+              defaultName={event.title}
+              defaultDescription={event.notes ?? ""}
+              saveTemplateAction={saveTemplateAction}
+            />
+          }
+        />
 
-      <SetlistItemForm
-        currentTheme={currentTheme}
-        addItemAction={addItemFormAction}
-      />
+        <SetlistItemForm
+          currentTheme={currentTheme}
+          addItemAction={addItemFormAction}
+        />
+      </div>
 
       <SetlistTable
         currentTheme={currentTheme}
