@@ -603,6 +603,34 @@ describe("EventEditorPageContent", () => {
     );
   });
 
+  it("renders delete confirmation controls for heading rows", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        pendingDeleteItemId="item-8"
+        updateItemAction={mockUpdateItemAction}
+      />,
+    );
+
+    const headingRow = requireElement(
+      document.querySelector('article[data-row-variant="heading"]'),
+      "expected heading row",
+    );
+    const headingActions = requireElement(
+      headingRow.querySelector('[data-row-actions="desktop"]'),
+      "expected heading action cluster",
+    );
+
+    expect(within(headingActions).getByRole("button", { name: "EN の削除を確定" })).toBeInTheDocument();
+    expect(within(headingActions).getByRole("link", { name: "キャンセル" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall?theme=light",
+    );
+  });
+
   it("submits delete confirmation through deleteItemAction from the compact action cluster", async () => {
     const deleteItemAction = vi.fn().mockResolvedValue(undefined);
 
@@ -624,6 +652,31 @@ describe("EventEditorPageContent", () => {
       expect(deleteItemAction).toHaveBeenCalledWith({
         eventId: event.id,
         itemId: "item-1",
+      }),
+    );
+  });
+
+  it("submits heading delete confirmation through deleteItemAction", async () => {
+    const deleteItemAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        pendingDeleteItemId="item-8"
+        updateItemAction={mockUpdateItemAction}
+        deleteItemAction={deleteItemAction}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "EN の削除を確定" }));
+
+    await waitFor(() =>
+      expect(deleteItemAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        itemId: "item-8",
       }),
     );
   });

@@ -256,17 +256,45 @@ export function SetlistTable({
                       type="button"
                       onClick={() => setEditingItemId(item.id)}
                       disabled={!updateItemAction}
-                        className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
-                      >
-                        編集
-                      </button>
-                    <Link
-                      href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
-                      aria-label={`${item.title} を削除`}
-                      className={`${theme.destructive} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
+                      className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
                     >
-                      削除
-                    </Link>
+                      編集
+                    </button>
+                    {pendingDeleteItemId === item.id ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!deleteItemAction) {
+                              return;
+                            }
+
+                            void deleteItemAction({
+                              eventId,
+                              itemId: item.id,
+                            });
+                          }}
+                          aria-label={`${item.title} の削除を確定`}
+                          className={`${theme.destructive} min-h-10 px-3 text-xs font-bold`}
+                        >
+                          削除を確定
+                        </button>
+                        <Link
+                          href={`/events/${eventId}?theme=${currentTheme}`}
+                          className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
+                        >
+                          キャンセル
+                        </Link>
+                      </>
+                    ) : (
+                      <Link
+                        href={`/events/${eventId}?theme=${currentTheme}&deleteItem=${item.id}`}
+                        aria-label={`${item.title} を削除`}
+                        className={`${theme.destructive} inline-flex min-h-10 items-center justify-center px-3 text-xs font-bold`}
+                      >
+                        削除
+                      </Link>
+                    )}
                   </div>
                 </div>
               </article>
