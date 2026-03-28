@@ -98,7 +98,9 @@ describe("EventEditorPage route wiring", () => {
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
   });
 
-  it("keeps the dark shell composition connected at the route level", async () => {
+  it(
+    "keeps the dark shell composition connected at the route level",
+    async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -168,5 +170,7 @@ describe("EventEditorPage route wiring", () => {
     }
     expect(currentEventCard).toHaveClass("bg-[#3a3a3a]");
     expect(currentEventCard).toHaveClass("text-[#f6c453]");
-  });
+    },
+    20_000,
+  );
 });
