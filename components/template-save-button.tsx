@@ -15,7 +15,7 @@ type TemplateSaveButtonProps = {
 
 export function TemplateSaveButton({
   plan,
-  currentTheme = "light",
+  currentTheme = "dark",
   mode = "summary",
   sourceEventId,
   defaultName = "",

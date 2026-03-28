@@ -11,7 +11,7 @@ type TemplateListProps = {
 
 export function TemplateList({
   templates,
-  currentTheme = "light",
+  currentTheme = "dark",
   instantiateAction,
 }: TemplateListProps) {
   const theme = getDashboardThemeStyles(currentTheme);

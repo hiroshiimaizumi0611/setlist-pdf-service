@@ -21,7 +21,7 @@ type EventPdfDocumentPageProps = {
 
 function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   const candidate = Array.isArray(value) ? value[0] : value;
-  return candidate === "dark" ? "dark" : "light";
+  return candidate === "light" ? "light" : "dark";
 }
 
 function resolveToken(value: string | string[] | undefined) {

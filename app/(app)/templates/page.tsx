@@ -36,7 +36,7 @@ export default async function TemplatesPage() {
   const events = await listEventSummaries({ userId: session.user.id });
   const templates = await listTemplates({ userId: session.user.id });
   const isPro = currentPlan.plan === "pro";
-  const theme = getDashboardThemeStyles("light");
+  const theme = getDashboardThemeStyles("dark");
 
   return (
     <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
@@ -54,7 +54,7 @@ export default async function TemplatesPage() {
             </p>
           </div>
 
-          <TemplateSaveButton plan={currentPlan.plan} currentTheme="light" />
+          <TemplateSaveButton plan={currentPlan.plan} currentTheme="dark" />
         </header>
 
         <section className={`border-2 ${theme.border} ${theme.panel} p-8`}>
@@ -148,7 +148,7 @@ export default async function TemplatesPage() {
 
         <TemplateList
           templates={templates}
-          currentTheme="light"
+          currentTheme="dark"
           instantiateAction={createEventFromTemplateFormAction}
         />
       </section>
