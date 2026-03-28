@@ -17,9 +17,11 @@ type EventEditorPageContentProps = {
   event: EventWithItems | null;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  pendingDeleteEventId?: string | null;
   pendingDeleteItemId?: string | null;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
+  deleteEventAction?: (formData: FormData) => Promise<void>;
   updateMetadataAction?: (input: {
     eventId: string;
     title: string;
@@ -87,9 +89,11 @@ export function EventEditorPageContent({
   event,
   currentTheme,
   currentPlan,
+  pendingDeleteEventId,
   pendingDeleteItemId,
   createEventAction,
   duplicateEventAction,
+  deleteEventAction,
   updateMetadataAction,
   addItemAction,
   updateItemAction,
@@ -137,6 +141,8 @@ export function EventEditorPageContent({
         currentEventId={currentEventId}
         currentTheme={currentTheme}
         duplicateEventAction={duplicateEventAction}
+        pendingDeleteEventId={pendingDeleteEventId}
+        deleteEventAction={deleteEventAction}
       />
     </div>
   );
@@ -238,15 +244,47 @@ export function EventEditorPageContent({
           currentTheme={currentTheme}
           updateMetadataAction={metadataFormAction}
           headerActions={
-            <TemplateSaveButton
-              plan={currentPlan}
-              currentTheme={currentTheme}
-              mode="event"
-              sourceEventId={event.id}
-              defaultName={event.title}
-              defaultDescription={event.notes ?? ""}
-              saveTemplateAction={saveTemplateAction}
-            />
+            <>
+              <TemplateSaveButton
+                plan={currentPlan}
+                currentTheme={currentTheme}
+                mode="event"
+                sourceEventId={event.id}
+                defaultName={event.title}
+                defaultDescription={event.notes ?? ""}
+                saveTemplateAction={saveTemplateAction}
+              />
+              {deleteEventAction ? (
+                pendingDeleteEventId === event.id ? (
+                  <>
+                    <form action={deleteEventAction}>
+                      <input type="hidden" name="eventId" value={event.id} />
+                      <input type="hidden" name="theme" value={currentTheme} />
+                      <button
+                        type="submit"
+                        aria-label="現在のセットリスト削除を確定"
+                        className="border border-[#d14b4b] bg-[#d14b4b] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:opacity-90"
+                      >
+                        削除を確定
+                      </button>
+                    </form>
+                    <Link
+                      href={`/events/${event.id}?theme=${currentTheme}`}
+                      className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+                    >
+                      キャンセル
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    href={`/events/${event.id}?theme=${currentTheme}&deleteEvent=${event.id}`}
+                    className="inline-flex min-h-10 items-center justify-center border border-[#d14b4b] px-4 text-xs font-black uppercase tracking-[0.18em] text-[#d14b4b] transition hover:bg-[#d14b4b]/10"
+                  >
+                    このセットリストを削除
+                  </Link>
+                )
+              ) : null}
+            </>
           }
         />
 

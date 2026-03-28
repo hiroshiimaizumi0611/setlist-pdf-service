@@ -117,6 +117,19 @@ export async function updateEventRecord(
   return event ?? null;
 }
 
+export async function deleteEventRecord(
+  eventId: string,
+  executor?: EventDatabase,
+) {
+  const database = resolveExecutor(executor);
+  const [event] = await database
+    .delete(events)
+    .where(eq(events.id, eventId))
+    .returning();
+
+  return event ?? null;
+}
+
 export async function findSetlistItemById(
   itemId: string,
   executor?: EventDatabase,

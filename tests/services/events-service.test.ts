@@ -5,6 +5,7 @@ import { buildRenderableItems } from "../../lib/setlist/build-renderable-items";
 import {
   addEventItem,
   createEvent,
+  deleteEvent,
   deleteEventItem,
   duplicateEvent,
   reorderEventItems,
@@ -197,6 +198,20 @@ describe("events service", () => {
     expect(withDeletedItem.items).toHaveLength(8);
     expect(withDeletedItem.items.map((item) => item.position)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     expect(withDeletedItem.items.some((item) => item.id === itemToDelete.id)).toBe(false);
+  });
+
+  it("deletes an owned event and its setlist items", async () => {
+    const owner = await createUser("Delete Owner");
+    const event = await createFixtureEvent(owner.id);
+
+    const deleted = await deleteEvent({
+      userId: owner.id,
+      eventId: event.id,
+    });
+
+    expect(deleted.id).toBe(event.id);
+    expect(await db.select().from(events)).toHaveLength(0);
+    expect(await db.select().from(setlistItems)).toHaveLength(0);
   });
 
   it("rejects duplication for a user who does not own the event", async () => {

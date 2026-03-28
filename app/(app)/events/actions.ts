@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import {
   addEventItem,
   createEvent,
+  deleteEvent,
   deleteEventItem,
   duplicateEvent,
   reorderEventItems,
@@ -103,6 +104,17 @@ export async function deleteEventItemAction(
   return event;
 }
 
+export async function deleteEventAction(
+  input: Omit<Parameters<typeof deleteEvent>[0], "userId">,
+) {
+  const event = await deleteEvent({
+    ...input,
+    userId: await requireUserId(),
+  });
+  revalidateEventViews(event.id);
+  return event;
+}
+
 export async function reorderEventItemsAction(
   input: Omit<Parameters<typeof reorderEventItems>[0], "userId">,
 ) {
@@ -126,4 +138,12 @@ export async function duplicateEventFormAction(formData: FormData) {
 
   const event = await duplicateEventForCurrentUser({ eventId });
   redirect(`/events/${event.id}?theme=${theme}`);
+}
+
+export async function deleteEventFormAction(formData: FormData) {
+  const eventId = String(formData.get("eventId") ?? "");
+  const theme = resolveTheme(formData.get("theme"));
+
+  await deleteEventAction({ eventId });
+  redirect(`/events?theme=${theme}`);
 }

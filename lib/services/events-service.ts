@@ -3,6 +3,7 @@ import {
   createEventRecord,
   createSetlistItem,
   createSetlistItems,
+  deleteEventRecord,
   deleteSetlistItemRecord,
   findEventWithItemsById,
   findLastSetlistItem,
@@ -260,6 +261,23 @@ export async function deleteEventItem(input: {
     }
 
     return updatedEvent;
+  });
+}
+
+export async function deleteEvent(input: {
+  userId: string;
+  eventId: string;
+}) {
+  const event = await getOwnedEventOrThrow(input.eventId, input.userId);
+
+  return db.transaction(async (tx) => {
+    const deletedEvent = await deleteEventRecord(input.eventId, tx);
+
+    if (!deletedEvent) {
+      throw new Error("Event not found.");
+    }
+
+    return event;
   });
 }
 

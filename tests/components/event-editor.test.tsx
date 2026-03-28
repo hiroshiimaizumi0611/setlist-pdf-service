@@ -54,6 +54,7 @@ const event = {
 };
 
 const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
+const mockDeleteEventAction = vi.fn().mockResolvedValue(undefined);
 
 function requireElement(value: Element | null, message: string): HTMLElement {
   if (!value) {
@@ -72,6 +73,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="light"
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -79,6 +81,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "このセットリストを削除" })).toBeInTheDocument();
     expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
     expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
     expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
@@ -165,6 +168,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="light"
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -201,6 +205,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="dark"
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -237,6 +242,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="light"
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -257,6 +263,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="light"
         currentPlan="free"
         updateItemAction={updateItemAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -300,6 +307,7 @@ describe("EventEditorPageContent", () => {
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
         reorderItemsAction={reorderItemsAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -361,6 +369,7 @@ describe("EventEditorPageContent", () => {
         currentPlan="free"
         updateItemAction={mockUpdateItemAction}
         reorderItemsAction={reorderItemsAction}
+        deleteEventAction={mockDeleteEventAction}
       />,
     );
 
@@ -411,6 +420,25 @@ describe("EventEditorPageContent", () => {
         ],
       }),
     );
+  });
+
+  it("renders whole-event delete confirmation in the sidebar and current editor", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        pendingDeleteEventId={event.id}
+        updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "2026.03.28 名古屋 RADHALL の削除を確定" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "現在のセットリスト削除を確定" })).toBeInTheDocument();
   });
 
   it("renders a Stitch-like rail and compact metadata strip", () => {

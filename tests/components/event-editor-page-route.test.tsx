@@ -5,11 +5,13 @@ const {
   mockGetAuthSessionWithPlan,
   mockListEventSummaries,
   mockGetEventForUser,
+  mockDeleteEventFormAction,
   mockUpdateEventItemAction,
 } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockListEventSummaries: vi.fn(),
   mockGetEventForUser: vi.fn(),
+  mockDeleteEventFormAction: vi.fn(),
   mockUpdateEventItemAction: vi.fn(),
 }));
 
@@ -30,6 +32,7 @@ vi.mock("@/lib/services/events-service", () => ({
 vi.mock("@/app/(app)/events/actions", () => ({
   addEventItemAction: vi.fn(),
   createEventAction: vi.fn(),
+  deleteEventFormAction: mockDeleteEventFormAction,
   deleteEventItemAction: vi.fn(),
   duplicateEventFormAction: vi.fn(),
   reorderEventItemsAction: vi.fn(),
@@ -95,7 +98,50 @@ describe("EventEditorPage route wiring", () => {
 
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.pendingDeleteItemId).toBe("item-2");
+    expect(result.props.pendingDeleteEventId).toBeNull();
     expect(result.props.updateItemAction).toBe(mockUpdateEventItemAction);
+  });
+
+  it("maps deleteEvent search params into pendingDeleteEventId", async () => {
+    mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: { user: { id: "user-1" } },
+      currentPlan: { plan: "free" },
+    });
+    mockListEventSummaries.mockResolvedValue([
+      {
+        id: "event-nagoya-radhall",
+        ownerUserId: "user-1",
+        title: "2026.03.28 名古屋 RADHALL",
+        venue: "RADHALL",
+        eventDate: new Date("2026-03-28T09:00:00.000Z"),
+        notes: "本番用セットリスト",
+        createdAt: baseTimestamp,
+        updatedAt: baseTimestamp,
+        itemCount: 8,
+      },
+    ]);
+    mockGetEventForUser.mockResolvedValue({
+      id: "event-nagoya-radhall",
+      ownerUserId: "user-1",
+      title: "2026.03.28 名古屋 RADHALL",
+      venue: "RADHALL",
+      eventDate: new Date("2026-03-28T09:00:00.000Z"),
+      notes: "本番用セットリスト",
+      createdAt: baseTimestamp,
+      updatedAt: baseTimestamp,
+      items: [],
+    });
+
+    const result = await EventEditorPage({
+      params: Promise.resolve({ eventId: "event-nagoya-radhall" }),
+      searchParams: Promise.resolve({
+        theme: "dark",
+        deleteEvent: "event-nagoya-radhall",
+      }),
+    });
+
+    expect(result.props.pendingDeleteEventId).toBe("event-nagoya-radhall");
+    expect(result.props.deleteEventAction).toBe(mockDeleteEventFormAction);
   });
 
   it("does not expose editItem search params once editing is modal-driven", async () => {

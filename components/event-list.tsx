@@ -9,6 +9,8 @@ type EventListProps = {
   currentTheme: PdfThemeName;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
+  pendingDeleteEventId?: string | null;
+  deleteEventAction?: (formData: FormData) => Promise<void>;
 };
 
 function formatEventDate(value: Date | null) {
@@ -29,6 +31,8 @@ export function EventList({
   currentEventId,
   currentTheme,
   duplicateEventAction,
+  pendingDeleteEventId,
+  deleteEventAction,
 }: EventListProps) {
   const theme = getDashboardThemeStyles(currentTheme);
 
@@ -87,19 +91,64 @@ export function EventList({
                   </div>
                 </Link>
 
-                {duplicateEventAction ? (
-                  <form action={duplicateEventAction} className="px-3 pb-3">
-                    <input type="hidden" name="eventId" value={event.id} />
-                    <input type="hidden" name="theme" value={currentTheme} />
-                    <button
-                      type="submit"
-                      className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
-                        isCurrent ? theme.currentEventMeta : theme.mutedText
-                      } transition hover:opacity-80`}
-                    >
-                      この公演を複製
-                    </button>
-                  </form>
+                {duplicateEventAction || deleteEventAction ? (
+                  <div className="px-3 pb-3">
+                    {duplicateEventAction ? (
+                      <form action={duplicateEventAction}>
+                        <input type="hidden" name="eventId" value={event.id} />
+                        <input type="hidden" name="theme" value={currentTheme} />
+                        <button
+                          type="submit"
+                          className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
+                            isCurrent ? theme.currentEventMeta : theme.mutedText
+                          } transition hover:opacity-80`}
+                        >
+                          この公演を複製
+                        </button>
+                      </form>
+                    ) : null}
+
+                    {deleteEventAction ? (
+                      pendingDeleteEventId === event.id ? (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <form action={deleteEventAction}>
+                            <input type="hidden" name="eventId" value={event.id} />
+                            <input type="hidden" name="theme" value={currentTheme} />
+                            <button
+                              type="submit"
+                              aria-label={`${event.title} の削除を確定`}
+                              className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#d14b4b] transition hover:opacity-80"
+                            >
+                              削除を確定
+                            </button>
+                          </form>
+                          <Link
+                            href={
+                              currentEventId
+                                ? `/events/${currentEventId}?theme=${currentTheme}`
+                                : `/events?theme=${currentTheme}`
+                            }
+                            className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
+                              isCurrent ? theme.currentEventMeta : theme.mutedText
+                            } transition hover:opacity-80`}
+                          >
+                            キャンセル
+                          </Link>
+                        </div>
+                      ) : (
+                        <Link
+                          href={
+                            currentEventId
+                              ? `/events/${currentEventId}?theme=${currentTheme}&deleteEvent=${event.id}`
+                              : `/events?theme=${currentTheme}&deleteEvent=${event.id}`
+                          }
+                          className="mt-2 inline-flex font-mono text-[10px] uppercase tracking-[0.22em] text-[#d14b4b] transition hover:opacity-80"
+                        >
+                          削除
+                        </Link>
+                      )
+                    ) : null}
+                  </div>
                 ) : null}
               </article>
             );

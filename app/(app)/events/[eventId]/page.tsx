@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import {
   addEventItemAction,
   createEventAction,
+  deleteEventFormAction,
   deleteEventItemAction,
   duplicateEventFormAction,
   reorderEventItemsAction,
@@ -26,6 +27,7 @@ type EventEditorPageProps = {
   searchParams?: Promise<{
     theme?: string | string[];
     deleteItem?: string | string[];
+    deleteEvent?: string | string[];
   }>;
 };
 
@@ -35,6 +37,10 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
 }
 
 function resolveDeleteItem(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function resolveDeleteEvent(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }
 
@@ -83,6 +89,7 @@ export default async function EventEditorPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const pendingDeleteItemId = resolveDeleteItem(resolvedSearchParams?.deleteItem);
+  const pendingDeleteEventId = resolveDeleteEvent(resolvedSearchParams?.deleteEvent);
   const { session, currentPlan } = authSession;
 
   const [events, event] = await Promise.all([
@@ -117,9 +124,11 @@ export default async function EventEditorPage({
       event={event}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
+      pendingDeleteEventId={pendingDeleteEventId}
       pendingDeleteItemId={pendingDeleteItemId}
       createEventAction={createDraftEvent}
       duplicateEventAction={duplicateEventFormAction}
+      deleteEventAction={deleteEventFormAction}
       updateMetadataAction={updateEventMetadataAction}
       addItemAction={addEventItemAction}
       updateItemAction={updateEventItemAction}
