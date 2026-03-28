@@ -124,6 +124,20 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     }),
   ).toHaveAttribute("aria-current", "page");
 
+  const pageCountBadge = previewPage.getByText(/^[0-9]+ pages$/);
+  await expect(pageCountBadge).toBeVisible();
+  const pageCountText = (await pageCountBadge.textContent()) ?? "";
+  const pageCount = Number.parseInt(pageCountText, 10);
+
+  expect(Number.isNaN(pageCount)).toBe(false);
+
+  const embeddedPageNumbers = previewPage
+    .frameLocator('iframe[title="紙面プレビュー"]')
+    .locator("[data-pdf-page-number]");
+
+  expect(await embeddedPageNumbers.count()).toBe(pageCount);
+  await expect(embeddedPageNumbers.last()).toHaveText(`${pageCount} / ${pageCount}`);
+
   const embeddedDocument = previewPage.locator('iframe[title="紙面プレビュー"]');
   const embeddedDocumentHref = await embeddedDocument.getAttribute("src");
 
@@ -186,6 +200,8 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
   ).toHaveAttribute("data-theme", alternateTheme);
+  expect(await embeddedPageNumbers.count()).toBe(pageCount);
+  await expect(embeddedPageNumbers.last()).toHaveText(`${pageCount} / ${pageCount}`);
 
   await expect(previewPdfLink).toHaveAttribute(
     "href",

@@ -170,6 +170,7 @@ describe("PdfDocument", () => {
     expect(thirdPage.querySelectorAll("[data-pdf-row]")).toHaveLength(
       layout.pages[2]!.rows.length,
     );
+    expect(within(firstPage).getByText(layout.pages[0]!.footer.text)).toBeInTheDocument();
     expect(firstRowOnSecondPage).toHaveAttribute(
       "data-row-top",
       String(layout.pages[1]!.rows[0]!.top),
