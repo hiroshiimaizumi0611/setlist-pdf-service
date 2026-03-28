@@ -23,6 +23,13 @@ describe("buildSetlistPdfLayout", () => {
       secondLayout.pages.map((page) => page.rows.map((row) => row.id)),
     );
     expect(firstLayout.pages[0]?.footer.text).toBe(`1 / ${firstLayout.pageCount}`);
+    expect(
+      firstLayout.pages.every((page) =>
+        page.rows.every(
+          (row, index) => index === 0 || row.top > page.rows[index - 1]!.top,
+        ),
+      ),
+    ).toBe(true);
   });
 
   it("assigns distinct row semantics for song, mc, transition, and heading rows", () => {
@@ -94,6 +101,7 @@ describe("buildSetlistPdfLayout", () => {
     expect(layout.warnings[0]).toMatchObject({
       type: "long-title",
       rowId: "long-song-1",
+      rowVariant: "song",
       originalTitle:
         "This is an intentionally long title that should trigger the layout warning and truncation path",
       displayText: layout.pages[0]?.rows[0]?.displayText,
