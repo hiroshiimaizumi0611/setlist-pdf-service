@@ -2,6 +2,13 @@ import { buildRenderableItems } from "../setlist/build-renderable-items";
 import type { EventWithItems } from "../repositories/event-repository";
 import { getPdfThemeTokens, type PdfThemeName, type PdfThemeTokens } from "./theme-tokens";
 import { formatEventDateForDisplay } from "./format-event-date";
+import {
+  DENSITY_PRESETS,
+  getDensityPreset,
+  getRowDensityWeight,
+  type SetlistPdfDensityPreset,
+  type SetlistPdfRowType,
+} from "./density-presets";
 
 const PAGE_SIZE = {
   width: 540,
@@ -17,20 +24,11 @@ const MARGINS = {
 
 const HEADER_HEIGHT = 88;
 const FOOTER_HEIGHT = 18;
-const ROW_GAP = 6;
 const LABEL_COLUMN_WIDTH = 44;
 const SONG_CUE_PREFIX = "M";
 const SONG_TITLE_LIMIT = 24;
 const HEADING_TITLE_LIMIT = 20;
 const TRANSITION_TITLE_LIMIT = 18;
-// These virtual heights track the HTML document row boxes so pagination and paper output
-// stay in sync when rows are absolutely positioned into each page.
-const ROW_HEIGHTS = {
-  song: 32,
-  mc: 28,
-  transition: 32,
-  heading: 42,
-} as const;
 
 type RenderableRow = ReturnType<typeof buildRenderableItems<EventWithItems["items"][number]>>[number];
 
@@ -75,6 +73,15 @@ export type SetlistPdfPageLayout = {
   rows: SetlistPdfRowLayout[];
 };
 
+export type SetlistPdfPageGeometry = {
+  contentTop: number;
+  contentBottom: number;
+  maxRowsHeight: number;
+  rowGap: number;
+  rowHeights: Record<SetlistPdfRowType, number>;
+  effectiveRowDensity: number;
+};
+
 export type SetlistPdfLayout = {
   pageSize: typeof PAGE_SIZE;
   margins: typeof MARGINS;
@@ -86,22 +93,15 @@ export type SetlistPdfLayout = {
     labelWidth: number;
   };
   theme: PdfThemeTokens;
+  densityPreset: SetlistPdfDensityPreset;
+  pageGeometry: SetlistPdfPageGeometry;
   pageCount: number;
   warnings: SetlistPdfWarning[];
   pages: SetlistPdfPageLayout[];
 };
 
-function getRowHeight(itemType: RenderableRow["itemType"]) {
-  switch (itemType) {
-    case "heading":
-      return ROW_HEIGHTS.heading;
-    case "mc":
-      return ROW_HEIGHTS.mc;
-    case "transition":
-      return ROW_HEIGHTS.transition;
-    default:
-      return ROW_HEIGHTS.song;
-  }
+function getRowHeight(rowType: RenderableRow["itemType"], preset: SetlistPdfDensityPreset) {
+  return DENSITY_PRESETS[preset].rowHeights[rowType as SetlistPdfRowType];
 }
 
 function getTitleLimit(itemType: RenderableRow["itemType"]) {
@@ -168,6 +168,12 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
   const renderableRows = buildRenderableItems(input.event.items);
   const pages: Omit<SetlistPdfPageLayout, "pageNumber" | "footer">[] = [];
   const warnings: SetlistPdfWarning[] = [];
+  const effectiveRowDensity = renderableRows.reduce(
+    (total, row) => total + getRowDensityWeight(row.itemType as SetlistPdfRowType),
+    0,
+  );
+  const densityPreset = getDensityPreset(effectiveRowDensity);
+  const densityGeometry = DENSITY_PRESETS[densityPreset];
 
   let currentRows: SetlistPdfPageLayout["rows"] = [];
   let currentTop = contentTop;
@@ -175,8 +181,9 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
   let songCount = 1;
 
   for (const row of renderableRows) {
-    const rowHeight = getRowHeight(row.itemType);
-    const nextHeight = currentRows.length === 0 ? rowHeight : usedHeight + ROW_GAP + rowHeight;
+    const rowHeight = getRowHeight(row.itemType, densityPreset);
+    const nextHeight =
+      currentRows.length === 0 ? rowHeight : usedHeight + densityGeometry.rowGap + rowHeight;
     const cueLabel = getCueLabel(row, songCount);
     const displayText = getDisplayText(row);
     const titleLimit = getTitleLimit(row.itemType);
@@ -224,8 +231,9 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
       });
     }
 
-    usedHeight = currentRows.length === 1 ? rowHeight : usedHeight + ROW_GAP + rowHeight;
-    currentTop += rowHeight + ROW_GAP;
+    usedHeight =
+      currentRows.length === 1 ? rowHeight : usedHeight + densityGeometry.rowGap + rowHeight;
+    currentTop += rowHeight + densityGeometry.rowGap;
   }
 
   if (currentRows.length > 0 || pages.length === 0) {
@@ -253,6 +261,15 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
       labelWidth: LABEL_COLUMN_WIDTH,
     },
     theme,
+    densityPreset,
+    pageGeometry: {
+      contentTop,
+      contentBottom,
+      maxRowsHeight,
+      rowGap: densityGeometry.rowGap,
+      rowHeights: densityGeometry.rowHeights,
+      effectiveRowDensity,
+    },
     pageCount,
     warnings,
     pages: pages.map((page, index) => ({
