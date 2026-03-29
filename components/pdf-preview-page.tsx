@@ -70,8 +70,6 @@ export function PdfPreviewPage({
             </Link>
             <a
               href={downloadHref}
-              target="_blank"
-              rel="noreferrer"
               className="inline-flex min-h-11 items-center justify-center border border-[#f6c453] bg-[#f6c453] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#1f1b16] transition hover:bg-[#ffe08a]"
             >
               PDF出力

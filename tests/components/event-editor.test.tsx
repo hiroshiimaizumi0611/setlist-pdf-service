@@ -156,6 +156,7 @@ describe("EventEditorPageContent", () => {
       "href",
       "/events/event-nagoya-radhall/pdf?theme=light",
     );
+    expect(screen.getByRole("link", { name: "PDF出力" })).not.toHaveAttribute("target");
     expect(screen.getByRole("link", { name: "Proでテンプレート保存を有効化" })).toHaveAttribute(
       "href",
       "/settings/billing",

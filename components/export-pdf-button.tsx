@@ -17,8 +17,6 @@ export function ExportPdfButton({
   return (
     <Link
       href={previewHref}
-      target="_blank"
-      rel="noreferrer"
       className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-5 text-sm font-black tracking-[0.16em] uppercase`}
     >
       PDF出力

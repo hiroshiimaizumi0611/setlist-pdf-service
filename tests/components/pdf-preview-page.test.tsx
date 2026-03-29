@@ -47,6 +47,7 @@ describe("PdfPreviewPage", () => {
       "href",
       "/api/events/event-nagoya-radhall/pdf?theme=dark",
     );
+    expect(screen.getByRole("link", { name: "PDF出力" })).not.toHaveAttribute("target");
     expect(screen.getByText("PDFテーマ切替")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "DARK" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByText("出力サイズ選択")).toBeInTheDocument();
