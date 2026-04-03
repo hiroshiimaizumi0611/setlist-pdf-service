@@ -3,6 +3,23 @@ import { describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
 
+const { mockRouterPush, mockRouterRefresh } = vi.hoisted(() => ({
+  mockRouterPush: vi.fn(),
+  mockRouterRefresh: vi.fn(),
+}));
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/navigation")>();
+
+  return {
+    ...actual,
+    useRouter: () => ({
+      push: mockRouterPush,
+      refresh: mockRouterRefresh,
+    }),
+  };
+});
+
 const baseTimestamp = new Date("2026-03-21T00:00:00.000Z");
 
 const eventSummaries = [
@@ -81,7 +98,7 @@ describe("EventEditorPageContent", () => {
 
     expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "PDF出力" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このセットリストを削除" })).toBeInTheDocument();
     expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
@@ -152,11 +169,7 @@ describe("EventEditorPageContent", () => {
     expect(within(firstSongRow).getByLabelText("緑 をドラッグして並び替え")).toHaveClass(
       "hidden",
     );
-    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
-      "href",
-      "/events/event-nagoya-radhall/pdf?theme=light",
-    );
-    expect(screen.getByRole("link", { name: "PDF出力" })).not.toHaveAttribute("target");
+    expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Proでテンプレート保存を有効化" })).toHaveAttribute(
       "href",
       "/settings/billing",
@@ -617,10 +630,7 @@ describe("EventEditorPageContent", () => {
 
     expect(screen.getByRole("button", { name: "この内容をテンプレート保存" })).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
-    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
-      "href",
-      "/events/event-nagoya-radhall/pdf?theme=dark",
-    );
+    expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
   });
 
   it("renders a server-side delete confirmation state", () => {

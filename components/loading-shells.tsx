@@ -122,40 +122,33 @@ export function EditorLoadingShell() {
 export function PdfPreviewLoadingShell() {
   return (
     <main className="min-h-screen bg-[#111111] text-[#f6f3ee]">
-      <header className="border-b border-[#2f2a24] bg-[#0d0d0d]/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_30%),linear-gradient(180deg,_#101010_0%,_#050505_100%)] px-6">
+        <div
+          role="status"
+          aria-label="PDFプレビューの読み込み状況"
+          className="flex w-full max-w-lg flex-col items-center gap-5 border border-[#2f2a24] bg-[#111111]/95 px-8 py-10 text-center shadow-[0_32px_90px_rgba(0,0,0,0.45)]"
+        >
+          <div className="h-14 w-14 animate-spin rounded-full border-4 border-[#2f2a24] border-t-[#f6c453]" />
           <div className="space-y-2">
-            <SkeletonBlock className="h-3 w-24" />
-            <SkeletonBlock className="h-10 w-80" />
-            <SkeletonBlock className="h-4 w-52" />
+            <p className="font-mono text-[11px] uppercase tracking-[0.32em] text-[#91897c]">
+              PDF Preview
+            </p>
+            <h1 className="font-mono text-2xl font-black tracking-[-0.06em]">
+              PDFプレビューを準備中...
+            </h1>
+            <p className="text-sm leading-7 text-[#bfb7aa]">
+              用紙レイアウトと埋め込みプレビューを読み込んでいます。
+            </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <SkeletonBlock className="h-11 w-24" />
-            <SkeletonBlock className="h-11 w-24" />
-            <SkeletonBlock className="h-11 w-32" />
-            <SkeletonBlock className="h-11 w-28" />
-          </div>
-        </div>
-      </header>
-      <div className="mx-auto grid min-h-[calc(100vh-81px)] max-w-[1600px] lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="min-h-full overflow-y-auto bg-[radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_35%),linear-gradient(180deg,_#101010_0%,_#050505_100%)] px-6 py-8 sm:px-8">
-          <div className="mx-auto flex max-w-[980px] flex-col gap-4">
-            <SkeletonBlock className="h-12 w-full" />
-            <div className="overflow-hidden rounded-[28px] border border-[#2f2a24] bg-[#0b0b0b] p-6 shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
-              <SkeletonBlock className="h-[860px] w-full bg-[#f3efe6]" />
+          <div className="w-full space-y-3">
+            <SkeletonBlock className="h-3 w-32" />
+            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock className="h-4 w-5/6" />
+            <div className="pt-2">
+              <SkeletonBlock className="h-48 w-full" />
             </div>
           </div>
-        </section>
-        <aside className="border-l border-[#2f2a24] bg-[#111111] p-6">
-          <div className="space-y-4">
-            <SkeletonBlock className="h-4 w-32" />
-            <SkeletonBlock className="h-24 w-full" />
-            <SkeletonBlock className="h-4 w-28" />
-            <SkeletonBlock className="h-24 w-full" />
-            <SkeletonBlock className="h-4 w-28" />
-            <SkeletonBlock className="h-20 w-full" />
-          </div>
-        </aside>
+        </div>
       </div>
     </main>
   );

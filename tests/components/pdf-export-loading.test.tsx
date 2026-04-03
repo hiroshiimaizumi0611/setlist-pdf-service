@@ -1,0 +1,38 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+const { mockPush, mockRefresh } = vi.hoisted(() => ({
+  mockPush: vi.fn(),
+  mockRefresh: vi.fn(),
+}));
+
+vi.mock("next/navigation", async () => ({
+  useRouter: () => ({
+    push: mockPush,
+    refresh: mockRefresh,
+  }),
+}));
+import { ExportPdfButton } from "../../components/export-pdf-button";
+import { PdfPreviewLoadingShell } from "../../components/loading-shells";
+
+describe("PDF export loading affordances", () => {
+  it("shows a full-screen loading overlay immediately after clicking the preview CTA", () => {
+    render(<ExportPdfButton href="/api/events/event-1/pdf?theme=dark" currentTheme="dark" />);
+
+    expect(screen.queryByText("PDFプレビューを準備中...")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "PDF出力" }));
+
+    expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "PDFプレビューの読み込み状況" })).toBeInTheDocument();
+    expect(mockPush).toHaveBeenCalledWith("/events/event-1/pdf?theme=dark");
+  });
+
+  it("renders a centered loading status for the pdf preview route", () => {
+    render(<PdfPreviewLoadingShell />);
+
+    expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
+    expect(screen.getByText("用紙レイアウトと埋め込みプレビューを読み込んでいます。")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "PDFプレビューの読み込み状況" })).toBeInTheDocument();
+  });
+});
