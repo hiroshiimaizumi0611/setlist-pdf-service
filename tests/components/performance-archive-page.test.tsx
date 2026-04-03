@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { PerformanceArchivePageContent } from "@/components/performance-archive-page-content";
 
 const {
   mockGetAuthSessionWithPlan,
@@ -109,5 +110,31 @@ describe("Performance archive page route wiring", () => {
       screen.queryByText("公演を作成してセットリスト編集を開始"),
     ).not.toBeInTheDocument();
     expect(screen.queryByText("Upcoming & Recent")).not.toBeInTheDocument();
+  });
+});
+
+describe("Performance archive page content", () => {
+  it("shows archive controls and archive-oriented empty state copy", () => {
+    render(
+      <PerformanceArchivePageContent
+        events={[]}
+        currentTheme="dark"
+        currentPlan="free"
+      />,
+    );
+
+    expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeInTheDocument();
+    expect(screen.getByText("Date Range")).toBeInTheDocument();
+    expect(screen.getByText("Venue")).toBeInTheDocument();
+    expect(screen.getByText("Theme")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "RESET FILTERS" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "アーカイブにはまだ保存済みの公演がありません" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("公演を作成してセットリスト編集を開始"),
+    ).not.toBeInTheDocument();
   });
 });
