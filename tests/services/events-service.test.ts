@@ -74,6 +74,25 @@ describe("events service", () => {
     ]);
   });
 
+  it("persists and copies saved event theme metadata", async () => {
+    const owner = await createUser("Theme Owner");
+
+    const original = await createEvent({
+      userId: owner.id,
+      ...nagoyaRadhallEvent,
+      theme: "light",
+    } as never);
+
+    expect(original.theme).toBe("light");
+
+    const duplicated = await duplicateEvent({
+      userId: owner.id,
+      eventId: original.id,
+    });
+
+    expect(duplicated.theme).toBe("light");
+  });
+
   it("reorders items by the provided id list", async () => {
     const owner = await createUser("Reorder Owner");
     const event = await createFixtureEvent(owner.id);

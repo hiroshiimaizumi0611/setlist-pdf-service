@@ -16,6 +16,7 @@ import {
   updateSetlistItemRecord,
 } from "../repositories/event-repository";
 import type { setlistItemTypes } from "../db/schema";
+import type { PdfThemeName } from "../pdf/theme-tokens";
 
 export type SetlistItemType = (typeof setlistItemTypes)[number];
 
@@ -32,6 +33,7 @@ export type EventMetadataInput = {
   venue?: string | null;
   eventDate?: Date | null;
   notes?: string | null;
+  theme?: PdfThemeName | null;
 };
 
 type EventCommandInput = EventMetadataInput & {
@@ -55,6 +57,10 @@ function normalizeTitle(value: string) {
   }
 
   return title;
+}
+
+function normalizeTheme(value?: PdfThemeName | null) {
+  return value === "light" ? "light" : "dark";
 }
 
 function normalizeItem(input: EventItemInput) {
@@ -112,6 +118,7 @@ export async function createEvent(input: EventCommandInput & { items?: EventItem
         ownerUserId: input.userId,
         title: normalizeTitle(input.title),
         venue: normalizeNullableText(input.venue),
+        theme: normalizeTheme(input.theme),
         eventDate: input.eventDate ?? null,
         notes: normalizeNullableText(input.notes),
       },
@@ -138,7 +145,7 @@ export async function createEvent(input: EventCommandInput & { items?: EventItem
 export async function updateEventMetadata(
   input: EventCommandInput & { eventId: string },
 ) {
-  await getOwnedEventOrThrow(input.eventId, input.userId);
+  const currentEvent = await getOwnedEventOrThrow(input.eventId, input.userId);
 
   return db.transaction(async (tx) => {
     await updateEventRecord(
@@ -146,6 +153,7 @@ export async function updateEventMetadata(
       {
         title: normalizeTitle(input.title),
         venue: normalizeNullableText(input.venue),
+        theme: normalizeTheme(input.theme ?? currentEvent.theme),
         eventDate: input.eventDate ?? null,
         notes: normalizeNullableText(input.notes),
         updatedAt: new Date(),
@@ -153,13 +161,13 @@ export async function updateEventMetadata(
       tx,
     );
 
-    const event = await findEventWithItemsById(input.eventId, tx);
+    const updatedEvent = await findEventWithItemsById(input.eventId, tx);
 
-    if (!event) {
+    if (!updatedEvent) {
       throw new Error("Event not found.");
     }
 
-    return event;
+    return updatedEvent;
   });
 }
 
@@ -323,6 +331,7 @@ export async function duplicateEvent(input: {
         ownerUserId: input.userId,
         title: `${event.title} (コピー)`,
         venue: event.venue,
+        theme: normalizeTheme(event.theme),
         eventDate: event.eventDate,
         notes: event.notes,
       },

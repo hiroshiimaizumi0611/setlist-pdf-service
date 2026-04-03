@@ -24,6 +24,7 @@ export const events = sqliteTable(
       .references(() => user.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
     venue: text("venue"),
+    theme: text("theme").notNull().default("dark"),
     eventDate: integer("event_date", { mode: "timestamp_ms" }),
     notes: text("notes"),
     createdAt: integer("created_at", { mode: "timestamp_ms" })

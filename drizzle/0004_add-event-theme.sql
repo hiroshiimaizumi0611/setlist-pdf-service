@@ -1,0 +1,1 @@
+ALTER TABLE `events` ADD `theme` text DEFAULT 'dark' NOT NULL;

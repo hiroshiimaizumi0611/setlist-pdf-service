@@ -40,6 +40,18 @@ function formatUpdatedAt(value: Date | null) {
   }).format(value);
 }
 
+function formatArchiveTheme(value: string | null | undefined) {
+  if (value === "light") {
+    return "Light";
+  }
+
+  if (value === "dark") {
+    return "Dark";
+  }
+
+  return "未設定";
+}
+
 export function PerformanceArchiveTable({
   events,
   currentTheme,
@@ -93,7 +105,7 @@ export function PerformanceArchiveTable({
               </td>
               <td className={`px-4 py-4 font-mono text-xs ${theme.mutedText}`}>
                 <span className={`inline-flex min-h-7 items-center border px-2 py-1 uppercase tracking-[0.18em] ${theme.border}`}>
-                  未設定
+                  {formatArchiveTheme(event.theme)}
                 </span>
               </td>
               <td className={`px-4 py-4 font-mono text-xs ${theme.mutedText}`}>

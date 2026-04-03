@@ -71,6 +71,7 @@ describe("Performance archive page route wiring", () => {
         ownerUserId: "user-1",
         title: "2026.03.28 名古屋 RADHALL",
         venue: "RADHALL",
+        theme: "dark",
         eventDate: new Date("2026-03-28T09:00:00.000Z"),
         notes: "本番用セットリスト",
         createdAt: baseTimestamp,
@@ -82,6 +83,7 @@ describe("Performance archive page route wiring", () => {
         ownerUserId: "user-1",
         title: "2026.03.20 渋谷 CLUB QUATTRO",
         venue: "CLUB QUATTRO",
+        theme: "light",
         eventDate: new Date("2026-03-20T09:00:00.000Z"),
         notes: "複製元候補",
         createdAt: baseTimestamp,
@@ -107,7 +109,9 @@ describe("Performance archive page route wiring", () => {
     expect(within(archiveStatusSection).getByText("2公演")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Theme" })).toBeInTheDocument();
-    expect(screen.getAllByText("未設定")).toHaveLength(2);
+    const archiveRows = screen.getAllByRole("row");
+    expect(within(archiveRows[1]).getByText("Dark")).toBeInTheDocument();
+    expect(within(archiveRows[2]).getByText("Light")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "編集" })).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: "複製" })).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: "削除" })).toHaveLength(2);

@@ -1,10 +1,13 @@
 import { asc, count, desc, eq } from "drizzle-orm";
 import { db } from "../db/client";
 import { events, setlistItems } from "../db/schema";
+import type { PdfThemeName } from "../pdf/theme-tokens";
 
 type TransactionCallback = Parameters<typeof db.transaction>[0];
 export type EventDatabase = typeof db | Parameters<TransactionCallback>[0];
-export type EventRecord = typeof events.$inferSelect;
+export type EventRecord = Omit<typeof events.$inferSelect, "theme"> & {
+  theme?: PdfThemeName | null;
+};
 export type EventInsert = typeof events.$inferInsert;
 export type EventUpdate = Partial<Omit<typeof events.$inferInsert, "id" | "ownerUserId">>;
 export type SetlistItemRecord = typeof setlistItems.$inferSelect;
@@ -89,6 +92,7 @@ export async function listEventSummariesByOwnerUserId(
       ownerUserId: events.ownerUserId,
       title: events.title,
       venue: events.venue,
+      theme: events.theme,
       eventDate: events.eventDate,
       notes: events.notes,
       createdAt: events.createdAt,
