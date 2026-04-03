@@ -3,9 +3,8 @@ import {
   createDraftEventFormAction,
   deleteEventFormAction,
   duplicateEventFormAction,
-  updateEventItemAction,
 } from "@/app/(app)/events/actions";
-import { EventEditorPageContent } from "@/components/event-editor-page-content";
+import { PerformanceArchivePageContent } from "@/components/performance-archive-page-content";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
@@ -36,12 +35,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const events = await listEventSummaries({ userId: session.user.id });
 
   return (
-    <EventEditorPageContent
+    <PerformanceArchivePageContent
       events={events}
-      event={null}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
-      updateItemAction={updateEventItemAction}
       createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}
       deleteEventAction={deleteEventFormAction}

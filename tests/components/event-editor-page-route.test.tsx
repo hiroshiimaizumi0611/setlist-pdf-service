@@ -20,6 +20,14 @@ const {
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
   notFound: vi.fn(),
+  useRouter: vi.fn(() => ({
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
+    replace: vi.fn(),
+  })),
 }));
 
 vi.mock("@/lib/subscription", () => ({
@@ -257,6 +265,7 @@ describe("EventEditorPage route wiring", () => {
     expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
     expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
     const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });
