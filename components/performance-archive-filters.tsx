@@ -12,6 +12,9 @@ export function PerformanceArchiveFilters({
 
   return (
     <section className={`border ${theme.border} ${theme.panel} p-4 sm:p-5`}>
+      <p className={`mb-4 text-xs leading-6 ${theme.mutedText}`}>
+        検索とフィルタは準備中です。
+      </p>
       <form className="grid gap-4 xl:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
         <label className="flex min-w-0 flex-col gap-2">
           <span className={`font-mono text-[11px] uppercase tracking-[0.28em] ${theme.mutedText}`}>
@@ -19,6 +22,7 @@ export function PerformanceArchiveFilters({
           </span>
           <select
             defaultValue="all-dates"
+            disabled
             className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
           >
             <option value="all-dates">All Dates</option>
@@ -33,6 +37,7 @@ export function PerformanceArchiveFilters({
           </span>
           <select
             defaultValue="all-venues"
+            disabled
             className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
           >
             <option value="all-venues">All Venues</option>
@@ -47,6 +52,7 @@ export function PerformanceArchiveFilters({
           </span>
           <select
             defaultValue="all-themes"
+            disabled
             className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
           >
             <option value="all-themes">All Themes</option>
@@ -57,6 +63,7 @@ export function PerformanceArchiveFilters({
 
         <button
           type="reset"
+          disabled
           className={`${theme.buttonSecondary} min-h-12 px-5 text-xs font-black tracking-[0.18em] uppercase`}
         >
           RESET FILTERS

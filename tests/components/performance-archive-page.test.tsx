@@ -114,7 +114,7 @@ describe("Performance archive page route wiring", () => {
 });
 
 describe("Performance archive page content", () => {
-  it("shows archive controls and archive-oriented empty state copy", () => {
+  it("shows archive controls as pending and archive-oriented empty state copy", () => {
     render(
       <PerformanceArchivePageContent
         events={[]}
@@ -123,13 +123,16 @@ describe("Performance archive page content", () => {
       />,
     );
 
-    expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeDisabled();
     expect(screen.getByText("Date Range")).toBeInTheDocument();
     expect(screen.getByText("Venue")).toBeInTheDocument();
     expect(screen.getByText("Theme")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "RESET FILTERS" }),
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("combobox")).toHaveLength(3);
+    screen.getAllByRole("combobox").forEach((control) => {
+      expect(control).toBeDisabled();
+    });
+    expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeDisabled();
+    expect(screen.getByText("検索とフィルタは準備中です。")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "アーカイブにはまだ保存済みの公演がありません" }),
     ).toBeInTheDocument();

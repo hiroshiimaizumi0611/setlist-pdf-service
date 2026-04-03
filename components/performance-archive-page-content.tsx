@@ -118,6 +118,7 @@ export function PerformanceArchivePageContent({
               <input
                 type="search"
                 placeholder="ARCHIVE SEARCH..."
+                disabled
                 className={`w-full min-h-12 px-4 text-sm font-mono uppercase tracking-[0.18em] ${theme.input}`}
               />
             </label>
