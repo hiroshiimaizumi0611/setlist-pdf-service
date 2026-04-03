@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PerformanceArchivePageContent } from "@/components/performance-archive-page-content";
 
@@ -135,7 +135,7 @@ describe("Performance archive page route wiring", () => {
 });
 
 describe("Performance archive page content", () => {
-  it("shows archive controls as pending and archive-oriented empty state copy", () => {
+  it("shows archive controls and archive-oriented empty state copy", () => {
     render(
       <PerformanceArchivePageContent
         events={[]}
@@ -144,7 +144,7 @@ describe("Performance archive page content", () => {
       />,
     );
 
-    expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeDisabled();
+    expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeEnabled();
     expect(screen.getByText("Date Range")).toBeInTheDocument();
     expect(screen.getByText("Venue")).toBeInTheDocument();
     expect(screen.getByText("Theme")).toBeInTheDocument();
@@ -152,13 +152,107 @@ describe("Performance archive page content", () => {
     screen.getAllByRole("combobox").forEach((control) => {
       expect(control).toBeDisabled();
     });
-    expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeDisabled();
-    expect(screen.getByText("検索とフィルタは準備中です。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeEnabled();
+    expect(
+      screen.getByText("検索で一覧を絞り込み、RESET FILTERS で元に戻せます。"),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "アーカイブにはまだ保存済みの公演がありません" }),
     ).toBeInTheDocument();
     expect(
       screen.queryByText("公演を作成してセットリスト編集を開始"),
     ).not.toBeInTheDocument();
+  });
+
+  it("filters archive rows by search text and resets back to the full list", () => {
+    render(
+      <PerformanceArchivePageContent
+        events={[
+          {
+            id: "event-nagoya-radhall",
+            ownerUserId: "user-1",
+            title: "2026.03.28 名古屋 RADHALL",
+            venue: "RADHALL",
+            theme: "dark",
+            eventDate: new Date("2026-03-28T09:00:00.000Z"),
+            notes: "本番用セットリスト",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 8,
+          },
+          {
+            id: "event-shibuya-quattro",
+            ownerUserId: "user-1",
+            title: "2026.03.20 渋谷 CLUB QUATTRO",
+            venue: "CLUB QUATTRO",
+            theme: "light",
+            eventDate: new Date("2026-03-20T09:00:00.000Z"),
+            notes: "複製元候補",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 6,
+          },
+        ]}
+        currentTheme="dark"
+        currentPlan="free"
+      />,
+    );
+
+    const searchInput = screen.getByPlaceholderText("ARCHIVE SEARCH...");
+
+    fireEvent.change(searchInput, { target: { value: "RADHALL" } });
+
+    expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
+    expect(screen.queryByText("2026.03.20 渋谷 CLUB QUATTRO")).not.toBeInTheDocument();
+
+    fireEvent.change(searchInput, { target: { value: "NOT-A-MATCH" } });
+
+    expect(
+      screen.getByRole("heading", { name: "検索結果に一致する公演がありません" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "RESET FILTERS" }));
+
+    expect(searchInput).toHaveValue("");
+    expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
+    expect(screen.getByText("2026.03.20 渋谷 CLUB QUATTRO")).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
+  });
+
+  it("shows a filtered empty state when the query matches no archive rows", () => {
+    render(
+      <PerformanceArchivePageContent
+        events={[
+          {
+            id: "event-nagoya-radhall",
+            ownerUserId: "user-1",
+            title: "2026.03.28 名古屋 RADHALL",
+            venue: "RADHALL",
+            theme: "dark",
+            eventDate: new Date("2026-03-28T09:00:00.000Z"),
+            notes: "本番用セットリスト",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 8,
+          },
+        ]}
+        currentTheme="dark"
+        currentPlan="free"
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("ARCHIVE SEARCH..."), {
+      target: { value: "NO MATCH" },
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "検索結果に一致する公演がありません" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("別のキーワードを試すか、RESET FILTERS で一覧に戻してください。"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });

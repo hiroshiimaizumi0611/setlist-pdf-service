@@ -3,17 +3,19 @@ import { getDashboardThemeStyles } from "./dashboard-shell";
 
 type PerformanceArchiveFiltersProps = {
   currentTheme: PdfThemeName;
+  onResetSearch: () => void;
 };
 
 export function PerformanceArchiveFilters({
   currentTheme,
+  onResetSearch,
 }: PerformanceArchiveFiltersProps) {
   const theme = getDashboardThemeStyles(currentTheme);
 
   return (
     <section className={`border ${theme.border} ${theme.panel} p-4 sm:p-5`}>
       <p className={`mb-4 text-xs leading-6 ${theme.mutedText}`}>
-        検索とフィルタは準備中です。
+        検索で一覧を絞り込み、RESET FILTERS で元に戻せます。
       </p>
       <form className="grid gap-4 xl:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
         <label className="flex min-w-0 flex-col gap-2">
@@ -62,8 +64,8 @@ export function PerformanceArchiveFilters({
         </label>
 
         <button
-          type="reset"
-          disabled
+          type="button"
+          onClick={onResetSearch}
           className={`${theme.buttonSecondary} min-h-12 px-5 text-xs font-black tracking-[0.18em] uppercase`}
         >
           RESET FILTERS
