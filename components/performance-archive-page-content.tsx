@@ -47,10 +47,14 @@ export function PerformanceArchivePageContent({
   const hasArchiveEvents = events.length > 0;
   const hasFilteredEvents = filteredEvents.length > 0;
   const isFiltering = normalizedSearchQuery.length > 0;
-  const visibleArchiveCountLabel = `${filteredEvents.length}公演`;
+  const totalArchiveCountLabel = `${events.length}公演`;
+  const visibleArchiveCountLabel = `${filteredEvents.length}件表示`;
   const archiveModeLabel = currentPlan === "pro" ? "PRO ARCHIVE" : "FREE ARCHIVE";
   const lightHref = "/events?theme=light";
   const darkHref = "/events?theme=dark";
+  const archiveDescription = isFiltering
+    ? `保存済みの公演は${totalArchiveCountLabel}です。現在は検索結果として${filteredEvents.length}件を表示しています。`
+    : `保存済みの公演を${totalArchiveCountLabel}表示しています。曲順編集が必要なときは各行から開けます。`;
 
   const sidebar = (
     <div className="space-y-3">
@@ -62,7 +66,7 @@ export function PerformanceArchivePageContent({
           {archiveModeLabel}
         </p>
         <p className={`mt-3 border-t border-dashed ${theme.railBorder} pt-3 text-2xl font-black`}>
-          {visibleArchiveCountLabel}
+          {totalArchiveCountLabel}
         </p>
         <p className={`mt-3 text-xs leading-6 ${theme.mutedText}`}>
           保存済み公演を一覧し、編集・複製・削除へすぐ移動できます。
@@ -88,7 +92,7 @@ export function PerformanceArchivePageContent({
       sidebar={sidebar}
       eyebrow="公演アーカイブ"
       title="公演アーカイブ"
-      description={`保存済みの公演を${visibleArchiveCountLabel}表示しています。曲順編集が必要なときは各行から開けます。`}
+      description={archiveDescription}
       headerActions={
         <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
       }
@@ -103,9 +107,16 @@ export function PerformanceArchivePageContent({
               <p className={`text-sm leading-6 ${theme.mutedText}`}>
                 保存済み公演を、日付・会場・タイトル・更新日時で素早く確認できます。
               </p>
-              <p className="font-mono text-3xl font-black tracking-[-0.08em]">
-                {visibleArchiveCountLabel}
-              </p>
+              <div className="text-right">
+                <p className="font-mono text-3xl font-black tracking-[-0.08em]">
+                  {isFiltering ? visibleArchiveCountLabel : totalArchiveCountLabel}
+                </p>
+                {isFiltering ? (
+                  <p className={`mt-1 text-[10px] uppercase tracking-[0.26em] ${theme.mutedText}`}>
+                    OF {totalArchiveCountLabel}
+                  </p>
+                ) : null}
+              </div>
             </div>
 
             <label className="block">
@@ -131,7 +142,7 @@ export function PerformanceArchivePageContent({
               </div>
               <div className={`border ${theme.border} px-3 py-2`}>
                 <div className={theme.mutedText}>Total Shows</div>
-                <div className="mt-1 font-bold">{visibleArchiveCountLabel}</div>
+                <div className="mt-1 font-bold">{totalArchiveCountLabel}</div>
               </div>
             </div>
           </div>

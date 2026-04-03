@@ -199,11 +199,28 @@ describe("Performance archive page content", () => {
     );
 
     const searchInput = screen.getByPlaceholderText("ARCHIVE SEARCH...");
+    const archiveStatusSection = screen.getByText("ARCHIVE STATUS").closest("section");
+    const systemMetaSection = screen.getByText("SYSTEM META").closest("div");
+
+    expect(archiveStatusSection).toBeTruthy();
+    expect(systemMetaSection).toBeTruthy();
+
+    if (!archiveStatusSection || !systemMetaSection) {
+      throw new Error("expected archive status and system meta sections");
+    }
 
     fireEvent.change(searchInput, { target: { value: "RADHALL" } });
 
     expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
     expect(screen.queryByText("2026.03.20 渋谷 CLUB QUATTRO")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("保存済みの公演は2公演です。現在は検索結果として1件を表示しています。"),
+    ).toBeInTheDocument();
+    expect(within(archiveStatusSection).getByText("2公演")).toBeInTheDocument();
+    expect(within(systemMetaSection).getByText("Total Shows")).toBeInTheDocument();
+    expect(within(systemMetaSection).getByText("2公演")).toBeInTheDocument();
+    expect(screen.getByText("1件表示")).toBeInTheDocument();
+    expect(screen.getByText("OF 2公演")).toBeInTheDocument();
 
     fireEvent.change(searchInput, { target: { value: "NOT-A-MATCH" } });
 

@@ -22,11 +22,32 @@ function resolveExecutor(executor?: EventDatabase) {
   return executor ?? db;
 }
 
+function resolvePdfThemeName(theme: string | null | undefined): PdfThemeName | null {
+  if (theme === "dark") {
+    return "dark";
+  }
+
+  if (theme === "light") {
+    return "light";
+  }
+
+  return null;
+}
+
+function mapEventRecordTheme<T extends { theme: string | null | undefined }>(
+  event: T,
+): Omit<T, "theme"> & { theme: PdfThemeName | null } {
+  return {
+    ...event,
+    theme: resolvePdfThemeName(event.theme),
+  };
+}
+
 export async function createEventRecord(values: EventInsert, executor?: EventDatabase) {
   const database = resolveExecutor(executor);
   const [event] = await database.insert(events).values(values).returning();
 
-  return event;
+  return mapEventRecordTheme(event);
 }
 
 export async function createSetlistItems(
@@ -49,7 +70,7 @@ export async function findEventById(eventId: string, executor?: EventDatabase) {
     .where(eq(events.id, eventId))
     .limit(1);
 
-  return event ?? null;
+  return event ? mapEventRecordTheme(event) : null;
 }
 
 export async function findSetlistItemsByEventId(
@@ -86,7 +107,7 @@ export async function listEventSummariesByOwnerUserId(
   executor?: EventDatabase,
 ) : Promise<EventSummary[]> {
   const database = resolveExecutor(executor);
-  return database
+  const eventSummaries = await database
     .select({
       id: events.id,
       ownerUserId: events.ownerUserId,
@@ -104,6 +125,8 @@ export async function listEventSummariesByOwnerUserId(
     .where(eq(events.ownerUserId, ownerUserId))
     .groupBy(events.id)
     .orderBy(desc(events.updatedAt), desc(events.eventDate), asc(events.title));
+
+  return eventSummaries.map(mapEventRecordTheme);
 }
 
 export async function updateEventRecord(
@@ -118,7 +141,7 @@ export async function updateEventRecord(
     .where(eq(events.id, eventId))
     .returning();
 
-  return event ?? null;
+  return event ? mapEventRecordTheme(event) : null;
 }
 
 export async function deleteEventRecord(
@@ -131,7 +154,7 @@ export async function deleteEventRecord(
     .where(eq(events.id, eventId))
     .returning();
 
-  return event ?? null;
+  return event ? mapEventRecordTheme(event) : null;
 }
 
 export async function findSetlistItemById(
