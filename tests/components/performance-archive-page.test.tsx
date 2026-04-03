@@ -106,6 +106,11 @@ describe("Performance archive page route wiring", () => {
     }
     expect(within(archiveStatusSection).getByText("2公演")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Theme" })).toBeInTheDocument();
+    expect(screen.getAllByText("未設定")).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "編集" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "複製" })).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: "削除" })).toHaveLength(2);
     expect(
       screen.queryByText("公演を作成してセットリスト編集を開始"),
     ).not.toBeInTheDocument();
