@@ -71,6 +71,7 @@ const event = {
 };
 
 const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
+const mockUpdateMetadataAction = vi.fn().mockResolvedValue(undefined);
 const mockDeleteEventAction = vi.fn().mockResolvedValue(undefined);
 const mockDuplicateEventAction = vi.fn().mockResolvedValue(undefined);
 
@@ -91,6 +92,7 @@ describe("EventEditorPageContent", () => {
         currentTheme="light"
         currentPlan="free"
         duplicateEventAction={mockDuplicateEventAction}
+        updateMetadataAction={mockUpdateMetadataAction}
         updateItemAction={mockUpdateItemAction}
         deleteEventAction={mockDeleteEventAction}
       />,
@@ -177,6 +179,34 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
   }, 20_000);
+
+  it("submits metadata saves through EventEditorPageContent with the current theme", async () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="dark"
+        currentPlan="free"
+        updateMetadataAction={mockUpdateMetadataAction}
+        updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Save Metadata" }));
+
+    await waitFor(() =>
+      expect(mockUpdateMetadataAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventId: event.id,
+          title: event.title,
+          venue: event.venue,
+          notes: event.notes,
+          theme: "dark",
+        }),
+      ),
+    );
+  });
 
   it("opens a centered edit modal with current item values and closes without changing row structure", () => {
     render(

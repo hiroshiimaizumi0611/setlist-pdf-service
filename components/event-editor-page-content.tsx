@@ -29,6 +29,7 @@ type EventEditorPageContentProps = {
     venue?: string | null;
     eventDate?: Date | null;
     notes?: string | null;
+    theme?: PdfThemeName | null;
   }) => Promise<unknown>;
   addItemAction?: (input: {
     eventId: string;
@@ -83,6 +84,10 @@ function parseOptionalNumber(value: FormDataEntryValue | null) {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function resolveTheme(value: FormDataEntryValue | null, fallback: PdfThemeName) {
+  return value === "light" || value === "dark" ? value : fallback;
 }
 
 export function EventEditorPageContent({
@@ -189,6 +194,7 @@ export function EventEditorPageContent({
       venue: String(formData.get("venue") ?? "") || null,
       eventDate: parseOptionalDate(formData.get("eventDate")),
       notes: String(formData.get("notes") ?? "") || null,
+      theme: resolveTheme(formData.get("theme"), currentTheme),
     });
   };
 
