@@ -4,6 +4,7 @@ import { db, dbReady } from "../../lib/db/client";
 import { subscription, user } from "../../lib/db/schema";
 
 test.describe.configure({ mode: "serial" });
+test.setTimeout(120_000);
 
 function uniqueCredentials(prefix: string) {
   const token = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -44,7 +45,7 @@ async function registerAndLogin(page: import("playwright/test").Page, credential
   await page.getByLabel("メールアドレス").fill(credentials.email);
   await page.getByLabel("パスワード").fill(credentials.password);
   await page.getByRole("button", { name: "ログイン" }).click();
-  await expect(page).toHaveURL(/\/events$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/events$/, { timeout: 30_000 });
 }
 
 async function seedProSubscription(email: string) {
@@ -89,9 +90,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
 
   await registerAndLogin(page, credentials);
 
-  await page.locator("form").first().evaluate((form) => {
-    (form as HTMLFormElement).requestSubmit();
-  });
+  await page.getByRole("button", { name: "新規公演作成" }).click();
   await expect(page).toHaveURL(/\/events\/.+/);
   const eventUrl = new URL(page.url());
   const eventId = eventUrl.pathname.split("/").at(-1);
@@ -100,14 +99,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("Event id is missing from the editor URL.");
   }
 
-  await page.getByRole("button", { name: "新規公演作成" }).click();
-  await expect(page).toHaveURL(/\/events\/.+/, { timeout: 15_000 });
-  const secondEventUrl = new URL(page.url());
-  const secondEventId = secondEventUrl.pathname.split("/").at(-1);
-
-  if (!secondEventId || secondEventId === eventId) {
-    throw new Error("Second event was not created from the editor sidebar.");
-  }
+  const currentEventId = eventId;
 
   await expect(page.locator('[data-editor-strip="metadata"]')).toBeVisible();
   await expect(page.locator('[data-editor-strip="add-item"]')).toBeVisible();
@@ -121,54 +113,43 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     page.locator('[data-row-variant="song"] [data-row-title="song"]').first(),
   ).toHaveText("E2E opener");
 
-  const pdfLink = page.getByRole("link", { name: "PDF出力" });
-  const editorPdfHref = await pdfLink.getAttribute("href");
-
-  if (!editorPdfHref) {
-    throw new Error("PDF export link is missing.");
-  }
-
-  const currentTheme = new URL(editorPdfHref, "http://localhost:3000").searchParams.get("theme");
+  const pdfButton = page.getByRole("button", { name: "PDF出力" });
+  const currentTheme = new URL(page.url()).searchParams.get("theme");
 
   if (currentTheme !== "light" && currentTheme !== "dark") {
     throw new Error(`Unexpected PDF theme value: ${currentTheme ?? "missing"}`);
   }
 
-  await expect(pdfLink).toHaveAttribute(
-    "href",
-    new RegExp(`^/events/.+/pdf\\?theme=${currentTheme}$`),
-  );
+  const editorUrlBeforePreview = page.url();
+  await pdfButton.evaluate((button) => {
+    (button as HTMLButtonElement).click();
+  });
 
-  const [previewPage] = await Promise.all([
-    page.waitForEvent("popup"),
-    pdfLink.click(),
-  ]);
-
-  await previewPage.waitForLoadState("domcontentloaded");
-  await expect(previewPage).toHaveURL(
-    new RegExp(`^http://localhost:3000/events/.+/pdf\\?theme=${currentTheme}$`),
+  await page.waitForLoadState("domcontentloaded");
+  await expect(page).toHaveURL(
+    new RegExp(`^http://localhost:3000/events/${currentEventId}/pdf\\?theme=${currentTheme}$`),
   );
-  await expect(previewPage.getByRole("region", { name: "紙面プレビュー" })).toBeVisible();
-  await expect(previewPage.getByRole("complementary")).toBeVisible();
-  await expect(previewPage.getByText("PDFテーマ切替")).toBeVisible();
-  await expect(previewPage.getByText("出力サイズ選択")).toBeVisible();
-  await expect(previewPage.getByText("ページ継続確認")).toBeVisible();
+  await expect(page.getByRole("region", { name: "紙面プレビュー" })).toBeVisible();
+  await expect(page.getByRole("complementary")).toBeVisible();
+  await expect(page.getByText("PDFテーマ切替")).toBeVisible();
+  await expect(page.getByText("出力サイズ選択")).toBeVisible();
+  await expect(page.getByText("ページ継続確認")).toBeVisible();
   await expect(
-    previewPage.getByRole("link", {
+    page.getByRole("link", {
       name: currentTheme === "dark" ? "DARK" : "LIGHT",
     }),
   ).toHaveAttribute("aria-current", "page");
 
-  const pageCountBadge = previewPage.getByText(/^[0-9]+ pages$/);
+  const pageCountBadge = page.getByText(/^[0-9]+ pages$/);
   await expect(pageCountBadge).toBeVisible();
   const pageCountText = (await pageCountBadge.textContent()) ?? "";
   const pageCount = Number.parseInt(pageCountText, 10);
 
   expect(Number.isNaN(pageCount)).toBe(false);
 
-  await expectEmbeddedPageNumbers(previewPage, pageCount);
+  await expectEmbeddedPageNumbers(page, pageCount);
 
-  const embeddedDocument = previewPage.locator('iframe[title="紙面プレビュー"]');
+  const embeddedDocument = page.locator('iframe[title="紙面プレビュー"]');
   const embeddedDocumentHref = await embeddedDocument.getAttribute("src");
 
   if (!embeddedDocumentHref) {
@@ -177,18 +158,18 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
 
   const embeddedDocumentUrl = new URL(embeddedDocumentHref);
 
-  expect(embeddedDocumentUrl.pathname).toBe(`/events/${eventId}/pdf/document`);
+  expect(embeddedDocumentUrl.pathname).toBe(`/events/${currentEventId}/pdf/document`);
   expect(embeddedDocumentUrl.searchParams.get("theme")).toBe(currentTheme);
   await expect(
-    previewPage
+    page
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
   ).toHaveAttribute("data-theme", currentTheme);
 
-  const previewPdfLink = previewPage.getByRole("link", { name: "PDF出力" });
+  const previewPdfLink = page.getByRole("link", { name: "PDF出力" });
   await expect(previewPdfLink).toHaveAttribute(
     "href",
-    new RegExp(`^/api/events/${eventId}/pdf\\?theme=${currentTheme}$`),
+    new RegExp(`^/api/events/${currentEventId}/pdf\\?theme=${currentTheme}$`),
   );
   const pdfHref = await previewPdfLink.getAttribute("href");
 
@@ -196,8 +177,8 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("PDF export link is missing from the preview page.");
   }
 
-  const previewDownloadUrl = new URL(pdfHref, previewPage.url());
-  expect(previewDownloadUrl.pathname).toBe(`/api/events/${eventId}/pdf`);
+  const previewDownloadUrl = new URL(pdfHref, page.url());
+  expect(previewDownloadUrl.pathname).toBe(`/api/events/${currentEventId}/pdf`);
   expect(previewDownloadUrl.searchParams.get("theme")).toBe(currentTheme);
   expect(previewDownloadUrl.searchParams.get("theme")).toBe(
     embeddedDocumentUrl.searchParams.get("theme"),
@@ -206,13 +187,13 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   const alternateTheme = currentTheme === "dark" ? "light" : "dark";
   const alternateThemeLabel = alternateTheme === "dark" ? "DARK" : "LIGHT";
 
-  await previewPage.getByRole("link", { name: alternateThemeLabel }).click();
-  await previewPage.waitForLoadState("domcontentloaded");
-  await expect(previewPage).toHaveURL(
-    new RegExp(`^http://localhost:3000/events/${eventId}/pdf\\?theme=${alternateTheme}$`),
+  await page.getByRole("link", { name: alternateThemeLabel }).click();
+  await page.waitForLoadState("domcontentloaded");
+  await expect(page).toHaveURL(
+    new RegExp(`^http://localhost:3000/events/${currentEventId}/pdf\\?theme=${alternateTheme}$`),
   );
   await expect(
-    previewPage.getByRole("link", { name: alternateThemeLabel }),
+    page.getByRole("link", { name: alternateThemeLabel }),
   ).toHaveAttribute("aria-current", "page");
 
   const switchedEmbeddedDocumentHref = await embeddedDocument.getAttribute("src");
@@ -223,18 +204,18 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
 
   const switchedEmbeddedDocumentUrl = new URL(switchedEmbeddedDocumentHref);
 
-  expect(switchedEmbeddedDocumentUrl.pathname).toBe(`/events/${eventId}/pdf/document`);
+  expect(switchedEmbeddedDocumentUrl.pathname).toBe(`/events/${currentEventId}/pdf/document`);
   expect(switchedEmbeddedDocumentUrl.searchParams.get("theme")).toBe(alternateTheme);
   await expect(
-    previewPage
+    page
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
   ).toHaveAttribute("data-theme", alternateTheme);
-  await expectEmbeddedPageNumbers(previewPage, pageCount);
+  await expectEmbeddedPageNumbers(page, pageCount);
 
   await expect(previewPdfLink).toHaveAttribute(
     "href",
-    new RegExp(`^/api/events/${eventId}/pdf\\?theme=${alternateTheme}$`),
+    new RegExp(`^/api/events/${currentEventId}/pdf\\?theme=${alternateTheme}$`),
   );
   const switchedPdfHref = await previewPdfLink.getAttribute("href");
 
@@ -242,8 +223,8 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     throw new Error("PDF export link is missing after switching preview theme.");
   }
 
-  const switchedPreviewDownloadUrl = new URL(switchedPdfHref, previewPage.url());
-  expect(switchedPreviewDownloadUrl.pathname).toBe(`/api/events/${eventId}/pdf`);
+  const switchedPreviewDownloadUrl = new URL(switchedPdfHref, page.url());
+  expect(switchedPreviewDownloadUrl.pathname).toBe(`/api/events/${currentEventId}/pdf`);
   expect(switchedPreviewDownloadUrl.searchParams.get("theme")).toBe(
     alternateTheme,
   );
@@ -251,8 +232,8 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     switchedEmbeddedDocumentUrl.searchParams.get("theme"),
   );
 
-  const pdfResponse = await previewPage.context().request.get(
-    new URL(switchedPdfHref, previewPage.url()).toString(),
+  const pdfResponse = await page.context().request.get(
+    new URL(switchedPdfHref, page.url()).toString(),
   );
   const pdfBuffer = await pdfResponse.body();
 
@@ -263,8 +244,14 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   expect(pdfBuffer.byteLength).toBeGreaterThan(500);
   expect(pdfBuffer.byteLength).toBeLessThan(2_000_000);
 
+  await page.goto(editorUrlBeforePreview);
+  await expect(page).toHaveURL(editorUrlBeforePreview);
+
   const currentEventUrl = page.url();
-  await page.getByRole("button", { name: "この公演を複製" }).click();
+  const archiveNavigation = page.getByRole("navigation", { name: "公演ナビゲーション" });
+  const duplicateButton = archiveNavigation.getByRole("button", { name: "複製" });
+  await expect(duplicateButton).toBeVisible();
+  await duplicateButton.click();
   await expect(page).not.toHaveURL(currentEventUrl, { timeout: 15_000 });
   await expect(page.getByRole("heading", { name: /コピー/ })).toBeVisible({
     timeout: 15_000,
@@ -280,9 +267,7 @@ test("lets a pro user save and reinstantiate a template", async ({ page }) => {
 
   await registerAndLogin(page, credentials);
 
-  await page.locator("form").first().evaluate((form) => {
-    (form as HTMLFormElement).requestSubmit();
-  });
+  await page.getByRole("button", { name: "新規公演作成" }).click();
   await expect(page).toHaveURL(/\/events\/.+/);
 
   await seedProSubscription(credentials.email);

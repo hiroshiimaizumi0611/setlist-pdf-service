@@ -21,7 +21,8 @@ export default defineConfig({
       "npm run db:migrate && npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
     timeout: 180_000,
     url: playwrightAppUrl,
-    reuseExistingServer: false,
+    // Reuse an already running local app to avoid port conflicts during iterative E2E work.
+    reuseExistingServer: process.env.CI ? false : true,
     env: {
       BETTER_AUTH_SECRET: playwrightAuthSecret,
       BETTER_AUTH_URL: playwrightAppUrl,
