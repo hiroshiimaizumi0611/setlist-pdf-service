@@ -17,14 +17,21 @@ import { PdfPreviewLoadingShell } from "../../components/loading-shells";
 
 describe("PDF export loading affordances", () => {
   it("shows a full-screen loading overlay immediately after clicking the preview CTA", () => {
-    render(<ExportPdfButton href="/api/events/event-1/pdf?theme=dark" currentTheme="dark" />);
+    const { container } = render(
+      <div className="backdrop-blur-md">
+        <ExportPdfButton href="/api/events/event-1/pdf?theme=dark" currentTheme="dark" />
+      </div>,
+    );
 
     expect(screen.queryByText("PDFプレビューを準備中...")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "PDF出力" }));
 
     expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
-    expect(screen.getByRole("status", { name: "PDFプレビューの読み込み状況" })).toBeInTheDocument();
+    const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
+    expect(status).toBeInTheDocument();
+    expect(container).not.toContainElement(status);
+    expect(document.body).toContainElement(status);
     expect(mockPush).toHaveBeenCalledWith("/events/event-1/pdf?theme=dark");
   });
 
