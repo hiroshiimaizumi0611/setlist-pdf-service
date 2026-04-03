@@ -532,6 +532,7 @@ describe("EventEditorPageContent", () => {
       "data-strip-field-tone",
       "muted",
     );
+    expect(metadataStrip.querySelector('input[name="theme"]')).toHaveAttribute("value", "dark");
     expect(within(metadataStrip).getByRole("button", { name: "Save Metadata" })).toHaveAttribute(
       "data-strip-action",
       "metadata-save",

@@ -14,6 +14,7 @@ import {
   updateEventItem,
   updateEventMetadata,
 } from "@/lib/services/events-service";
+import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 
 async function requireUserId() {
   const requestHeaders = new Headers(await headers());
@@ -37,7 +38,7 @@ function resolveTheme(value: FormDataEntryValue | null) {
   return value === "dark" ? "dark" : "light";
 }
 
-function buildDraftEventInput() {
+function buildDraftEventInput(theme: PdfThemeName) {
   const now = new Date();
   const token = new Intl.DateTimeFormat("ja-JP-u-ca-gregory", {
     year: "numeric",
@@ -61,6 +62,7 @@ function buildDraftEventInput() {
     venue: "",
     eventDate,
     notes: "本番用セットリスト",
+    theme,
   };
 }
 
@@ -169,7 +171,7 @@ export async function duplicateEventFormAction(formData: FormData) {
 
 export async function createDraftEventFormAction(formData: FormData) {
   const theme = resolveTheme(formData.get("theme"));
-  const event = await createEventAction(buildDraftEventInput());
+  const event = await createEventAction(buildDraftEventInput(theme));
   redirect(`/events/${event.id}?theme=${theme}`);
 }
 

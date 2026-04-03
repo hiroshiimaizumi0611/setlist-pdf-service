@@ -65,6 +65,7 @@ export function EventMetadataForm({
       </div>
 
       <form action={updateMetadataAction} className={`grid gap-px ${stripDivider} md:grid-cols-4`}>
+        <input type="hidden" name="theme" value={currentTheme} />
         <label className={`grid gap-2 px-4 py-3 ${fieldPanel}`}>
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
             Date

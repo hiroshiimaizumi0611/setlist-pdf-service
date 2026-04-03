@@ -112,8 +112,20 @@ describe("Performance archive page route wiring", () => {
     const archiveRows = screen.getAllByRole("row");
     expect(within(archiveRows[1]).getByText("Dark")).toBeInTheDocument();
     expect(within(archiveRows[2]).getByText("Light")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "編集" })).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: "複製" })).toHaveLength(2);
+    const editLinks = screen.getAllByRole("link", { name: "編集" });
+    expect(editLinks).toHaveLength(2);
+    expect(editLinks[0]).toHaveAttribute("href", "/events/event-nagoya-radhall?theme=dark");
+    expect(editLinks[1]).toHaveAttribute("href", "/events/event-shibuya-quattro?theme=light");
+
+    const duplicateButtons = screen.getAllByRole("button", { name: "複製" });
+    expect(duplicateButtons).toHaveLength(2);
+    const secondDuplicateForm = duplicateButtons[1].closest("form");
+    expect(secondDuplicateForm).toBeTruthy();
+    if (!secondDuplicateForm) {
+      throw new Error("expected second duplicate form");
+    }
+    expect(within(secondDuplicateForm).getByDisplayValue("light")).toHaveAttribute("name", "theme");
+
     expect(screen.getAllByRole("button", { name: "削除" })).toHaveLength(2);
     expect(
       screen.queryByText("公演を作成してセットリスト編集を開始"),

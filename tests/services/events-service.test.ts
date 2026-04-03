@@ -174,11 +174,13 @@ describe("events service", () => {
       venue: "RADHALL",
       eventDate: new Date("2026-03-28T10:00:00.000Z"),
       notes: "開場押し対応版",
+      theme: "light",
     });
 
     expect(updated.title).toBe("2026.03.28 名古屋 RADHALL 第二部");
     expect(updated.notes).toBe("開場押し対応版");
     expect(updated.ownerUserId).toBe(owner.id);
+    expect(updated.theme).toBe("light");
   });
 
   it("adds, updates, and deletes items while keeping positions contiguous", async () => {

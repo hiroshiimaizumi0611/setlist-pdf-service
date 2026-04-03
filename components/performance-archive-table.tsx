@@ -52,6 +52,10 @@ function formatArchiveTheme(value: string | null | undefined) {
   return "未設定";
 }
 
+function resolveArchiveTheme(value: string | null | undefined): PdfThemeName {
+  return value === "light" ? "light" : "dark";
+}
+
 export function PerformanceArchiveTable({
   events,
   currentTheme,
@@ -86,7 +90,10 @@ export function PerformanceArchiveTable({
           </tr>
         </thead>
         <tbody>
-          {events.map((event, index) => (
+          {events.map((event, index) => {
+            const rowTheme = resolveArchiveTheme(event.theme);
+
+            return (
             <tr
               key={event.id}
               className={`${index % 2 === 0 ? theme.panel : theme.panelAlt} border-t ${theme.border}`}
@@ -98,7 +105,7 @@ export function PerformanceArchiveTable({
                 {event.venue || "会場未設定"}
               </td>
               <td className="px-4 py-4 font-mono text-sm font-bold tracking-[-0.03em]">
-                <Link href={`/events/${event.id}?theme=${currentTheme}`}>{event.title}</Link>
+                <Link href={`/events/${event.id}?theme=${rowTheme}`}>{event.title}</Link>
                 <div className={`mt-1 text-[11px] uppercase tracking-[0.18em] ${theme.mutedText}`}>
                   {event.itemCount}項目
                 </div>
@@ -114,7 +121,7 @@ export function PerformanceArchiveTable({
               <td className="px-4 py-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Link
-                    href={`/events/${event.id}?theme=${currentTheme}`}
+                    href={`/events/${event.id}?theme=${rowTheme}`}
                     className={`${theme.buttonSecondary} inline-flex min-h-9 items-center justify-center px-3 text-[10px] font-black uppercase tracking-[0.2em]`}
                   >
                     編集
@@ -122,7 +129,7 @@ export function PerformanceArchiveTable({
                   {duplicateEventAction ? (
                     <form action={duplicateEventAction}>
                       <input type="hidden" name="eventId" value={event.id} />
-                      <input type="hidden" name="theme" value={currentTheme} />
+                      <input type="hidden" name="theme" value={rowTheme} />
                       <FormPendingButton
                         idleLabel="複製"
                         pendingLabel="複製中..."
@@ -132,7 +139,7 @@ export function PerformanceArchiveTable({
                   ) : null}
                   {deleteEventAction ? (
                     <EventDeleteControl
-                      currentTheme={currentTheme}
+                      currentTheme={rowTheme}
                       eventId={event.id}
                       eventTitle={event.title}
                       triggerLabel="削除"
@@ -143,7 +150,8 @@ export function PerformanceArchiveTable({
                 </div>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </section>
