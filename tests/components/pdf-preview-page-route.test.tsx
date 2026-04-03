@@ -94,7 +94,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     );
   });
 
-  it("falls back to light when theme query is invalid", async () => {
+  it("falls back to dark when theme query is invalid", async () => {
     mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -108,7 +108,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
     mocks.mockBuildPdfDocumentUrl.mockReturnValue(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=light",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
     );
 
     const result = await PdfPreviewPage({
@@ -118,18 +118,18 @@ describe("EventPdfPreviewPage route wiring", () => {
 
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
-      theme: "light",
+      theme: "dark",
     });
     expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
       eventId: oWestEvent.id,
-      theme: "light",
+      theme: "dark",
     });
-    expect(result.props.currentTheme).toBe("light");
+    expect(result.props.currentTheme).toBe("dark");
     expect(result.props.documentHref).toBe(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=light",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
     );
     expect(result.props.downloadHref).toBe(
-      `/api/events/${oWestEvent.id}/pdf?theme=light`,
+      `/api/events/${oWestEvent.id}/pdf?theme=dark`,
     );
   });
 

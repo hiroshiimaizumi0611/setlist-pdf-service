@@ -61,7 +61,7 @@ describe("EventPdfDocument route wiring", () => {
     mocks.mockPdfDocument.mockReset();
   });
 
-  it("allows normal session access and falls back to light when the theme query is invalid", async () => {
+  it("allows normal session access and falls back to dark when the theme query is invalid", async () => {
     mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -86,7 +86,7 @@ describe("EventPdfDocument route wiring", () => {
     });
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
-      theme: "light",
+      theme: "dark",
     });
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);

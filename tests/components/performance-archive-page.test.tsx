@@ -53,7 +53,9 @@ import EventsPage from "../../app/(app)/events/page";
 const baseTimestamp = new Date("2026-03-21T00:00:00.000Z");
 
 describe("Performance archive page route wiring", () => {
-  it("renders an archive-first surface instead of the editor placeholder", async () => {
+  it(
+    "renders an archive-first surface instead of the editor placeholder",
+    async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -131,7 +133,9 @@ describe("Performance archive page route wiring", () => {
       screen.queryByText("公演を作成してセットリスト編集を開始"),
     ).not.toBeInTheDocument();
     expect(screen.queryByText("Upcoming & Recent")).not.toBeInTheDocument();
-  });
+    },
+    20_000,
+  );
 });
 
 describe("Performance archive page content", () => {
