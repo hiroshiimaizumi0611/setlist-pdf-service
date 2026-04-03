@@ -122,7 +122,7 @@ export function EditorLoadingShell() {
 export function PdfPreviewLoadingShell() {
   return (
     <main className="min-h-screen bg-[#111111] text-[#f6f3ee]">
-      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_30%),linear-gradient(180deg,_#101010_0%,_#050505_100%)] px-6">
+      <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(246,196,83,0.18),_transparent_30%),linear-gradient(180deg,_#101010_0%,_#050505_100%)] px-6">
         <div
           role="status"
           aria-label="PDFプレビューの読み込み状況"

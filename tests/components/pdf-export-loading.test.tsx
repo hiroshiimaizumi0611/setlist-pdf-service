@@ -33,6 +33,11 @@ describe("PDF export loading affordances", () => {
 
     expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
     expect(screen.getByText("用紙レイアウトと埋め込みプレビューを読み込んでいます。")).toBeInTheDocument();
-    expect(screen.getByRole("status", { name: "PDFプレビューの読み込み状況" })).toBeInTheDocument();
+    const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
+    expect(status).toBeInTheDocument();
+    const overlay = status.closest("div.fixed");
+    expect(overlay).toHaveClass("fixed");
+    expect(overlay).toHaveClass("inset-0");
+    expect(overlay).toHaveClass("z-[90]");
   });
 });
