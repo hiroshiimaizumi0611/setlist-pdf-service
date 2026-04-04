@@ -81,9 +81,15 @@ describe("TemplatesPage", () => {
         items: [
           {
             id: "template-item-1",
-            title: "オープニング",
-            type: "song",
+            templateId: "template-1",
             position: 1,
+            itemType: "song",
+            title: "オープニング",
+            artist: null,
+            durationSeconds: 210,
+            notes: "ゆっくり入る",
+            createdAt: new Date("2026-03-22T00:00:00.000Z"),
+            updatedAt: new Date("2026-03-22T00:00:00.000Z"),
           },
         ],
       },
@@ -95,7 +101,7 @@ describe("TemplatesPage", () => {
     const header = screen.getByRole("banner");
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "保存済みテンプレート" })).toBeInTheDocument();
+    expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
