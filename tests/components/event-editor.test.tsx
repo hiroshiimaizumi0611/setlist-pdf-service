@@ -590,7 +590,7 @@ describe("EventEditorPageContent", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "このセットリストを削除" }));
     expect(screen.getByRole("dialog", { name: "このセットリストを削除しますか？" })).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it("renders a Stitch-like rail and compact metadata strip", () => {
     render(

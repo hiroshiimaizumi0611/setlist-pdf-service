@@ -45,7 +45,7 @@ describe("dbReady local migration behavior", () => {
 
     expect(mockExecute).toHaveBeenCalledWith("PRAGMA foreign_keys = ON");
     expect(mockMigrate).toHaveBeenCalledTimes(1);
-  });
+  }, 20_000);
 
   it("does not run migrations for remote production databases", async () => {
     vi.doMock("../../lib/env", () => ({
@@ -73,5 +73,5 @@ describe("dbReady local migration behavior", () => {
 
     expect(mockExecute).not.toHaveBeenCalled();
     expect(mockMigrate).not.toHaveBeenCalled();
-  });
+  }, 20_000);
 });

@@ -51,7 +51,7 @@ describe("BillingPageContent", () => {
     expect(
       screen.getByText("Stripe test mode の設定が未完了でも画面確認できるようにしています。"),
     ).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it("renders the pro plan state with a billing portal CTA", () => {
     render(

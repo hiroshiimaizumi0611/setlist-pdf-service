@@ -44,9 +44,9 @@ describe("UserMenu", () => {
 
     fireEvent.click(trigger);
 
-    expect(trigger).toHaveAttribute("aria-haspopup", "dialog");
-    expect(screen.getByRole("dialog", { name: "ユーザーメニュー" })).toBeInTheDocument();
-    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(trigger).not.toHaveAttribute("aria-haspopup", "dialog");
+    expect(trigger).toHaveAttribute("aria-controls");
     expect(screen.getByText("Akari Stage")).toBeInTheDocument();
     expect(screen.getByText("akari@example.com")).toBeInTheDocument();
     expect(screen.getByText("pro")).toBeInTheDocument();
@@ -58,6 +58,7 @@ describe("UserMenu", () => {
 
     fireEvent.click(trigger);
 
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByText("Akari Stage")).not.toBeInTheDocument();
   });
 

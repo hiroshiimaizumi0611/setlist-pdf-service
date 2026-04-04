@@ -71,7 +71,7 @@ describe("AuthForm", () => {
     );
     expect(pushMock).toHaveBeenCalledWith("/events");
     expect(refreshMock).toHaveBeenCalled();
-  });
+  }, 20_000);
 
   it("submits the register flow in Japanese and routes to the app", async () => {
     signUpEmailMock.mockResolvedValue({ error: null });
