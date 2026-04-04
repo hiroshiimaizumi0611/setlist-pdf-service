@@ -5,13 +5,19 @@ type SettingsSidebarProps = {
   currentPlan: AppPlan;
 };
 
-const SETTINGS_NAV_ITEMS = [
+type SettingsNavItem = {
+  label: string;
+  href: string;
+  active?: boolean;
+};
+
+const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
   { label: "Account", href: "#" },
   { label: "Billing", href: "#" },
   { label: "Subscription", href: "/settings/billing", active: true },
   { label: "Security", href: "#" },
   { label: "Integrations", href: "#" },
-] as const;
+];
 
 export function SettingsSidebar({ currentPlan }: SettingsSidebarProps) {
   const theme = getDashboardThemeStyles("dark");
