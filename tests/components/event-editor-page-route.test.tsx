@@ -58,14 +58,17 @@ vi.mock("@/app/(app)/templates/actions", () => ({
 import EventEditorPage from "../../app/(app)/events/[eventId]/page";
 
 const baseTimestamp = new Date("2026-03-21T00:00:00.000Z");
+const authenticatedUser = {
+  id: "user-1",
+  name: "Akari Setlist",
+  email: "akari@example.com",
+};
 
 describe("EventEditorPage route wiring", () => {
   it("maps deleteItem search params into pendingDeleteItemId", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
-        user: {
-          id: "user-1",
-        },
+        user: authenticatedUser,
       },
       currentPlan: {
         plan: "free",
@@ -113,7 +116,7 @@ describe("EventEditorPage route wiring", () => {
 
   it("keeps delete event handling wired without route-level modal state", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
-      session: { user: { id: "user-1" } },
+      session: { user: authenticatedUser },
       currentPlan: { plan: "free" },
     });
     mockListEventSummaries.mockResolvedValue([
@@ -155,9 +158,7 @@ describe("EventEditorPage route wiring", () => {
   it("does not expose editItem search params once editing is modal-driven", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
-        user: {
-          id: "user-1",
-        },
+        user: authenticatedUser,
       },
       currentPlan: {
         plan: "free",
@@ -207,9 +208,7 @@ describe("EventEditorPage route wiring", () => {
     async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
-        user: {
-          id: "user-1",
-        },
+        user: authenticatedUser,
       },
       currentPlan: {
         plan: "free",
