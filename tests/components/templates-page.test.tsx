@@ -75,6 +75,6 @@ describe("TemplatesPage", () => {
 
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
-    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
   });
 });

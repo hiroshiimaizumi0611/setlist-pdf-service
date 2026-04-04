@@ -115,7 +115,7 @@ describe("Performance archive page route wiring", () => {
     render(result);
 
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toHaveAttribute(
       "href",
       "/events?theme=light",
