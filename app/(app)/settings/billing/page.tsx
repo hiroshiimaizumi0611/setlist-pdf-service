@@ -93,10 +93,6 @@ export function BillingPageContent({
           </div>
 
           <div className="flex items-center gap-3">
-            <div
-              aria-hidden="true"
-              className={`hidden h-10 w-14 border ${theme.border} ${theme.panelMuted} sm:block`}
-            />
             <LogoutButton
               className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
             />

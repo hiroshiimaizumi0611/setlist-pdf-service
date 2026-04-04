@@ -39,9 +39,11 @@ export function BillingPaymentSection({
             </h2>
           </div>
 
-          <span className={`${theme.pill} px-3 py-1 text-xs font-bold uppercase tracking-[0.22em]`}>
-            {isStripeConfigured ? "Stripe" : "Placeholder"}
-          </span>
+          {isStripeConfigured ? (
+            <span className={`${theme.pill} px-3 py-1 text-xs font-bold uppercase tracking-[0.22em]`}>
+              Stripe
+            </span>
+          ) : null}
         </div>
 
         <div className="mt-6 space-y-4">
@@ -60,8 +62,8 @@ export function BillingPaymentSection({
               {isAuthenticated
                 ? isPro && isStripeConfigured
                   ? "現在の請求情報やカードの更新先は外部の Billing Portal に集約しています。"
-                  : "請求の詳細はまだ入っていないため、ここでは安全なプレースホルダーのみ表示しています。"
-                : "この画面では読み取り専用の空状態として扱っています。"}
+                  : "支払い方法の詳細は、利用条件がそろった時点でここから確認できます。"
+                : "ログイン後に支払い設定へアクセスできるようになります。"}
             </p>
           </div>
 
@@ -91,7 +93,7 @@ export function BillingPaymentSection({
             </div>
           ) : (
             <div className={`border ${theme.border} ${theme.panelMuted} px-4 py-4 text-sm leading-6 ${theme.mutedText}`}>
-              現在は請求先情報のサンプル表示のみです。実運用の支払い方法は将来の Billing Portal 連携で表示されます。
+              現在登録済みの支払い情報はありません。
             </div>
           )}
         </div>
@@ -110,7 +112,7 @@ export function BillingPaymentSection({
         <div className={`mt-6 border-2 border-dashed ${theme.border} ${theme.panelMuted} px-5 py-8`}>
           <p className={`text-base font-bold ${theme.text}`}>請求履歴はまだありません</p>
           <p className={`mt-2 text-sm leading-6 ${theme.mutedText}`}>
-            将来 invoice list が入る前提の器です。今は空状態のまま表示し、履歴データが来たときに差し替えます。
+            請求が発生すると、ここに履歴が表示されます。
           </p>
         </div>
       </article>
