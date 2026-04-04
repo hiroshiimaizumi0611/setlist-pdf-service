@@ -11,15 +11,17 @@ import { PRO_MONTHLY_PRICE_LABEL } from "@/lib/stripe/plans";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { BillingComparisonTable } from "@/components/billing-comparison-table";
 import { BillingPaymentSection } from "@/components/billing-payment-section";
-import { LogoutButton } from "@/components/logout-button";
 import { SettingsSidebar } from "@/components/settings-sidebar";
 import { UpgradeCard } from "@/components/upgrade-card";
+import { UserMenu } from "@/components/user-menu";
 import type { AppPlan } from "@/lib/stripe/plans";
 
 export const dynamic = "force-dynamic";
 
 type BillingPageContentProps = {
   currentPlan: AppPlan;
+  userDisplayName?: string;
+  userEmail?: string;
   isStripeConfigured: boolean;
   isAuthenticated?: boolean;
   subscription: {
@@ -52,13 +54,28 @@ async function openBillingPortalAction() {
   redirect(response.url);
 }
 
+function resolveUserDisplayName(name: string | null | undefined, email: string) {
+  const trimmedName = name?.trim();
+
+  if (trimmedName) {
+    return trimmedName;
+  }
+
+  const [localPart] = email.split("@");
+  return localPart || email;
+}
+
 export default async function BillingPage() {
   const session = await getAuthSession();
   const currentPlan = await getCurrentPlan();
+  const userEmail = session?.user.email ?? "";
+  const userDisplayName = resolveUserDisplayName(session?.user.name, userEmail);
 
   return (
     <BillingPageContent
       currentPlan={currentPlan.plan}
+      userDisplayName={userDisplayName}
+      userEmail={userEmail}
       isStripeConfigured={currentPlan.billingConfigured}
       isAuthenticated={Boolean(session?.user.id)}
       subscription={currentPlan.activeSubscription}
@@ -68,6 +85,8 @@ export default async function BillingPage() {
 
 export function BillingPageContent({
   currentPlan,
+  userDisplayName = "",
+  userEmail = "",
   isStripeConfigured,
   isAuthenticated = true,
   subscription,
@@ -93,8 +112,10 @@ export function BillingPageContent({
           </div>
 
           <div className="flex items-center gap-3">
-            <LogoutButton
-              className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            <UserMenu
+              displayName={userDisplayName}
+              email={userEmail}
+              currentPlan={currentPlan}
             />
           </div>
         </div>

@@ -22,6 +22,17 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   return candidate === "light" ? "light" : "dark";
 }
 
+function resolveUserDisplayName(name: string | null | undefined, email: string) {
+  const trimmedName = name?.trim();
+
+  if (trimmedName) {
+    return trimmedName;
+  }
+
+  const [localPart] = email.split("@");
+  return localPart || email;
+}
+
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const authSession = await getAuthSessionWithPlan();
 
@@ -33,12 +44,16 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const { session, currentPlan } = authSession;
   const events = await listEventSummaries({ userId: session.user.id });
+  const userEmail = session.user.email ?? "";
+  const userDisplayName = resolveUserDisplayName(session.user.name, userEmail);
 
   return (
     <PerformanceArchivePageContent
       events={events}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
+      userDisplayName={userDisplayName}
+      userEmail={userEmail}
       createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}
       deleteEventAction={deleteEventFormAction}

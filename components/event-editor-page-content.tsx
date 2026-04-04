@@ -13,13 +13,15 @@ import { ExportPdfButton } from "./export-pdf-button";
 import { TemplateSaveButton } from "./template-save-button";
 import { EventDeleteControl } from "./event-delete-control";
 import { FormPendingButton } from "./form-pending-button";
-import { LogoutButton } from "./logout-button";
+import { UserMenu } from "./user-menu";
 
 type EventEditorPageContentProps = {
   events: EventSummary[];
   event: EventWithItems | null;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  userDisplayName?: string;
+  userEmail?: string;
   pendingDeleteItemId?: string | null;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
@@ -96,6 +98,8 @@ export function EventEditorPageContent({
   event,
   currentTheme,
   currentPlan,
+  userDisplayName = "",
+  userEmail = "",
   pendingDeleteItemId,
   createEventAction,
   duplicateEventAction,
@@ -166,8 +170,10 @@ export function EventEditorPageContent({
               lightHref={lightHref}
               darkHref={darkHref}
             />
-            <LogoutButton
-              className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            <UserMenu
+              displayName={userDisplayName}
+              email={userEmail}
+              currentPlan={currentPlan}
             />
           </>
         }
@@ -241,8 +247,10 @@ export function EventEditorPageContent({
             lightHref={lightHref}
             darkHref={darkHref}
           />
-          <LogoutButton
-            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+          <UserMenu
+            displayName={userDisplayName}
+            email={userEmail}
+            currentPlan={currentPlan}
           />
           <ExportPdfButton
             currentTheme={currentTheme}

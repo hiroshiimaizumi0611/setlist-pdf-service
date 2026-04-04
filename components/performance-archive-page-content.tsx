@@ -6,15 +6,17 @@ import type { AppPlan } from "@/lib/stripe/plans";
 import { useMemo, useState } from "react";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { FormPendingButton } from "./form-pending-button";
-import { LogoutButton } from "./logout-button";
 import { PerformanceArchiveFilters } from "./performance-archive-filters";
 import { PerformanceArchiveTable } from "./performance-archive-table";
 import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
 
 type PerformanceArchivePageContentProps = {
   events: EventSummary[];
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  userDisplayName?: string;
+  userEmail?: string;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
   deleteEventAction?: (formData: FormData) => Promise<void>;
@@ -105,6 +107,8 @@ export function PerformanceArchivePageContent({
   events,
   currentTheme,
   currentPlan,
+  userDisplayName = "",
+  userEmail = "",
   createEventAction,
   duplicateEventAction,
   deleteEventAction,
@@ -194,8 +198,10 @@ export function PerformanceArchivePageContent({
       headerActions={
         <>
           <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
-          <LogoutButton
-            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+          <UserMenu
+            displayName={userDisplayName}
+            email={userEmail}
+            currentPlan={currentPlan}
           />
         </>
       }
