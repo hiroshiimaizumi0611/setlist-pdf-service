@@ -25,6 +25,16 @@ describe("BillingPageContent", () => {
       />,
     );
 
+    expect(screen.getByText("Subscription Management")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
+    expect(screen.getByText("Account")).toBeInTheDocument();
+    expect(screen.getByText("Billing")).toBeInTheDocument();
+    expect(screen.getByText("Subscription")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Current Plan" })).toBeInTheDocument();
+    expect(screen.getByText("プラン比較")).toBeInTheDocument();
+    expect(screen.getByText("お支払い方法")).toBeInTheDocument();
+    expect(screen.getByText("請求履歴")).toBeInTheDocument();
+
     expect(screen.getByRole("heading", { name: "プラン管理" })).toBeInTheDocument();
     expect(screen.getByText("現在のプラン")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();
