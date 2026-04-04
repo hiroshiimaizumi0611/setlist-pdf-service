@@ -60,4 +60,15 @@ describe("LogoutButton", () => {
 
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
   });
+
+  it("appends custom classes without dropping base disabled affordances", () => {
+    render(<LogoutButton className="w-full justify-start rounded-2xl border-0" />);
+
+    const button = screen.getByRole("button", { name: "ログアウト" });
+
+    expect(button.className).toContain("inline-flex");
+    expect(button.className).toContain("disabled:opacity-70");
+    expect(button.className).toContain("w-full");
+    expect(button.className).toContain("justify-start");
+  });
 });

@@ -51,7 +51,7 @@ export function UserMenu({ displayName, email, currentPlan }: UserMenuProps) {
       <button
         type="button"
         aria-label="ユーザーメニューを開く"
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((current) => !current)}
         className="flex h-11 w-11 items-center justify-center rounded-full border border-[#4a3f32] bg-[#201a14] text-sm font-black text-[#f6c453] transition hover:border-[#f6c453] hover:text-[#ffe08a] focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-[#131313]"
@@ -61,7 +61,7 @@ export function UserMenu({ displayName, email, currentPlan }: UserMenuProps) {
 
       {isOpen ? (
         <div
-          role="menu"
+          role="dialog"
           aria-label="ユーザーメニュー"
           className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-72 overflow-hidden rounded-3xl border border-[#38332b] bg-[#181818] p-2 text-[#f6f3ee] shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
         >
