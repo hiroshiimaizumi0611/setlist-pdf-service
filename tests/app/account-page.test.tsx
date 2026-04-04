@@ -46,11 +46,25 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("heading", { name: "アカウント概要" }),
     ).toBeInTheDocument();
+    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
     expect(screen.getByText("Account Owner")).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();
     expect(screen.getByText("Account Summary")).toBeInTheDocument();
     expect(screen.getByText("Settings / Account")).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "プラン管理へ" }),
     ).toHaveAttribute("href", "/settings/billing");

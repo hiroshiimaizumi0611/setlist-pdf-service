@@ -115,6 +115,11 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "テンプレート" })).toHaveAttribute("href", "/templates");
+    expect(screen.getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
     expect(screen.getByRole("button", { name: "このセットリストを削除" })).toBeInTheDocument();
     expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
     expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
@@ -127,6 +132,22 @@ describe("EventEditorPageContent", () => {
     expect(navigation).toBeInTheDocument();
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",
+    );
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(within(navigation).getByRole("link", { current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
     );
     expect(within(navigation).getAllByRole("button", { name: "複製" }).length).toBeGreaterThan(0);
     expect(within(navigation).getAllByRole("button", { name: "削除" }).length).toBeGreaterThan(0);

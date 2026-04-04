@@ -130,6 +130,22 @@ describe("Performance archive page route wiring", () => {
     const header = screen.getByRole("banner");
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(
+      within(navigation).getByRole("link", { name: "アーカイブ", current: "page" }),
+    ).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toHaveAttribute(
       "href",
       "/events?theme=light",

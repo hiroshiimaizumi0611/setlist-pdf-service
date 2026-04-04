@@ -35,9 +35,23 @@ describe("BillingPageContent", () => {
 
     expect(screen.getByText("Subscription Management")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
-    expect(screen.getByText("Account")).toBeInTheDocument();
-    expect(screen.getByText("Billing")).toBeInTheDocument();
-    expect(screen.getByText("Subscription")).toBeInTheDocument();
+    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.getByRole("heading", { name: "Current Plan" })).toBeInTheDocument();
     expect(screen.getByText("プラン比較")).toBeInTheDocument();
     expect(screen.getByText("お支払い方法")).toBeInTheDocument();
@@ -72,6 +86,19 @@ describe("BillingPageContent", () => {
     expect(
       screen.getByText("登録済みの支払い方法は Billing Portal から更新できます。"),
     ).toBeInTheDocument();
+    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeInTheDocument();
@@ -95,6 +122,19 @@ describe("BillingPageContent", () => {
     );
 
     expect(screen.getByText("Stripe 未設定のため、お支払い方法は利用できません。")).toBeInTheDocument();
+    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeDisabled();
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
