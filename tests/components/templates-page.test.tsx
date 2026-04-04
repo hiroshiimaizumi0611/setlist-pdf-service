@@ -99,11 +99,24 @@ describe("TemplatesPage", () => {
     render(result);
 
     const header = screen.getByRole("banner");
+    const navigation = within(header).getByRole("navigation", { name: "設定ナビゲーション" });
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
     expect(screen.getByText("1 items")).toBeInTheDocument();
     expect(screen.getByText("静かな立ち上がりからアンコールまで")).toBeInTheDocument();
+    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(navigation).getByRole("link", { name: "テンプレート", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();

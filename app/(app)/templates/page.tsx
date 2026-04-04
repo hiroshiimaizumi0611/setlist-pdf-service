@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AppGlobalNav } from "@/components/app-global-nav";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { listTemplates } from "@/lib/services/templates-service";
@@ -44,17 +45,25 @@ export default async function TemplatesPage() {
   return (
     <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
       <section className="mx-auto max-w-5xl space-y-8">
-        <header className={`flex flex-col gap-4 border-2 ${theme.border} ${theme.panel} p-8 md:flex-row md:items-end md:justify-between`}>
-          <div className="space-y-3">
-            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-              テンプレート
-            </p>
-            <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
-              テンプレート管理
-            </h1>
-            <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-              定番の曲順やMCの流れを保存しておけば、次の公演を数分で立ち上げられます。
-            </p>
+        <header className={`flex flex-col gap-5 border-2 ${theme.border} ${theme.panel} p-8`}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-3">
+              <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
+                テンプレート
+              </p>
+              <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
+                テンプレート管理
+              </h1>
+              <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
+                定番の曲順やMCの流れを保存しておけば、次の公演を数分で立ち上げられます。
+              </p>
+            </div>
+
+            <AppGlobalNav
+              activeItem="templates"
+              ariaLabel="設定ナビゲーション"
+              className="shrink-0"
+            />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
