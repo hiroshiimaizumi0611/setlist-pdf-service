@@ -18,17 +18,18 @@ function uniqueCredentials(prefix: string) {
 
 async function registerAndLogin(page: import("playwright/test").Page, credentials: ReturnType<typeof uniqueCredentials>) {
   await page.goto("/register");
+  const appOrigin = new URL(page.url()).origin;
   await expect(page.getByRole("heading", { name: "アカウントを作成" })).toBeVisible();
   await expect(page.getByLabel("名前")).toBeVisible();
   await expect(page.getByLabel("メールアドレス")).toBeVisible();
   await expect(page.getByLabel("パスワード")).toBeVisible();
 
   const signUpResponse = await page.context().request.post(
-    "http://localhost:3000/api/auth/sign-up/email",
+    `${appOrigin}/api/auth/sign-up/email`,
     {
       headers: {
         "content-type": "application/json",
-        origin: "http://localhost:3000",
+        origin: appOrigin,
       },
       data: {
         email: credentials.email,
@@ -127,7 +128,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
 
   await page.waitForLoadState("domcontentloaded");
   await expect(page).toHaveURL(
-    new RegExp(`^http://localhost:3000/events/${currentEventId}/pdf\\?theme=${currentTheme}$`),
+    new RegExp(`/events/${currentEventId}/pdf\\?theme=${currentTheme}$`),
   );
   await expect(page.getByRole("region", { name: "紙面プレビュー" })).toBeVisible();
   await expect(page.getByRole("complementary")).toBeVisible();
@@ -190,7 +191,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   await page.getByRole("link", { name: alternateThemeLabel }).click();
   await page.waitForLoadState("domcontentloaded");
   await expect(page).toHaveURL(
-    new RegExp(`^http://localhost:3000/events/${currentEventId}/pdf\\?theme=${alternateTheme}$`),
+    new RegExp(`/events/${currentEventId}/pdf\\?theme=${alternateTheme}$`),
   );
   await expect(
     page.getByRole("link", { name: alternateThemeLabel }),

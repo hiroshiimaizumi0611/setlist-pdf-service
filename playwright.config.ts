@@ -1,6 +1,6 @@
 import { defineConfig } from "playwright/test";
 
-const playwrightAppUrl = "http://localhost:3000";
+const playwrightAppUrl = "http://127.0.0.1:3100";
 const playwrightAuthSecret =
   "development-secret-for-better-auth-must-be-32-chars";
 const playwrightDatabaseUrl =
@@ -18,11 +18,10 @@ export default defineConfig({
   },
   webServer: {
     command:
-      "npm run db:migrate && npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
+      "npm run db:migrate && npm run build && npm run start -- --hostname 127.0.0.1 --port 3100",
     timeout: 180_000,
     url: playwrightAppUrl,
-    // Reuse an already running local app to avoid port conflicts during iterative E2E work.
-    reuseExistingServer: process.env.CI ? false : true,
+    reuseExistingServer: false,
     env: {
       BETTER_AUTH_SECRET: playwrightAuthSecret,
       BETTER_AUTH_URL: playwrightAppUrl,
