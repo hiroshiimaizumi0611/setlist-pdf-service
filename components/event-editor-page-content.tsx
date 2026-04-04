@@ -2,6 +2,7 @@ import type { EventSummary, EventWithItems } from "@/lib/repositories/event-repo
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
 import type { SetlistItemType } from "@/lib/services/events-service";
+import type { AuthenticatedUserIdentity } from "@/lib/user-identity";
 import Link from "next/link";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { EventList } from "./event-list";
@@ -20,8 +21,7 @@ type EventEditorPageContentProps = {
   event: EventWithItems | null;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
-  userDisplayName?: string;
-  userEmail?: string;
+  userIdentity: AuthenticatedUserIdentity;
   pendingDeleteItemId?: string | null;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
@@ -98,8 +98,7 @@ export function EventEditorPageContent({
   event,
   currentTheme,
   currentPlan,
-  userDisplayName = "",
-  userEmail = "",
+  userIdentity,
   pendingDeleteItemId,
   createEventAction,
   duplicateEventAction,
@@ -171,8 +170,8 @@ export function EventEditorPageContent({
               darkHref={darkHref}
             />
             <UserMenu
-              displayName={userDisplayName}
-              email={userEmail}
+              displayName={userIdentity.displayName}
+              email={userIdentity.email}
               currentPlan={currentPlan}
             />
           </>
@@ -248,8 +247,8 @@ export function EventEditorPageContent({
             darkHref={darkHref}
           />
           <UserMenu
-            displayName={userDisplayName}
-            email={userEmail}
+            displayName={userIdentity.displayName}
+            email={userIdentity.email}
             currentPlan={currentPlan}
           />
           <ExportPdfButton

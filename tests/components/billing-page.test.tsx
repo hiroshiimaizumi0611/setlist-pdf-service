@@ -14,13 +14,21 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+const authenticatedViewerProps = {
+  isAuthenticated: true as const,
+  userIdentity: {
+    displayName: "Billing User",
+    email: "billing@example.com",
+  },
+};
+
 describe("BillingPageContent", () => {
   it("renders the free plan state with an upgrade CTA", () => {
     render(
       <BillingPageContent
         currentPlan="free"
+        {...authenticatedViewerProps}
         isStripeConfigured={false}
-        isAuthenticated={true}
         subscription={null}
       />,
     );
@@ -49,8 +57,8 @@ describe("BillingPageContent", () => {
     render(
       <BillingPageContent
         currentPlan="pro"
+        {...authenticatedViewerProps}
         isStripeConfigured={true}
-        isAuthenticated={true}
         subscription={{
           plan: "pro",
           status: "active",
@@ -74,8 +82,8 @@ describe("BillingPageContent", () => {
     render(
       <BillingPageContent
         currentPlan="pro"
+        {...authenticatedViewerProps}
         isStripeConfigured={false}
-        isAuthenticated={true}
         subscription={{
           plan: "pro",
           status: "active",
@@ -108,6 +116,11 @@ describe("BillingPageContent", () => {
     expect(
       screen.getByRole("link", { name: "ログインしてアップグレード" }),
     ).toHaveAttribute("href", "/login");
-    expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("banner")).getByRole("link", { name: "ログイン" }),
+    ).toHaveAttribute("href", "/login");
+    expect(
+      within(screen.getByRole("banner")).queryByRole("button", { name: "ユーザーメニューを開く" }),
+    ).not.toBeInTheDocument();
   });
 });

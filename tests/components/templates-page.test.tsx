@@ -48,6 +48,8 @@ describe("TemplatesPage", () => {
       session: {
         user: {
           id: "user-1",
+          name: "Template Curator",
+          email: "templates@example.com",
         },
       },
       currentPlan: {

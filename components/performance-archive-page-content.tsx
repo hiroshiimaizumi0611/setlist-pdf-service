@@ -3,6 +3,7 @@
 import type { EventSummary } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
+import type { AuthenticatedUserIdentity } from "@/lib/user-identity";
 import { useMemo, useState } from "react";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { FormPendingButton } from "./form-pending-button";
@@ -15,8 +16,7 @@ type PerformanceArchivePageContentProps = {
   events: EventSummary[];
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
-  userDisplayName?: string;
-  userEmail?: string;
+  userIdentity: AuthenticatedUserIdentity;
   createEventAction?: (formData: FormData) => Promise<void>;
   duplicateEventAction?: (formData: FormData) => Promise<void>;
   deleteEventAction?: (formData: FormData) => Promise<void>;
@@ -107,8 +107,7 @@ export function PerformanceArchivePageContent({
   events,
   currentTheme,
   currentPlan,
-  userDisplayName = "",
-  userEmail = "",
+  userIdentity,
   createEventAction,
   duplicateEventAction,
   deleteEventAction,
@@ -199,8 +198,8 @@ export function PerformanceArchivePageContent({
         <>
           <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
           <UserMenu
-            displayName={userDisplayName}
-            email={userEmail}
+            displayName={userIdentity.displayName}
+            email={userIdentity.email}
             currentPlan={currentPlan}
           />
         </>

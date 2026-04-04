@@ -17,6 +17,7 @@ import {
   listEventSummaries,
 } from "@/lib/services/events-service";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
+import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -39,17 +40,6 @@ function resolveDeleteItem(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }
 
-function resolveUserDisplayName(name: string | null | undefined, email: string) {
-  const trimmedName = name?.trim();
-
-  if (trimmedName) {
-    return trimmedName;
-  }
-
-  const [localPart] = email.split("@");
-  return localPart || email;
-}
-
 export { EventEditorPageContent };
 
 export default async function EventEditorPage({
@@ -69,8 +59,7 @@ export default async function EventEditorPage({
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const pendingDeleteItemId = resolveDeleteItem(resolvedSearchParams?.deleteItem);
   const { session, currentPlan } = authSession;
-  const userEmail = session.user.email ?? "";
-  const userDisplayName = resolveUserDisplayName(session.user.name, userEmail);
+  const userIdentity = resolveAuthenticatedUserIdentity(session.user);
 
   const [events, event] = await Promise.all([
     listEventSummaries({ userId: session.user.id }),
@@ -96,8 +85,7 @@ export default async function EventEditorPage({
       event={event}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
-      userDisplayName={userDisplayName}
-      userEmail={userEmail}
+      userIdentity={userIdentity}
       pendingDeleteItemId={pendingDeleteItemId}
       createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   auth,
   getAuthSession,
@@ -15,15 +16,14 @@ import { SettingsSidebar } from "@/components/settings-sidebar";
 import { UpgradeCard } from "@/components/upgrade-card";
 import { UserMenu } from "@/components/user-menu";
 import type { AppPlan } from "@/lib/stripe/plans";
+import type { AuthenticatedUserIdentity } from "@/lib/user-identity";
+import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
 
 export const dynamic = "force-dynamic";
 
-type BillingPageContentProps = {
+type BillingPageContentBaseProps = {
   currentPlan: AppPlan;
-  userDisplayName?: string;
-  userEmail?: string;
   isStripeConfigured: boolean;
-  isAuthenticated?: boolean;
   subscription: {
     status: string;
     plan?: string;
@@ -32,6 +32,19 @@ type BillingPageContentProps = {
     seats?: number | null;
   } | null;
 };
+
+type AuthenticatedBillingPageContentProps = BillingPageContentBaseProps & {
+  isAuthenticated: true;
+  userIdentity: AuthenticatedUserIdentity;
+};
+
+type GuestBillingPageContentProps = BillingPageContentBaseProps & {
+  isAuthenticated: false;
+};
+
+type BillingPageContentProps =
+  | AuthenticatedBillingPageContentProps
+  | GuestBillingPageContentProps;
 
 async function openBillingPortalAction() {
   "use server";
@@ -54,43 +67,36 @@ async function openBillingPortalAction() {
   redirect(response.url);
 }
 
-function resolveUserDisplayName(name: string | null | undefined, email: string) {
-  const trimmedName = name?.trim();
-
-  if (trimmedName) {
-    return trimmedName;
-  }
-
-  const [localPart] = email.split("@");
-  return localPart || email;
-}
-
 export default async function BillingPage() {
   const session = await getAuthSession();
   const currentPlan = await getCurrentPlan();
-  const userEmail = session?.user.email ?? "";
-  const userDisplayName = resolveUserDisplayName(session?.user.name, userEmail);
+
+  if (session?.user.id) {
+    const userIdentity = resolveAuthenticatedUserIdentity(session.user);
+
+    return (
+      <BillingPageContent
+        currentPlan={currentPlan.plan}
+        userIdentity={userIdentity}
+        isStripeConfigured={currentPlan.billingConfigured}
+        isAuthenticated={true}
+        subscription={currentPlan.activeSubscription}
+      />
+    );
+  }
 
   return (
     <BillingPageContent
       currentPlan={currentPlan.plan}
-      userDisplayName={userDisplayName}
-      userEmail={userEmail}
       isStripeConfigured={currentPlan.billingConfigured}
-      isAuthenticated={Boolean(session?.user.id)}
+      isAuthenticated={false}
       subscription={currentPlan.activeSubscription}
     />
   );
 }
 
-export function BillingPageContent({
-  currentPlan,
-  userDisplayName = "",
-  userEmail = "",
-  isStripeConfigured,
-  isAuthenticated = true,
-  subscription,
-}: BillingPageContentProps) {
+export function BillingPageContent(props: BillingPageContentProps) {
+  const { currentPlan, isStripeConfigured, isAuthenticated, subscription } = props;
   const isPro = currentPlan === "pro";
   const theme = getDashboardThemeStyles("dark");
 
@@ -112,11 +118,20 @@ export function BillingPageContent({
           </div>
 
           <div className="flex items-center gap-3">
-            <UserMenu
-              displayName={userDisplayName}
-              email={userEmail}
-              currentPlan={currentPlan}
-            />
+            {isAuthenticated ? (
+              <UserMenu
+                displayName={props.userIdentity.displayName}
+                email={props.userIdentity.email}
+                currentPlan={currentPlan}
+              />
+            ) : (
+              <Link
+                href="/login"
+                className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+              >
+                ログイン
+              </Link>
+            )}
           </div>
         </div>
       </header>

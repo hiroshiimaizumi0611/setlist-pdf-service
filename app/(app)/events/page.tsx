@@ -8,6 +8,7 @@ import { PerformanceArchivePageContent } from "@/components/performance-archive-
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
+import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -22,17 +23,6 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   return candidate === "light" ? "light" : "dark";
 }
 
-function resolveUserDisplayName(name: string | null | undefined, email: string) {
-  const trimmedName = name?.trim();
-
-  if (trimmedName) {
-    return trimmedName;
-  }
-
-  const [localPart] = email.split("@");
-  return localPart || email;
-}
-
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const authSession = await getAuthSessionWithPlan();
 
@@ -44,16 +34,14 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const { session, currentPlan } = authSession;
   const events = await listEventSummaries({ userId: session.user.id });
-  const userEmail = session.user.email ?? "";
-  const userDisplayName = resolveUserDisplayName(session.user.name, userEmail);
+  const userIdentity = resolveAuthenticatedUserIdentity(session.user);
 
   return (
     <PerformanceArchivePageContent
       events={events}
       currentTheme={currentTheme}
       currentPlan={currentPlan.plan}
-      userDisplayName={userDisplayName}
-      userEmail={userEmail}
+      userIdentity={userIdentity}
       createEventAction={createDraftEventFormAction}
       duplicateEventAction={duplicateEventFormAction}
       deleteEventAction={deleteEventFormAction}

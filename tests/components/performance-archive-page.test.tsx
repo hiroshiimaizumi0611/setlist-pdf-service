@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PerformanceArchivePageContent } from "@/components/performance-archive-page-content";
 
@@ -59,6 +60,16 @@ vi.mock("@/app/(app)/templates/actions", () => ({
 import EventsPage from "../../app/(app)/events/page";
 
 const baseTimestamp = new Date("2026-03-21T00:00:00.000Z");
+const authenticatedUserIdentity = {
+  displayName: "Archive Owner",
+  email: "archive-owner@example.com",
+};
+
+function AuthenticatedPerformanceArchivePageContent(
+  props: Omit<ComponentProps<typeof PerformanceArchivePageContent>, "userIdentity">,
+) {
+  return <PerformanceArchivePageContent {...props} userIdentity={authenticatedUserIdentity} />;
+}
 
 afterEach(() => {
   vi.useRealTimers();
@@ -72,6 +83,8 @@ describe("Performance archive page route wiring", () => {
       session: {
         user: {
           id: "user-1",
+          name: authenticatedUserIdentity.displayName,
+          email: authenticatedUserIdentity.email,
         },
       },
       currentPlan: {
@@ -164,7 +177,7 @@ describe("Performance archive page route wiring", () => {
 describe("Performance archive page content", () => {
   it("shows archive controls and archive-oriented empty state copy", () => {
     render(
-      <PerformanceArchivePageContent
+      <AuthenticatedPerformanceArchivePageContent
         events={[]}
         currentTheme="dark"
         currentPlan="free"
@@ -196,7 +209,7 @@ describe("Performance archive page content", () => {
     vi.setSystemTime(new Date("2026-04-04T03:00:00.000Z"));
 
     render(
-      <PerformanceArchivePageContent
+      <AuthenticatedPerformanceArchivePageContent
         events={[
           {
             id: "event-nagoya-radhall",
@@ -332,7 +345,7 @@ describe("Performance archive page content", () => {
     vi.setSystemTime(new Date("2026-04-04T03:00:00.000Z"));
 
     render(
-      <PerformanceArchivePageContent
+      <AuthenticatedPerformanceArchivePageContent
         events={[
           {
             id: "event-nagoya-radhall",

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
@@ -74,6 +75,16 @@ const mockUpdateItemAction = vi.fn().mockResolvedValue(undefined);
 const mockUpdateMetadataAction = vi.fn().mockResolvedValue(undefined);
 const mockDeleteEventAction = vi.fn().mockResolvedValue(undefined);
 const mockDuplicateEventAction = vi.fn().mockResolvedValue(undefined);
+const authenticatedUserIdentity = {
+  displayName: "Akari Stage",
+  email: "akari@example.com",
+};
+
+function AuthenticatedEventEditorPageContent(
+  props: Omit<ComponentProps<typeof EventEditorPageContent>, "userIdentity">,
+) {
+  return <EventEditorPageContent {...props} userIdentity={authenticatedUserIdentity} />;
+}
 
 function requireElement(value: Element | null, message: string): HTMLElement {
   if (!value) {
@@ -86,7 +97,7 @@ function requireElement(value: Element | null, message: string): HTMLElement {
 describe("EventEditorPageContent", () => {
   it("renders the editor affordances for a free account", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -184,7 +195,7 @@ describe("EventEditorPageContent", () => {
 
   it("keeps the light metadata and add-item strips on paper-tone surfaces", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -212,7 +223,7 @@ describe("EventEditorPageContent", () => {
 
   it("renders light setlist rows and the edit modal on warm paper surfaces", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -268,7 +279,7 @@ describe("EventEditorPageContent", () => {
 
   it("submits metadata saves through EventEditorPageContent with the current theme", async () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="dark"
@@ -296,7 +307,7 @@ describe("EventEditorPageContent", () => {
 
   it("opens a centered edit modal with current item values and closes without changing row structure", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -333,7 +344,7 @@ describe("EventEditorPageContent", () => {
 
   it("keeps modal-triggered editing available for song, MC, and transition rows", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="dark"
@@ -370,7 +381,7 @@ describe("EventEditorPageContent", () => {
 
   it("keeps the edit modal scrollable on shorter viewports", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -391,7 +402,7 @@ describe("EventEditorPageContent", () => {
     const updateItemAction = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -434,7 +445,7 @@ describe("EventEditorPageContent", () => {
     const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -496,7 +507,7 @@ describe("EventEditorPageContent", () => {
     const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -558,7 +569,7 @@ describe("EventEditorPageContent", () => {
 
   it("opens a delete confirmation modal from the sidebar and current editor", async () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -583,7 +594,7 @@ describe("EventEditorPageContent", () => {
 
   it("renders a Stitch-like rail and compact metadata strip", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="dark"
@@ -737,7 +748,7 @@ describe("EventEditorPageContent", () => {
 
   it("shows the template save form when the account is pro", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="dark"
@@ -754,7 +765,7 @@ describe("EventEditorPageContent", () => {
 
   it("shows the shared user menu in the empty editor shell", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={null}
         currentTheme="dark"
@@ -769,7 +780,7 @@ describe("EventEditorPageContent", () => {
 
   it("renders a server-side delete confirmation state", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -788,7 +799,7 @@ describe("EventEditorPageContent", () => {
 
   it("renders delete confirmation controls for heading rows", () => {
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -818,7 +829,7 @@ describe("EventEditorPageContent", () => {
     const deleteItemAction = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"
@@ -843,7 +854,7 @@ describe("EventEditorPageContent", () => {
     const deleteItemAction = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <EventEditorPageContent
+      <AuthenticatedEventEditorPageContent
         events={eventSummaries}
         event={event}
         currentTheme="light"

@@ -6,6 +6,7 @@ import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { TemplateList } from "@/components/template-list";
 import { TemplateSaveButton } from "@/components/template-save-button";
 import { UserMenu } from "@/components/user-menu";
+import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
 import {
   createEventFromTemplateFormAction,
   saveTemplateFromEventFormAction,
@@ -26,17 +27,6 @@ function formatTemplateDate(value: Date | null) {
   }).format(value);
 }
 
-function resolveUserDisplayName(name: string | null | undefined, email: string) {
-  const trimmedName = name?.trim();
-
-  if (trimmedName) {
-    return trimmedName;
-  }
-
-  const [localPart] = email.split("@");
-  return localPart || email;
-}
-
 export default async function TemplatesPage() {
   const authSession = await getAuthSessionWithPlan();
 
@@ -49,8 +39,7 @@ export default async function TemplatesPage() {
   const templates = await listTemplates({ userId: session.user.id });
   const isPro = currentPlan.plan === "pro";
   const theme = getDashboardThemeStyles("dark");
-  const userEmail = session.user.email ?? "";
-  const userDisplayName = resolveUserDisplayName(session.user.name, userEmail);
+  const userIdentity = resolveAuthenticatedUserIdentity(session.user);
 
   return (
     <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
@@ -71,8 +60,8 @@ export default async function TemplatesPage() {
           <div className="flex flex-wrap items-center gap-3">
             <TemplateSaveButton plan={currentPlan.plan} currentTheme="dark" />
             <UserMenu
-              displayName={userDisplayName}
-              email={userEmail}
+              displayName={userIdentity.displayName}
+              email={userIdentity.email}
               currentPlan={currentPlan.plan}
             />
           </div>
