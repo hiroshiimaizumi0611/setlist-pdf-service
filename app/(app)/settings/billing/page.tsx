@@ -9,6 +9,8 @@ import { env } from "@/lib/env";
 import { getCurrentPlan } from "@/lib/subscription";
 import { PRO_MONTHLY_PRICE_LABEL } from "@/lib/stripe/plans";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { BillingComparisonTable } from "@/components/billing-comparison-table";
+import { BillingPaymentSection } from "@/components/billing-payment-section";
 import { LogoutButton } from "@/components/logout-button";
 import { SettingsSidebar } from "@/components/settings-sidebar";
 import { UpgradeCard } from "@/components/upgrade-card";
@@ -175,6 +177,16 @@ export function BillingPageContent({
                 </div>
               </div>
             </section>
+
+            <BillingComparisonTable />
+
+            <BillingPaymentSection
+              currentPlan={currentPlan}
+              isAuthenticated={isAuthenticated}
+              isStripeConfigured={isStripeConfigured}
+              openBillingPortalAction={openBillingPortalAction}
+              subscription={subscription}
+            />
           </section>
         </div>
       </div>
