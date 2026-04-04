@@ -47,6 +47,7 @@ describe("AuthForm", () => {
     render(<AuthForm mode="login" />);
 
     expect(screen.getByRole("heading", { name: "ログイン" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("名前")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アカウントを作成" })).toHaveAttribute(
       "href",
       "/register",
