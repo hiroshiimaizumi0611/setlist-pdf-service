@@ -22,10 +22,12 @@
   - Mount the shared nav in the account top bar with no forced active item.
 - `tests/components/event-editor.test.tsx`
   - Assert the shared nav appears in dashboard-shell based screens.
+- `tests/components/performance-archive-page.test.tsx`
+  - Assert the shared nav appears on `/events` archive-first screens, not just the editor route.
 - `tests/components/billing-page.test.tsx`
   - Assert templates/archive links are available in billing and current active state remains sensible.
 - `tests/app/account-page.test.tsx`
-  - Add or update expectations for the new shared nav on `/account`.
+  - Add or update expectations for the new shared nav on `/account`, including preserving `UserMenu`.
 
 ### New files to create
 
@@ -55,6 +57,7 @@
 **Files:**
 - Create: `tests/app/account-page.test.tsx` or modify if it already exists later in the repo
 - Modify: `tests/components/event-editor.test.tsx`
+- Modify: `tests/components/performance-archive-page.test.tsx`
 - Modify: `tests/components/billing-page.test.tsx`
 
 - [ ] **Step 1: Add route/component expectations for the new shared nav**
@@ -62,8 +65,9 @@
 Cover these expectations without overfitting classes:
 
 - archive/editor headers expose links for `アーカイブ`, `テンプレート`, `請求`
+- `/events` archive route is explicitly covered, not only `/events/[eventId]`
 - billing exposes links back to archive and templates
-- account exposes the same nav
+- account exposes the same nav and still renders `UserMenu`
 - active state is asserted via `aria-current="page"` where applicable
 
 Suggested checks:
@@ -80,6 +84,7 @@ Run:
 
 ```bash
 npm run test -- tests/components/event-editor.test.tsx tests/components/billing-page.test.tsx tests/app/account-page.test.tsx
+npm run test -- tests/components/performance-archive-page.test.tsx
 ```
 
 Expected: FAIL because the shared navigation does not exist yet.
@@ -94,6 +99,7 @@ Run:
 
 ```bash
 npm run test -- tests/components/event-editor.test.tsx tests/components/billing-page.test.tsx tests/app/account-page.test.tsx
+npm run test -- tests/components/performance-archive-page.test.tsx
 ```
 
 Expected: still FAIL, but only for the missing nav behavior.
@@ -101,7 +107,7 @@ Expected: still FAIL, but only for the missing nav behavior.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add tests/components/event-editor.test.tsx tests/components/billing-page.test.tsx tests/app/account-page.test.tsx
+git add tests/components/event-editor.test.tsx tests/components/performance-archive-page.test.tsx tests/components/billing-page.test.tsx tests/app/account-page.test.tsx
 git commit -m "test: define app global navigation expectations"
 ```
 
@@ -176,7 +182,7 @@ If `/templates` does not use `DashboardShell`, do not force a large refactor her
 Run:
 
 ```bash
-npm run test -- tests/components/event-editor.test.tsx
+npm run test -- tests/components/event-editor.test.tsx tests/components/performance-archive-page.test.tsx
 ```
 
 Expected: event/editor navigation expectations PASS; billing/account expectations may still fail.
@@ -184,7 +190,7 @@ Expected: event/editor navigation expectations PASS; billing/account expectation
 - [ ] **Step 5: Commit**
 
 ```bash
-git add components/dashboard-shell.tsx components/performance-archive-page-content.tsx components/event-editor-page-content.tsx
+git add components/dashboard-shell.tsx components/performance-archive-page-content.tsx components/event-editor-page-content.tsx tests/components/performance-archive-page.test.tsx tests/components/event-editor.test.tsx
 git commit -m "feat: wire shared nav into dashboard shell"
 ```
 
@@ -279,6 +285,7 @@ Run:
 
 ```bash
 npm run test -- tests/components/event-editor.test.tsx tests/components/billing-page.test.tsx tests/components/templates-page.test.tsx tests/app/account-page.test.tsx
+npm run test -- tests/components/performance-archive-page.test.tsx
 ```
 
 Expected: PASS
