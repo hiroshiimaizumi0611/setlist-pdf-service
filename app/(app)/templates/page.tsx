@@ -67,7 +67,7 @@ export default async function TemplatesPage() {
           </div>
         </header>
 
-        <section className={`border-2 ${theme.border} ${theme.panel} p-8`}>
+        <section className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>
           <div className="space-y-3">
             <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
               公演から保存
@@ -85,82 +85,113 @@ export default async function TemplatesPage() {
               まだ保存対象の公演がありません。先に公演を作成すると、ここからテンプレート化できます。
             </p>
           ) : (
-            <div className="mt-6 grid gap-4">
+            <div className="mt-6 space-y-3">
+              <div className={`hidden items-center gap-3 border-b ${theme.border} pb-2 font-mono text-[11px] uppercase tracking-[0.22em] ${theme.mutedText} lg:grid lg:grid-cols-[minmax(0,1.8fr)_5.5rem_minmax(0,1.2fr)_minmax(0,1.1fr)_auto]`}>
+                <span>公演</span>
+                <span>項目数</span>
+                <span>テンプレート名</span>
+                <span>メモ</span>
+                <span className="text-right">保存</span>
+              </div>
               {events.map((event) => (
                 <article
                   key={event.id}
-                  className={`border-2 ${theme.border} ${theme.panelMuted} p-5`}
+                  className={`border ${theme.border} ${theme.panelMuted} px-4 py-4`}
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <h3 className="font-mono text-lg font-black tracking-[-0.04em]">
-                        {event.title}
-                      </h3>
-                      <p className={`text-sm ${theme.mutedText}`}>
-                        {[event.venue, formatTemplateDate(event.eventDate)]
-                          .filter(Boolean)
-                          .join(" / ") || "日付・会場未設定"}
-                      </p>
-                      <p className={`font-mono text-xs uppercase tracking-[0.18em] ${theme.mutedText}`}>
+                  {isPro ? (
+                    <form
+                      action={saveTemplateFromEventFormAction}
+                      className="grid gap-3 lg:grid-cols-[minmax(0,1.8fr)_5.5rem_minmax(0,1.2fr)_minmax(0,1.1fr)_auto] lg:items-center"
+                    >
+                      <input type="hidden" name="sourceEventId" value={event.id} />
+                      <div className="min-w-0 space-y-1">
+                        <h3 className="truncate font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
+                          {event.title}
+                        </h3>
+                        <p className={`text-sm ${theme.mutedText}`}>
+                          {[event.venue, formatTemplateDate(event.eventDate)]
+                            .filter(Boolean)
+                            .join(" / ") || "日付・会場未設定"}
+                        </p>
+                      </div>
+                      <p className={`font-mono text-xs uppercase tracking-[0.18em] ${theme.mutedText} lg:text-center`}>
                         {event.itemCount}項目
                       </p>
-                    </div>
-
-                    {isPro ? (
-                      <form
-                        action={saveTemplateFromEventFormAction}
-                        className="grid w-full gap-3 md:max-w-md"
-                      >
-                        <input type="hidden" name="sourceEventId" value={event.id} />
-                        <label className="grid gap-2 text-sm">
-                          <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
-                            テンプレート名
-                          </span>
-                          <input
-                            type="text"
-                            name="name"
-                            defaultValue={event.title}
-                            placeholder="テンプレート名"
-                            required
-                            className={`${theme.input} px-4 py-3 text-sm`}
-                          />
-                        </label>
-                        <label className="grid gap-2 text-sm">
-                          <span className="font-mono text-[11px] uppercase tracking-[0.22em]">
-                            補足メモ
-                          </span>
-                          <input
-                            type="text"
-                            name="description"
-                            defaultValue={event.notes ?? ""}
-                            placeholder="メモや会場向け補足"
-                            className={`${theme.inputMuted} px-4 py-3 text-sm`}
-                          />
-                        </label>
+                      <label className="grid gap-2 text-sm">
+                        <span className="font-mono text-[11px] uppercase tracking-[0.22em] lg:sr-only">
+                          テンプレート名
+                        </span>
+                        <input
+                          type="text"
+                          name="name"
+                          defaultValue={event.title}
+                          placeholder="テンプレート名"
+                          required
+                          className={`${theme.input} min-h-11 px-4 py-3 text-sm`}
+                        />
+                      </label>
+                      <label className="grid gap-2 text-sm">
+                        <span className="font-mono text-[11px] uppercase tracking-[0.22em] lg:sr-only">
+                          補足メモ
+                        </span>
+                        <input
+                          type="text"
+                          name="description"
+                          defaultValue={event.notes ?? ""}
+                          placeholder="メモや会場向け補足"
+                          className={`${theme.inputMuted} min-h-11 px-4 py-3 text-sm`}
+                        />
+                      </label>
+                      <div className="flex items-center lg:justify-end">
                         <button
                           type="submit"
-                          className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 py-3 text-sm font-medium`}
+                          className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 py-3 text-sm font-medium whitespace-nowrap`}
                         >
                           この公演から保存
                         </button>
-                      </form>
-                    ) : (
-                      <div className={`w-full border-2 ${theme.accentBorder} ${theme.panelAlt} px-4 py-4 text-sm leading-6 ${theme.text} md:max-w-md`}>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.8fr)_5.5rem_minmax(0,1.2fr)_minmax(0,1.1fr)_auto] lg:items-center">
+                      <div className="min-w-0 space-y-1">
+                        <h3 className="truncate font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
+                          {event.title}
+                        </h3>
+                        <p className={`text-sm ${theme.mutedText}`}>
+                          {[event.venue, formatTemplateDate(event.eventDate)]
+                            .filter(Boolean)
+                            .join(" / ") || "日付・会場未設定"}
+                        </p>
+                      </div>
+                      <p className={`font-mono text-xs uppercase tracking-[0.18em] ${theme.mutedText} lg:text-center`}>
+                        {event.itemCount}項目
+                      </p>
+                      <div className={`lg:col-span-3 border ${theme.accentBorder} ${theme.panelAlt} px-4 py-3 text-sm leading-6 ${theme.text}`}>
                         Pro でテンプレート保存を有効化すると、この公演構成をそのまま再利用できます。
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
           )}
         </section>
 
-        <TemplateList
-          templates={templates}
-          currentTheme="dark"
-          instantiateAction={createEventFromTemplateFormAction}
-        />
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
+              保存済み
+            </p>
+            <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">
+              保存済みテンプレート
+            </h2>
+          </div>
+          <TemplateList
+            templates={templates}
+            currentTheme="dark"
+            instantiateAction={createEventFromTemplateFormAction}
+          />
+        </section>
       </section>
     </main>
   );
