@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PerformanceArchivePageContent } from "@/components/performance-archive-page-content";
 
 const {
@@ -51,6 +51,10 @@ vi.mock("@/app/(app)/templates/actions", () => ({
 import EventsPage from "../../app/(app)/events/page";
 
 const baseTimestamp = new Date("2026-03-21T00:00:00.000Z");
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("Performance archive page route wiring", () => {
   it(
@@ -151,10 +155,10 @@ describe("Performance archive page content", () => {
     expect(screen.getByPlaceholderText("ARCHIVE SEARCH...")).toBeEnabled();
     expect(screen.getByText("Date Range")).toBeInTheDocument();
     expect(screen.getByText("Venue")).toBeInTheDocument();
-    expect(screen.getByText("Theme")).toBeInTheDocument();
+    expect(screen.getByText("Event Theme")).toBeInTheDocument();
     expect(screen.getAllByRole("combobox")).toHaveLength(3);
     screen.getAllByRole("combobox").forEach((control) => {
-      expect(control).toBeDisabled();
+      expect(control).toBeEnabled();
     });
     expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeEnabled();
     expect(
@@ -168,7 +172,10 @@ describe("Performance archive page content", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("filters archive rows by search text and resets back to the full list", () => {
+  it("filters archive rows by venue, event theme, and Tokyo date range", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-04T03:00:00.000Z"));
+
     render(
       <PerformanceArchivePageContent
         events={[
@@ -196,6 +203,30 @@ describe("Performance archive page content", () => {
             updatedAt: baseTimestamp,
             itemCount: 6,
           },
+          {
+            id: "event-osaka-bayhall",
+            ownerUserId: "user-1",
+            title: "2026.01.15 大阪 BAYHALL",
+            venue: "BAYHALL",
+            theme: "dark",
+            eventDate: new Date("2026-01-15T00:00:00.000Z"),
+            notes: "年前半",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 5,
+          },
+          {
+            id: "event-previous-year",
+            ownerUserId: "user-1",
+            title: "2025.12.31 未設定公演",
+            venue: null,
+            theme: "light",
+            eventDate: new Date("2025-12-31T14:59:59.000Z"),
+            notes: "前年分",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 3,
+          },
         ]}
         currentTheme="dark"
         currentPlan="free"
@@ -213,18 +244,48 @@ describe("Performance archive page content", () => {
       throw new Error("expected archive status and system meta sections");
     }
 
-    fireEvent.change(searchInput, { target: { value: "RADHALL" } });
+    const venueSelect = screen.getByLabelText("Venue");
+    const eventThemeSelect = screen.getByLabelText("Event Theme");
+    const dateRangeSelect = screen.getByLabelText("Date Range");
+
+    expect(venueSelect).toBeEnabled();
+    expect(eventThemeSelect).toBeEnabled();
+    expect(dateRangeSelect).toBeEnabled();
+    expect(screen.getByRole("option", { name: "RADHALL" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "BAYHALL" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "未設定" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "All Themes" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Last 30 Days" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Earlier This Year" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Previous Years" })).toBeInTheDocument();
+
+    fireEvent.change(venueSelect, { target: { value: "RADHALL" } });
 
     expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
     expect(screen.queryByText("2026.03.20 渋谷 CLUB QUATTRO")).not.toBeInTheDocument();
     expect(
-      screen.getByText("保存済みの公演は2公演です。現在は検索結果として1件を表示しています。"),
+      screen.getByText("保存済みの公演は4公演です。現在は検索結果として1件を表示しています。"),
     ).toBeInTheDocument();
-    expect(within(archiveStatusSection).getByText("2公演")).toBeInTheDocument();
+    expect(within(archiveStatusSection).getByText("4公演")).toBeInTheDocument();
     expect(within(systemMetaSection).getByText("Total Shows")).toBeInTheDocument();
-    expect(within(systemMetaSection).getByText("2公演")).toBeInTheDocument();
+    expect(within(systemMetaSection).getByText("4公演")).toBeInTheDocument();
     expect(screen.getByText("1件表示")).toBeInTheDocument();
-    expect(screen.getByText("OF 2公演")).toBeInTheDocument();
+    expect(screen.getByText("OF 4公演")).toBeInTheDocument();
+
+    fireEvent.change(venueSelect, { target: { value: "all-venues" } });
+    fireEvent.change(eventThemeSelect, { target: { value: "dark" } });
+
+    expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
+    expect(screen.getByText("2026.01.15 大阪 BAYHALL")).toBeInTheDocument();
+    expect(screen.queryByText("2026.03.20 渋谷 CLUB QUATTRO")).not.toBeInTheDocument();
+    expect(screen.queryByText("2025.12.31 未設定公演")).not.toBeInTheDocument();
+    expect(screen.getByText("2件表示")).toBeInTheDocument();
+
+    fireEvent.change(dateRangeSelect, { target: { value: "earlier-this-year" } });
+
+    expect(screen.getByText("2026.01.15 大阪 BAYHALL")).toBeInTheDocument();
+    expect(screen.queryByText("2026.03.28 名古屋 RADHALL")).not.toBeInTheDocument();
+    expect(screen.queryByText("2026.03.20 渋谷 CLUB QUATTRO")).not.toBeInTheDocument();
 
     fireEvent.change(searchInput, { target: { value: "NOT-A-MATCH" } });
 
@@ -237,12 +298,20 @@ describe("Performance archive page content", () => {
     fireEvent.click(screen.getByRole("button", { name: "RESET FILTERS" }));
 
     expect(searchInput).toHaveValue("");
+    expect(venueSelect).toHaveValue("all-venues");
+    expect(eventThemeSelect).toHaveValue("all-themes");
+    expect(dateRangeSelect).toHaveValue("all-dates");
     expect(screen.getByText("2026.03.28 名古屋 RADHALL")).toBeInTheDocument();
     expect(screen.getByText("2026.03.20 渋谷 CLUB QUATTRO")).toBeInTheDocument();
+    expect(screen.getByText("2026.01.15 大阪 BAYHALL")).toBeInTheDocument();
+    expect(screen.getByText("2025.12.31 未設定公演")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
   });
 
-  it("shows a filtered empty state when the query matches no archive rows", () => {
+  it("matches previous years using Asia/Tokyo day boundaries", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-04T03:00:00.000Z"));
+
     render(
       <PerformanceArchivePageContent
         events={[
@@ -258,22 +327,41 @@ describe("Performance archive page content", () => {
             updatedAt: baseTimestamp,
             itemCount: 8,
           },
+          {
+            id: "event-jan",
+            ownerUserId: "user-1",
+            title: "2026.01.15 大阪 BAYHALL",
+            venue: "BAYHALL",
+            theme: "dark",
+            eventDate: new Date("2026-01-15T00:00:00.000Z"),
+            notes: "年前半",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 5,
+          },
+          {
+            id: "event-prev-year",
+            ownerUserId: "user-1",
+            title: "2025.12.31 前年公演",
+            venue: "SAPPORO",
+            theme: "light",
+            eventDate: new Date("2025-12-31T14:59:59.000Z"),
+            notes: "前年分",
+            createdAt: baseTimestamp,
+            updatedAt: baseTimestamp,
+            itemCount: 3,
+          },
         ]}
         currentTheme="dark"
         currentPlan="free"
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText("ARCHIVE SEARCH..."), {
-      target: { value: "NO MATCH" },
-    });
+    const dateRangeSelect = screen.getByLabelText("Date Range");
+    fireEvent.change(dateRangeSelect, { target: { value: "previous-years" } });
 
-    expect(
-      screen.getByRole("heading", { name: "検索結果に一致する公演がありません" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("別のキーワードを試すか、RESET FILTERS で一覧に戻してください。"),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText("2025.12.31 前年公演")).toBeInTheDocument();
+    expect(screen.queryByText("2026.01.15 大阪 BAYHALL")).not.toBeInTheDocument();
+    expect(screen.queryByText("2026.03.28 名古屋 RADHALL")).not.toBeInTheDocument();
   });
 });

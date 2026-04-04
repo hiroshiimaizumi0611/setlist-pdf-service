@@ -19,6 +19,87 @@ type PerformanceArchivePageContentProps = {
   deleteEventAction?: (formData: FormData) => Promise<void>;
 };
 
+type DateRangeFilterValue =
+  | "all-dates"
+  | "last-30-days"
+  | "earlier-this-year"
+  | "previous-years";
+
+const TOKYO_TIME_ZONE = "Asia/Tokyo";
+const MS_PER_DAY = 86_400_000;
+
+function getTokyoCalendarParts(value: Date) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: TOKYO_TIME_ZONE,
+    year: "numeric",
+  });
+  const parts = formatter.formatToParts(value);
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const day = parts.find((part) => part.type === "day")?.value;
+
+  if (!year || !month || !day) {
+    throw new Error("failed to resolve Tokyo calendar parts");
+  }
+
+  return {
+    dayNumber: Date.UTC(Number(year), Number(month) - 1, Number(day)),
+    year: Number(year),
+  };
+}
+
+function resolveTokyoDayDifference(currentDate: Date, eventDate: Date) {
+  return Math.floor(
+    (getTokyoCalendarParts(currentDate).dayNumber - getTokyoCalendarParts(eventDate).dayNumber) /
+      MS_PER_DAY,
+  );
+}
+
+function formatVenueLabel(venue: string | null) {
+  return venue ?? "未設定";
+}
+
+function resolveVenueOptions(events: EventSummary[]) {
+  const venueLabels = new Set<string>();
+
+  for (const event of events) {
+    venueLabels.add(formatVenueLabel(event.venue));
+  }
+
+  return Array.from(venueLabels)
+    .sort((left, right) => left.localeCompare(right, "ja"))
+    .map((venue) => ({
+      label: venue,
+      value: venue,
+    }));
+}
+
+function matchesDateRange(
+  eventDate: Date | null,
+  dateRange: DateRangeFilterValue,
+  currentDate: Date,
+) {
+  if (!eventDate || dateRange === "all-dates") {
+    return true;
+  }
+
+  const eventTokyo = getTokyoCalendarParts(eventDate);
+  const currentTokyo = getTokyoCalendarParts(currentDate);
+  const dayDifference = resolveTokyoDayDifference(currentDate, eventDate);
+
+  if (dateRange === "last-30-days") {
+    return dayDifference >= 0 && dayDifference < 30;
+  }
+
+  if (dateRange === "earlier-this-year") {
+    return eventTokyo.year === currentTokyo.year && dayDifference >= 30;
+  }
+
+  return eventTokyo.year < currentTokyo.year;
+}
+
 export function PerformanceArchivePageContent({
   events,
   currentTheme,
@@ -29,24 +110,40 @@ export function PerformanceArchivePageContent({
 }: PerformanceArchivePageContentProps) {
   const theme = getDashboardThemeStyles(currentTheme);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVenue, setSelectedVenue] = useState("all-venues");
+  const [selectedEventTheme, setSelectedEventTheme] = useState("all-themes");
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRangeFilterValue>("all-dates");
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const venueOptions = useMemo(() => resolveVenueOptions(events), [events]);
   const filteredEvents = useMemo(() => {
-    if (!normalizedSearchQuery) {
-      return events;
-    }
+    const currentDate = new Date();
 
     return events.filter((event) => {
       const searchableFields = [event.title, event.venue].filter(
         (field): field is string => Boolean(field),
       );
-      return searchableFields.some((field) =>
-        field.toLowerCase().includes(normalizedSearchQuery),
-      );
+      const searchMatch =
+        normalizedSearchQuery.length === 0 ||
+        searchableFields.some((field) =>
+          field.toLowerCase().includes(normalizedSearchQuery),
+        );
+      const venueLabel = formatVenueLabel(event.venue);
+      const venueMatch =
+        selectedVenue === "all-venues" || venueLabel === selectedVenue;
+      const eventThemeMatch =
+        selectedEventTheme === "all-themes" || event.theme === selectedEventTheme;
+      const dateRangeMatch = matchesDateRange(event.eventDate, selectedDateRange, currentDate);
+
+      return searchMatch && venueMatch && eventThemeMatch && dateRangeMatch;
     });
-  }, [events, normalizedSearchQuery]);
+  }, [events, normalizedSearchQuery, selectedDateRange, selectedEventTheme, selectedVenue]);
   const hasArchiveEvents = events.length > 0;
   const hasFilteredEvents = filteredEvents.length > 0;
-  const isFiltering = normalizedSearchQuery.length > 0;
+  const isFiltering =
+    normalizedSearchQuery.length > 0 ||
+    selectedVenue !== "all-venues" ||
+    selectedEventTheme !== "all-themes" ||
+    selectedDateRange !== "all-dates";
   const totalArchiveCountLabel = `${events.length}公演`;
   const visibleArchiveCountLabel = `${filteredEvents.length}件表示`;
   const archiveModeLabel = currentPlan === "pro" ? "PRO ARCHIVE" : "FREE ARCHIVE";
@@ -151,7 +248,19 @@ export function PerformanceArchivePageContent({
 
       <PerformanceArchiveFilters
         currentTheme={currentTheme}
-        onResetSearch={() => setSearchQuery("")}
+        dateRangeValue={selectedDateRange}
+        eventThemeValue={selectedEventTheme}
+        venueOptions={venueOptions}
+        venueValue={selectedVenue}
+        onDateRangeChange={(value) => setSelectedDateRange(value as DateRangeFilterValue)}
+        onEventThemeChange={setSelectedEventTheme}
+        onResetFilters={() => {
+          setSearchQuery("");
+          setSelectedVenue("all-venues");
+          setSelectedEventTheme("all-themes");
+          setSelectedDateRange("all-dates");
+        }}
+        onVenueChange={setSelectedVenue}
       />
 
       {!hasArchiveEvents ? (

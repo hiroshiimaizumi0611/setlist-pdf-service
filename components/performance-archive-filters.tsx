@@ -3,12 +3,29 @@ import { getDashboardThemeStyles } from "./dashboard-shell";
 
 type PerformanceArchiveFiltersProps = {
   currentTheme: PdfThemeName;
-  onResetSearch: () => void;
+  dateRangeValue: string;
+  eventThemeValue: string;
+  venueOptions: Array<{
+    label: string;
+    value: string;
+  }>;
+  venueValue: string;
+  onDateRangeChange: (value: string) => void;
+  onEventThemeChange: (value: string) => void;
+  onResetFilters: () => void;
+  onVenueChange: (value: string) => void;
 };
 
 export function PerformanceArchiveFilters({
   currentTheme,
-  onResetSearch,
+  dateRangeValue,
+  eventThemeValue,
+  venueOptions,
+  venueValue,
+  onDateRangeChange,
+  onEventThemeChange,
+  onResetFilters,
+  onVenueChange,
 }: PerformanceArchiveFiltersProps) {
   const theme = getDashboardThemeStyles(currentTheme);
 
@@ -23,13 +40,14 @@ export function PerformanceArchiveFilters({
             Date Range
           </span>
           <select
-            defaultValue="all-dates"
-            disabled
-            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
+            value={dateRangeValue}
+            onChange={(event) => onDateRangeChange(event.currentTarget.value)}
+            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.input}`}
           >
             <option value="all-dates">All Dates</option>
-            <option value="recent">Recent Shows</option>
-            <option value="this-month">This Month</option>
+            <option value="last-30-days">Last 30 Days</option>
+            <option value="earlier-this-year">Earlier This Year</option>
+            <option value="previous-years">Previous Years</option>
           </select>
         </label>
 
@@ -38,24 +56,27 @@ export function PerformanceArchiveFilters({
             Venue
           </span>
           <select
-            defaultValue="all-venues"
-            disabled
-            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
+            value={venueValue}
+            onChange={(event) => onVenueChange(event.currentTarget.value)}
+            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.input}`}
           >
             <option value="all-venues">All Venues</option>
-            <option value="club">Club / Live House</option>
-            <option value="hall">Hall</option>
+            {venueOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </label>
 
         <label className="flex min-w-0 flex-col gap-2">
           <span className={`font-mono text-[11px] uppercase tracking-[0.28em] ${theme.mutedText}`}>
-            Theme
+            Event Theme
           </span>
           <select
-            defaultValue="all-themes"
-            disabled
-            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.inputMuted}`}
+            value={eventThemeValue}
+            onChange={(event) => onEventThemeChange(event.currentTarget.value)}
+            className={`min-h-12 px-4 text-sm font-mono uppercase tracking-[0.14em] ${theme.input}`}
           >
             <option value="all-themes">All Themes</option>
             <option value="dark">Dark</option>
@@ -65,7 +86,7 @@ export function PerformanceArchiveFilters({
 
         <button
           type="button"
-          onClick={onResetSearch}
+          onClick={onResetFilters}
           className={`${theme.buttonSecondary} min-h-12 px-5 text-xs font-black tracking-[0.18em] uppercase`}
         >
           RESET FILTERS
