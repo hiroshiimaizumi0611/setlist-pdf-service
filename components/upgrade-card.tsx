@@ -64,15 +64,17 @@ export function UpgradeCard({
   const disabledBillingPortal = plan === "pro" && !billingConfigured;
 
   return (
-    <aside className={`border-2 ${theme.border} ${theme.panel} p-8`}>
+    <aside className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-7`}>
       <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.28em] ${theme.mutedText}`}>
-        アップグレード
+        Primary Action
       </p>
-      <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
-        テンプレート保存をProで解放
+      <h2 className="mt-3 font-mono text-2xl font-black tracking-[-0.08em] sm:text-3xl">
+        {plan === "pro" ? "お支払い設定" : "テンプレート保存をProで解放"}
       </h2>
-      <p className={`mt-4 text-sm leading-7 ${theme.mutedText}`}>
-        無料プランのまま公演作成とPDF出力は使えます。繰り返し使う進行表の保存だけをProで追加します。
+      <p className={`mt-3 text-sm leading-7 ${theme.mutedText}`}>
+        {plan === "pro"
+          ? "支払い方法の更新や請求設定はここから移動できます。"
+          : "無料プランのまま公演作成とPDF出力は使えます。繰り返し使う進行表の保存だけをProで追加します。"}
       </p>
 
       <div className="mt-6">
@@ -120,7 +122,9 @@ export function UpgradeCard({
       </div>
 
       <div className={`mt-6 border ${theme.border} ${theme.panelMuted} px-4 py-4 text-sm leading-6 ${theme.mutedText}`}>
-        公演テンプレートの保存数に制限はありません。ツアー単位で使い回す下書きをまとめて残せます。
+        {plan === "pro"
+          ? "Stripeの請求ポータルに遷移して支払い方法や請求情報を更新できます。"
+          : "公演テンプレートの保存数に制限はありません。ツアー単位で使い回す下書きをまとめて残せます。"}
       </div>
 
       {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}

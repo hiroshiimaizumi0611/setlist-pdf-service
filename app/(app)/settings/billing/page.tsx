@@ -10,6 +10,7 @@ import { getCurrentPlan } from "@/lib/subscription";
 import { PRO_MONTHLY_PRICE_LABEL } from "@/lib/stripe/plans";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { LogoutButton } from "@/components/logout-button";
+import { SettingsSidebar } from "@/components/settings-sidebar";
 import { UpgradeCard } from "@/components/upgrade-card";
 import type { AppPlan } from "@/lib/stripe/plans";
 
@@ -73,68 +74,110 @@ export function BillingPageContent({
   const theme = getDashboardThemeStyles("dark");
 
   return (
-    <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
-      <section className="mx-auto max-w-5xl space-y-8">
-        <header className={`flex flex-col gap-4 border-b-4 ${theme.border} pb-6 md:flex-row md:items-end md:justify-between`}>
-          <div className="space-y-3">
-            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-              設定
+    <main className={`${theme.page} min-h-screen`}>
+      <header
+        className={`sticky top-0 z-30 border-b ${theme.border} bg-[#131313]/92 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
+      >
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}>
+              Subscription Management
             </p>
-            <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
-              プラン管理
-            </h1>
-            <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-              現在のプラン確認と、テンプレート保存のアップグレード導線をまとめています。
-            </p>
+            <div
+              className={`hidden border-l ${theme.border} pl-4 text-[10px] font-mono uppercase tracking-[0.26em] ${theme.mutedText} md:block`}
+            >
+              Settings / Billing
+            </div>
           </div>
 
-          <LogoutButton
-            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
-          />
-        </header>
-
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <section className={`border-2 ${theme.border} ${theme.panel} p-8`}>
-            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.28em] ${theme.mutedText}`}>
-              現在のプラン
-            </p>
-            <div className="mt-4 flex flex-wrap items-end gap-3">
-              <h2 className="font-mono text-5xl font-black tracking-[-0.08em]">
-                {isPro ? "Pro" : "Free"}
-              </h2>
-              <span className={`${theme.pill} px-3 py-1 text-xs font-medium uppercase tracking-[0.22em]`}>
-                {isPro ? PRO_MONTHLY_PRICE_LABEL : "基本機能込み"}
-              </span>
-              {subscription ? (
-                <span className={`${theme.pill} px-3 py-1 text-xs font-medium`}>
-                  {subscription.status === "active" ? "有効中" : subscription.status}
-                </span>
-              ) : null}
-            </div>
-            <p className={`mt-4 text-sm leading-7 ${theme.mutedText}`}>
-              {isPro
-                ? "このアカウントではテンプレート保存が有効です。"
-                : "イベント作成と既存テンプレートの呼び出しは無料のまま利用でき、テンプレート保存だけを Pro で解放します。"}
-            </p>
-
-            <p className={`${theme.panelAlt} ${theme.text} mt-4 border-2 ${theme.accentBorder} px-4 py-3 text-sm`}>
-              Stripe test mode の設定が未完了でも画面確認できるようにしています。
-            </p>
-          </section>
-
-          <UpgradeCard
-            plan={currentPlan}
-            billingConfigured={isStripeConfigured}
-            isAuthenticated={isAuthenticated}
-            currentTheme="dark"
-            openBillingPortalAction={openBillingPortalAction}
-            upgradeLabel="Proへアップグレード"
-            billingPortalLabel="お支払い設定を開く"
-            loginLabel="ログインしてアップグレード"
-            loginHref="/login"
-          />
+          <div className="flex items-center gap-3">
+            <div
+              aria-hidden="true"
+              className={`hidden h-10 w-14 border ${theme.border} ${theme.panelMuted} sm:block`}
+            />
+            <LogoutButton
+              className={`${theme.buttonSecondary} inline-flex min-h-10 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            />
+          </div>
         </div>
-      </section>
+      </header>
+
+      <div className="mx-auto flex max-w-[1600px] flex-col lg:block">
+        <aside
+          className={`${theme.rail} ${theme.railBorder} border-b px-4 pb-5 pt-6 lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:h-full lg:w-72 lg:border-b-0 lg:border-r lg:px-5 lg:pb-4 lg:pt-20`}
+        >
+          <SettingsSidebar currentPlan={currentPlan} />
+        </aside>
+
+        <div className="min-w-0 px-4 pb-8 pt-6 sm:px-6 lg:pl-[19rem] lg:pr-8 lg:pt-8">
+          <section className="mx-auto max-w-6xl space-y-6">
+            <section className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>
+              <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                <div className="space-y-5">
+                  <p
+                    className={`font-mono text-[11px] font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}
+                  >
+                    プラン管理
+                  </p>
+                  <div className="space-y-3">
+                    <h1 className="font-mono text-4xl font-black tracking-[-0.08em] sm:text-5xl">
+                      Current Plan
+                    </h1>
+                    <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
+                      現在のプランと支払い状態を一目で確認できるように、Stitch の subscription
+                      画面に寄せたトップレベルのヘルスをまとめています。
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span
+                      className={`${theme.pill} px-3 py-1 text-xs font-bold uppercase tracking-[0.22em]`}
+                    >
+                      {isPro ? "Pro" : "Free"}
+                    </span>
+                    {subscription ? (
+                      <span className={`${theme.pill} px-3 py-1 text-xs font-medium`}>
+                        {subscription.status === "active" ? "有効中" : subscription.status}
+                      </span>
+                    ) : null}
+                    <span
+                      className={`${theme.pill} px-3 py-1 text-xs font-medium uppercase tracking-[0.18em]`}
+                    >
+                      {isPro ? PRO_MONTHLY_PRICE_LABEL : "基本機能込み"}
+                    </span>
+                  </div>
+
+                  <div
+                    className={`${theme.panelAlt} ${theme.text} border-2 ${theme.accentBorder} px-4 py-3 text-sm`}
+                  >
+                    {isPro
+                      ? "このアカウントではテンプレート保存が有効です。"
+                      : "イベント作成と既存テンプレートの呼び出しは無料のまま利用でき、テンプレート保存だけを Pro で解放します。"}
+                  </div>
+
+                  <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
+                    Stripe test mode の設定が未完了でも画面確認できるようにしています。
+                  </p>
+                </div>
+
+                <div className="w-full max-w-md">
+                  <UpgradeCard
+                    plan={currentPlan}
+                    billingConfigured={isStripeConfigured}
+                    isAuthenticated={isAuthenticated}
+                    currentTheme="dark"
+                    openBillingPortalAction={openBillingPortalAction}
+                    upgradeLabel="Proへアップグレード"
+                    billingPortalLabel="お支払い設定を開く"
+                    loginLabel="ログインしてアップグレード"
+                    loginHref="/login"
+                  />
+                </div>
+              </div>
+            </section>
+          </section>
+        </div>
+      </div>
     </main>
   );
 }
