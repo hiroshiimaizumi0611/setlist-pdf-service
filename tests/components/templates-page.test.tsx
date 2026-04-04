@@ -102,8 +102,38 @@ describe("TemplatesPage", () => {
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
+    expect(screen.getByText("1 items")).toBeInTheDocument();
+    expect(screen.getByText("静かな立ち上がりからアンコールまで")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+  });
+
+  it("shows a purposeful empty state for saved templates", async () => {
+    mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+          name: "Template Curator",
+          email: "templates@example.com",
+        },
+      },
+      currentPlan: {
+        plan: "pro",
+      },
+    });
+
+    mockListEventSummaries.mockResolvedValue([]);
+    mockListTemplates.mockResolvedValue([]);
+
+    const result = await TemplatesPage();
+    render(result);
+
+    expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "まだ保存済みテンプレートがありません。公演内容を保存すると、この一覧から次回公演をすぐ立ち上げられます。",
+      ),
+    ).toBeInTheDocument();
   });
 });
