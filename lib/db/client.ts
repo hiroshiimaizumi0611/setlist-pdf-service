@@ -29,7 +29,7 @@ export const dbReady = Promise.resolve().then(async () => {
     await client.execute("PRAGMA foreign_keys = ON");
   }
 
-  if (env.isTest) {
+  if (env.isTest || env.isLocalDev) {
     await migrate(db, {
       migrationsFolder: path.join(process.cwd(), "drizzle"),
     });
