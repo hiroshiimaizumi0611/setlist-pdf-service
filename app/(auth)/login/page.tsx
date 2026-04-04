@@ -1,11 +1,14 @@
 import { AuthForm } from "@/components/auth-form";
+import { AuthShell } from "@/components/auth-shell";
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0f0f10] px-6 py-16 text-[#f6f3ee] [background-image:radial-gradient(circle_at_top,_rgba(246,196,83,0.16),_transparent_28%),linear-gradient(180deg,#0f0f10_0%,#151515_100%)]">
-      <section className="w-full max-w-md">
-        <AuthForm mode="login" />
-      </section>
-    </main>
+    <AuthShell
+      panelMeta="LOGIN / BACKSTAGE"
+      panelTitle="LOGIN / BACKSTAGE"
+      panelDescription="公演の管理画面に入って、セットリストの作成と出力を続けます。"
+    >
+      <AuthForm mode="login" />
+    </AuthShell>
   );
 }
