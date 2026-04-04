@@ -181,6 +181,56 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
   }, 20_000);
 
+  it("keeps the light editor on paper-tone surfaces across shell, strips, rows, and modal", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    const shell = screen.getByRole("main");
+    expect(shell).toHaveClass("bg-[#fffef8]");
+
+    const metadataStrip = requireElement(
+      document.querySelector('[data-editor-strip="metadata"]'),
+      "expected metadata strip",
+    );
+    expect(metadataStrip).toHaveClass("bg-[#fffef8]");
+
+    const addStrip = requireElement(
+      document.querySelector('[data-editor-strip="add-item"]'),
+      "expected add-item strip",
+    );
+    expect(addStrip).toHaveClass("bg-[#fffef8]");
+
+    const songRow = requireElement(
+      document.querySelector('article[data-row-variant="song"]'),
+      "expected song row",
+    );
+    const mcRow = requireElement(
+      document.querySelector('article[data-row-variant="mc"]'),
+      "expected mc row",
+    );
+    const transitionRow = requireElement(
+      document.querySelector('article[data-row-variant="transition"]'),
+      "expected transition row",
+    );
+
+    expect(songRow).toHaveClass("bg-[#fffef8]");
+    expect(mcRow).toHaveClass("bg-[#f5f0e4]");
+    expect(transitionRow).toHaveClass("bg-[#efe6d4]");
+
+    fireEvent.click(within(songRow).getByRole("button", { name: "編集" }));
+
+    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+    expect(dialog).toHaveClass("bg-[#fffdf8]");
+  });
+
   it("submits metadata saves through EventEditorPageContent with the current theme", async () => {
     render(
       <EventEditorPageContent
