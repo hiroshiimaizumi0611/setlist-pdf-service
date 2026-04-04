@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import { getCurrentPlan } from "@/lib/subscription";
 import { PRO_MONTHLY_PRICE_LABEL } from "@/lib/stripe/plans";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { LogoutButton } from "@/components/logout-button";
 import { UpgradeCard } from "@/components/upgrade-card";
 import type { AppPlan } from "@/lib/stripe/plans";
 
@@ -74,16 +75,22 @@ export function BillingPageContent({
   return (
     <main className={`${theme.page} min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8`}>
       <section className="mx-auto max-w-5xl space-y-8">
-        <header className={`space-y-3 border-b-4 ${theme.border} pb-6`}>
-          <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-            設定
-          </p>
-          <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
-            プラン管理
-          </h1>
-          <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-            現在のプラン確認と、テンプレート保存のアップグレード導線をまとめています。
-          </p>
+        <header className={`flex flex-col gap-4 border-b-4 ${theme.border} pb-6 md:flex-row md:items-end md:justify-between`}>
+          <div className="space-y-3">
+            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
+              設定
+            </p>
+            <h1 className="font-mono text-4xl font-black tracking-[-0.08em]">
+              プラン管理
+            </h1>
+            <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
+              現在のプラン確認と、テンプレート保存のアップグレード導線をまとめています。
+            </p>
+          </div>
+
+          <LogoutButton
+            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+          />
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">

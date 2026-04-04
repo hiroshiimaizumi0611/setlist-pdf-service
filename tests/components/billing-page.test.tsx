@@ -1,6 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { BillingPageContent } from "../../app/(app)/settings/billing/page";
+
+const { mockRouterPush, mockRouterRefresh } = vi.hoisted(() => ({
+  mockRouterPush: vi.fn(),
+  mockRouterRefresh: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+    refresh: mockRouterRefresh,
+  }),
+}));
 
 describe("BillingPageContent", () => {
   it("renders the free plan state with an upgrade CTA", () => {
@@ -17,6 +29,7 @@ describe("BillingPageContent", () => {
     expect(screen.getByText("現在のプラン")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Proへアップグレード" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(
       screen.getByText("Stripe test mode の設定が未完了でも画面確認できるようにしています。"),
     ).toBeInTheDocument();
@@ -41,6 +54,7 @@ describe("BillingPageContent", () => {
     expect(screen.getByText("Pro")).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
   });
 
   it("renders a safe non-clicking billing state for seeded pro users without Stripe", () => {
@@ -62,6 +76,7 @@ describe("BillingPageContent", () => {
     expect(screen.getByText("Pro")).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(
       screen.getByText("Stripe未設定のため、お支払い設定はご利用いただけません。"),
     ).toBeInTheDocument();
@@ -80,5 +95,6 @@ describe("BillingPageContent", () => {
     expect(
       screen.getByRole("link", { name: "ログインしてアップグレード" }),
     ).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
   });
 });

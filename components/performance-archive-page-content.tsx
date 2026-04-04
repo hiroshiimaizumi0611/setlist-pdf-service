@@ -6,6 +6,7 @@ import type { AppPlan } from "@/lib/stripe/plans";
 import { useMemo, useState } from "react";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { FormPendingButton } from "./form-pending-button";
+import { LogoutButton } from "./logout-button";
 import { PerformanceArchiveFilters } from "./performance-archive-filters";
 import { PerformanceArchiveTable } from "./performance-archive-table";
 import { ThemeToggle } from "./theme-toggle";
@@ -191,7 +192,12 @@ export function PerformanceArchivePageContent({
       title="公演アーカイブ"
       description={archiveDescription}
       headerActions={
-        <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
+        <>
+          <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
+          <LogoutButton
+            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+          />
+        </>
       }
     >
       <section className={`border ${theme.border} ${theme.panel} p-4 sm:p-5`}>

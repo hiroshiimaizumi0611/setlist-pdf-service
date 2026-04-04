@@ -9,6 +9,8 @@ const {
   mockDeleteEventFormAction,
   mockDuplicateEventFormAction,
   mockUpdateEventItemAction,
+  mockRouterPush,
+  mockRouterRefresh,
 } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockListEventSummaries: vi.fn(),
@@ -16,11 +18,17 @@ const {
   mockDeleteEventFormAction: vi.fn(),
   mockDuplicateEventFormAction: vi.fn(),
   mockUpdateEventItemAction: vi.fn(),
+  mockRouterPush: vi.fn(),
+  mockRouterRefresh: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
   notFound: vi.fn(),
+  useRouter: () => ({
+    push: mockRouterPush,
+    refresh: mockRouterRefresh,
+  }),
 }));
 
 vi.mock("@/lib/subscription", () => ({
@@ -107,6 +115,16 @@ describe("Performance archive page route wiring", () => {
     render(result);
 
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ライトテーマ" })).toHaveAttribute(
+      "href",
+      "/events?theme=light",
+    );
+    expect(screen.getByRole("link", { name: "ダークテーマ" })).toHaveAttribute(
+      "href",
+      "/events?theme=dark",
+    );
+    expect(screen.getByLabelText("Event Theme")).toBeInTheDocument();
     const archiveStatusSection = screen.getByText("ARCHIVE STATUS").closest("section");
     expect(archiveStatusSection).toBeTruthy();
     if (!archiveStatusSection) {

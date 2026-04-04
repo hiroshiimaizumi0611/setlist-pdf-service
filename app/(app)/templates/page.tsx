@@ -3,6 +3,7 @@ import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { listTemplates } from "@/lib/services/templates-service";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { LogoutButton } from "@/components/logout-button";
 import { TemplateList } from "@/components/template-list";
 import { TemplateSaveButton } from "@/components/template-save-button";
 import {
@@ -54,7 +55,12 @@ export default async function TemplatesPage() {
             </p>
           </div>
 
-          <TemplateSaveButton plan={currentPlan.plan} currentTheme="dark" />
+          <div className="flex flex-wrap items-center gap-3">
+            <TemplateSaveButton plan={currentPlan.plan} currentTheme="dark" />
+            <LogoutButton
+              className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            />
+          </div>
         </header>
 
         <section className={`border-2 ${theme.border} ${theme.panel} p-8`}>

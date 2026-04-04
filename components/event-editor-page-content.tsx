@@ -13,6 +13,7 @@ import { ExportPdfButton } from "./export-pdf-button";
 import { TemplateSaveButton } from "./template-save-button";
 import { EventDeleteControl } from "./event-delete-control";
 import { FormPendingButton } from "./form-pending-button";
+import { LogoutButton } from "./logout-button";
 
 type EventEditorPageContentProps = {
   events: EventSummary[];
@@ -159,11 +160,16 @@ export function EventEditorPageContent({
         title="新規公演を準備"
         description="左の作成ボタンから最初の公演を作成すると、ここに本番用の進行表エディタが表示されます。"
         headerActions={
-          <ThemeToggle
-            currentTheme={currentTheme}
-            lightHref={lightHref}
-            darkHref={darkHref}
-          />
+          <>
+            <ThemeToggle
+              currentTheme={currentTheme}
+              lightHref={lightHref}
+              darkHref={darkHref}
+            />
+            <LogoutButton
+              className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
+            />
+          </>
         }
       >
         <section className={`border ${theme.border} ${theme.panel} p-6`}>
@@ -234,6 +240,9 @@ export function EventEditorPageContent({
             currentTheme={currentTheme}
             lightHref={lightHref}
             darkHref={darkHref}
+          />
+          <LogoutButton
+            className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 text-xs font-black tracking-[0.18em] uppercase`}
           />
           <ExportPdfButton
             currentTheme={currentTheme}

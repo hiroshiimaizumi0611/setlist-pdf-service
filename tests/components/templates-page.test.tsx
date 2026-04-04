@@ -5,10 +5,21 @@ const {
   mockGetAuthSessionWithPlan,
   mockListEventSummaries,
   mockListTemplates,
+  mockRouterPush,
+  mockRouterRefresh,
 } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   mockListEventSummaries: vi.fn(),
   mockListTemplates: vi.fn(),
+  mockRouterPush: vi.fn(),
+  mockRouterRefresh: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: mockRouterPush,
+    refresh: mockRouterRefresh,
+  }),
 }));
 
 vi.mock("@/lib/subscription", () => ({
@@ -64,5 +75,6 @@ describe("TemplatesPage", () => {
 
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
+    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
   });
 });
