@@ -7,6 +7,7 @@ type DashboardShellProps = {
   eyebrow: string;
   title: string;
   description: string;
+  globalNav?: ReactNode;
   headerActions?: ReactNode;
   children: ReactNode;
 };
@@ -127,6 +128,7 @@ export function DashboardShell({
   eyebrow,
   title,
   description,
+  globalNav,
   headerActions,
   children,
 }: DashboardShellProps) {
@@ -138,7 +140,7 @@ export function DashboardShell({
         className={`fixed inset-x-0 top-0 z-50 border-b ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
       >
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <span
               className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
             >
@@ -150,6 +152,7 @@ export function DashboardShell({
               {theme.headerMeta}
               <span className={`ml-3 ${theme.headerCurrentShow}`}>CURRENT SHOW: {title}</span>
             </div>
+            {globalNav ? <div className="w-full min-[900px]:w-auto">{globalNav}</div> : null}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -131,6 +131,7 @@ describe("Performance archive page route wiring", () => {
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    expect(navigation).toBeInTheDocument();
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",

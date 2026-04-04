@@ -114,9 +114,17 @@ describe("EventEditorPageContent", () => {
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "テンプレート" })).toHaveAttribute("href", "/templates");
-    expect(screen.getByRole("link", { name: "請求" })).toHaveAttribute(
+    const sharedNavigation = within(header).getByRole("navigation", { name: "公演ナビゲーション" });
+    expect(sharedNavigation).toBeInTheDocument();
+    expect(within(sharedNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(sharedNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(sharedNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
     );
@@ -128,22 +136,13 @@ describe("EventEditorPageContent", () => {
     expect(
       screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" }),
     ).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    const navigation = within(screen.getByRole("complementary")).getByRole(
+      "navigation",
+      { name: "公演ナビゲーション" },
+    );
     expect(navigation).toBeInTheDocument();
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",
-    );
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
-      "href",
-      "/events",
-    );
-    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
-      "href",
-      "/templates",
-    );
-    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
-      "href",
-      "/settings/billing",
     );
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveAttribute(
       "aria-current",
@@ -624,7 +623,10 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
-    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    const navigation = within(screen.getByRole("complementary")).getByRole(
+      "navigation",
+      { name: "公演ナビゲーション" },
+    );
     expect(within(navigation).getByText("Upcoming & Recent")).toBeInTheDocument();
     expect(within(navigation).getByRole("link", { current: "page" })).toHaveTextContent(
       "2026.03.28 名古屋 RADHALL",

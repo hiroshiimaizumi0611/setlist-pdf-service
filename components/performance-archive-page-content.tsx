@@ -5,6 +5,7 @@ import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
 import type { AuthenticatedUserIdentity } from "@/lib/user-identity";
 import { useMemo, useState } from "react";
+import { AppGlobalNav } from "./app-global-nav";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { FormPendingButton } from "./form-pending-button";
 import { PerformanceArchiveFilters } from "./performance-archive-filters";
@@ -194,6 +195,7 @@ export function PerformanceArchivePageContent({
       eyebrow="公演アーカイブ"
       title="公演アーカイブ"
       description={archiveDescription}
+      globalNav={<AppGlobalNav activeItem="archive" ariaLabel="公演ナビゲーション" />}
       headerActions={
         <>
           <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />
