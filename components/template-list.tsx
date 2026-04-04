@@ -26,7 +26,7 @@ export function TemplateList({
           保存済みテンプレート
         </h2>
         <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-          保存した構成を row で一覧し、次回公演をすぐ立ち上げられるようにしました。
+          保存した構成を一覧で整理し、次回公演をすぐ立ち上げられるようにしています。
         </p>
       </div>
 
