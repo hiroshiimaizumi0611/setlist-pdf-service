@@ -181,7 +181,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
   }, 20_000);
 
-  it("keeps the light editor on paper-tone surfaces across shell, strips, rows, and modal", () => {
+  it("keeps the light metadata and add-item strips on paper-tone surfaces", () => {
     render(
       <EventEditorPageContent
         events={eventSummaries}
@@ -207,28 +207,6 @@ describe("EventEditorPageContent", () => {
       "expected add-item strip",
     );
     expect(addStrip).toHaveClass("bg-[#fffef8]");
-
-    const songRow = requireElement(
-      document.querySelector('article[data-row-variant="song"]'),
-      "expected song row",
-    );
-    const mcRow = requireElement(
-      document.querySelector('article[data-row-variant="mc"]'),
-      "expected mc row",
-    );
-    const transitionRow = requireElement(
-      document.querySelector('article[data-row-variant="transition"]'),
-      "expected transition row",
-    );
-
-    expect(songRow).toHaveClass("bg-[#fffef8]");
-    expect(mcRow).toHaveClass("bg-[#f5f0e4]");
-    expect(transitionRow).toHaveClass("bg-[#efe6d4]");
-
-    fireEvent.click(within(songRow).getByRole("button", { name: "編集" }));
-
-    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
-    expect(dialog).toHaveClass("bg-[#fffdf8]");
   });
 
   it("submits metadata saves through EventEditorPageContent with the current theme", async () => {

@@ -17,12 +17,15 @@ const ITEM_TYPE_OPTIONS: Array<{ value: SetlistItemType; label: string }> = [
 export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemFormProps) {
   const theme = getDashboardThemeStyles(currentTheme);
   const checkedTab =
-    "peer-checked:border-[#f6c453] peer-checked:bg-[#f6c453] peer-checked:text-[#1f1b16] peer-checked:hover:bg-[#ffda78]";
+    currentTheme === "dark"
+      ? "peer-checked:border-[#f6c453] peer-checked:bg-[#f6c453] peer-checked:text-[#1f1b16] peer-checked:hover:bg-[#ffda78]"
+      : "peer-checked:border-[#c78f14] peer-checked:bg-[#fff1c4] peer-checked:text-[#1f1b16] peer-checked:hover:bg-[#ffe9a5]";
   const stripFrame =
     currentTheme === "dark"
       ? "bg-[#1a1a1a] shadow-[inset_0_1px_0_rgba(255,246,223,0.04)]"
-      : theme.panelAlt;
-  const stripBand = currentTheme === "dark" ? "bg-[#141414]" : theme.panelMuted;
+      : "bg-[#fffef8]";
+  const stripBand = currentTheme === "dark" ? "bg-[#141414]" : "bg-[#fffdf7]";
+  const stripLabel = currentTheme === "dark" ? "text-[#bfb7aa]" : "text-[#736759]";
   const stripDivider = currentTheme === "dark" ? "bg-[#2b2a28]" : "bg-[#d7cfbe]";
 
   return (
@@ -95,7 +98,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
 
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             <label className="grid gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+              <span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${stripLabel}`}>
                 アーティスト
               </span>
               <input
@@ -107,7 +110,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
             </label>
 
             <label className="grid gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+              <span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${stripLabel}`}>
                 尺(秒)
               </span>
               <input
@@ -120,7 +123,7 @@ export function SetlistItemForm({ currentTheme, addItemAction }: SetlistItemForm
             </label>
 
             <label className="grid gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em]">
+              <span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${stripLabel}`}>
                 メモ
               </span>
               <input

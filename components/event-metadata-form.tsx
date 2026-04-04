@@ -36,10 +36,15 @@ export function EventMetadataForm({
   const stripFrame =
     currentTheme === "dark"
       ? "bg-[#141414] shadow-[inset_0_1px_0_rgba(255,246,223,0.04)]"
-      : "bg-[#f7f1e3]";
+      : "bg-[#fffef8]";
   const stripDivider = currentTheme === "dark" ? "bg-[#2b2a28]" : "bg-[#d7cfbe]";
-  const fieldPanel = currentTheme === "dark" ? "bg-[#161616]" : theme.panel;
-  const footerText = currentTheme === "dark" ? "text-[#91897c]" : theme.mutedText;
+  const fieldPanel = currentTheme === "dark" ? "bg-[#161616]" : "bg-[#fffdf7]";
+  const fieldLabel = currentTheme === "dark" ? "text-[#bfb7aa]" : "text-[#736759]";
+  const footerText = currentTheme === "dark" ? "text-[#91897c]" : "text-[#62584a]";
+  const themeBadge =
+    currentTheme === "dark"
+      ? "border-[#2b241c] bg-[#161616] text-[#f6f3ee]"
+      : "border-[#2b241c]/70 bg-[#fffdf7] text-[#201a14]";
 
   return (
     <section
@@ -112,18 +117,18 @@ export function EventMetadataForm({
           data-strip-field-tone="muted"
           className={`grid gap-2 px-4 py-3 ${theme.panelMuted}`}
         >
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+          <span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${fieldLabel}`}>
             Sheet Theme
           </span>
           <div
-            className={`flex min-h-10 items-center border ${theme.border} px-3 font-mono text-sm font-black uppercase tracking-[0.18em] ${fieldPanel}`}
+            className={`flex min-h-10 items-center border px-3 font-mono text-sm font-black uppercase tracking-[0.18em] ${themeBadge}`}
           >
             {themeLabel}
           </div>
         </div>
 
         <label className={`grid gap-2 px-4 py-3 md:col-span-4 ${fieldPanel}`}>
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#bfb7aa]">
+          <span className={`font-mono text-[10px] uppercase tracking-[0.3em] ${fieldLabel}`}>
             Notes
           </span>
           <textarea
