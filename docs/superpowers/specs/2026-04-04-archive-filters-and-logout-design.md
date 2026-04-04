@@ -32,10 +32,12 @@ archive 画面は次の 4 軸で絞り込める。
 - `Venue`
   - 現在の公演一覧からユニークな会場名を抽出して選択肢化する
   - 会場未設定の公演がある場合は `未設定` も選べる
-- `Theme`
+- `Event Theme`
   - `All Themes / Dark / Light`
+  - ここでいう `Theme` は各公演 row の保存済みテーマを指す
+  - header 右上の page-level theme toggle とは別概念として扱う
 - `Date Range`
-  - `All Dates / Last 30 Days / This Year / Older`
+  - `All Dates / Last 30 Days / Earlier This Year / Previous Years`
 
 フィルターは即時反映でよく、送信ボタンは不要。`RESET FILTERS` は全文検索入力、Venue、Theme、Date Range をすべて初期値へ戻す。
 
@@ -50,7 +52,7 @@ archive 画面は次の 4 軸で絞り込める。
 
 ### Logout
 
-ログアウトは `DashboardShell` の右上ヘッダーに共通配置する。Theme toggle や PDF ボタンと同じ action 群に入れ、archive と editor の両方で位置を揃える。
+ログアウトは `DashboardShell` の右上ヘッダーに共通配置する。Theme toggle や PDF ボタンと同じ action 群に入れ、archive / editor / templates / billing で位置を揃える。
 
 挙動はシンプルにする。
 
@@ -82,11 +84,18 @@ archive 画面は次の 4 軸で絞り込める。
 - `onDateRangeChange`
 - `onResetFilters`
 
+`selectedTheme` は page-level `currentTheme` とは完全に別 state として扱う。前者は row filtering 用、後者は dashboard chrome の見た目用。
+
 ### Logout
 
 `authClient.signOut()` を使う client component を新設して、`DashboardShell` の `headerActions` へ渡せるようにする。
 
-共通化のため、archive 専用コンポーネントではなく全画面で再利用できる独立ボタンとして持つ。
+共通化のため、archive 専用コンポーネントではなく全画面で再利用できる独立ボタンとして持つ。実装時は少なくとも次の route composition で headerActions へ組み込む。
+
+- `/events`
+- `/events/[eventId]`
+- `/templates`
+- `/settings/billing`
 
 ## Data Rules
 
@@ -102,10 +111,10 @@ archive 画面は次の 4 軸で絞り込める。
 
 - `Last 30 Days`
   - 今日から 30 日以内
-- `This Year`
-  - 現在の年に属する
-- `Older`
-  - 上記以外
+- `Earlier This Year`
+  - 現在の年に属し、かつ `Last 30 Days` には入らない
+- `Previous Years`
+  - 現在の年より前
 
 `eventDate` 未設定は `All Dates` では表示し、それ以外の date range では除外する。
 
@@ -127,6 +136,11 @@ archive 画面は次の 4 軸で絞り込める。
 
 - `authClient.signOut()` が呼ばれる
 - 完了後に `/login` へ遷移する
+
+### Route Regression
+
+- archive / editor / templates / billing の各画面でログアウト導線が描画される
+- archive では page-level theme toggle と event theme filter が別々に存在する
 
 ### Regression
 
