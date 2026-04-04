@@ -33,9 +33,9 @@ describe("BillingPageContent", () => {
       />,
     );
 
+    const banner = screen.getByRole("banner");
     expect(screen.getByText("Subscription Management")).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    const navigation = within(banner).getByRole("navigation", { name: "設定ナビゲーション" });
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
@@ -83,10 +83,11 @@ describe("BillingPageContent", () => {
       />,
     );
 
+    const banner = screen.getByRole("banner");
     expect(
       screen.getByText("登録済みの支払い方法は Billing Portal から更新できます。"),
     ).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    const navigation = within(banner).getByRole("navigation", { name: "設定ナビゲーション" });
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
@@ -121,8 +122,9 @@ describe("BillingPageContent", () => {
       />,
     );
 
+    const banner = screen.getByRole("banner");
     expect(screen.getByText("Stripe 未設定のため、お支払い方法は利用できません。")).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    const navigation = within(banner).getByRole("navigation", { name: "設定ナビゲーション" });
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",

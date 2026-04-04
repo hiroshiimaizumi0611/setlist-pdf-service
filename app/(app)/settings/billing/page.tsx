@@ -10,6 +10,7 @@ import { env } from "@/lib/env";
 import { getCurrentPlan } from "@/lib/subscription";
 import { PRO_MONTHLY_PRICE_LABEL } from "@/lib/stripe/plans";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { AppGlobalNav } from "@/components/app-global-nav";
 import { BillingComparisonTable } from "@/components/billing-comparison-table";
 import { BillingPaymentSection } from "@/components/billing-payment-section";
 import { SettingsSidebar } from "@/components/settings-sidebar";
@@ -105,16 +106,23 @@ export function BillingPageContent(props: BillingPageContentProps) {
       <header
         className={`sticky top-0 z-30 border-b ${theme.border} bg-[#131313]/92 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
       >
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}>
-              Subscription Management
-            </p>
-            <div
-              className={`hidden border-l ${theme.border} pl-4 text-[10px] font-mono uppercase tracking-[0.26em] ${theme.mutedText} md:block`}
-            >
-              Settings / Billing
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-4">
+              <p className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}>
+                Subscription Management
+              </p>
+              <div
+                className={`hidden border-l ${theme.border} pl-4 text-[10px] font-mono uppercase tracking-[0.26em] ${theme.mutedText} md:block`}
+              >
+                Settings / Billing
+              </div>
             </div>
+            <AppGlobalNav
+              activeItem="billing"
+              ariaLabel="設定ナビゲーション"
+              className="shrink-0"
+            />
           </div>
 
           <div className="flex items-center gap-3">

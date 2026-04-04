@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockGetAuthSessionWithPlan, redirectMock, redirectError } = vi.hoisted(() => ({
@@ -59,6 +59,9 @@ describe("AccountPage", () => {
       "href",
       "/settings/billing",
     );
+    expect(
+      within(navigation).queryByRole("link", { name: "請求", current: "page" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Account Owner")).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();

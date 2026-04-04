@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppGlobalNav } from "@/components/app-global-nav";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { UserMenu } from "@/components/user-menu";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
@@ -27,16 +28,19 @@ export default async function AccountPage() {
       <header
         className={`sticky top-0 z-30 border-b ${theme.border} bg-[#131313]/92 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
       >
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
-          <div className="space-y-2">
-            <p
-              className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}
-            >
-              Account Summary
-            </p>
-            <p className={`text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
-              Settings / Account
-            </p>
+        <div className="mx-auto flex max-w-5xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="space-y-2">
+              <p
+                className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}
+              >
+                Account Summary
+              </p>
+              <p className={`text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
+                Settings / Account
+              </p>
+            </div>
+            <AppGlobalNav ariaLabel="設定ナビゲーション" className="shrink-0" />
           </div>
 
           <UserMenu
