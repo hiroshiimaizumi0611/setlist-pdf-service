@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockExecute = vi.fn();
 const mockMigrate = vi.fn();
@@ -11,6 +11,11 @@ afterEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
   vi.unstubAllEnvs();
+});
+
+beforeEach(() => {
+  vi.resetModules();
+  vi.clearAllMocks();
 });
 
 describe("dbReady local migration behavior", () => {
