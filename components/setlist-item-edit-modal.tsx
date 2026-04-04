@@ -45,6 +45,16 @@ export function SetlistItemEditModal({
   updateItemAction,
 }: SetlistItemEditModalProps) {
   const theme = getDashboardThemeStyles(currentTheme);
+  const modalSurface =
+    currentTheme === "light"
+      ? "bg-[#fffaf1] text-[#201a14] border-[#2b241c]/22 shadow-[0_28px_90px_rgba(31,27,22,0.18)]"
+      : `${theme.panel} ${theme.text} border-[#353534] shadow-[0_28px_90px_rgba(0,0,0,0.35)]`;
+  const modalHeaderBorder =
+    currentTheme === "light" ? "border-[#2b241c]/18" : theme.border;
+  const cancelButton =
+    currentTheme === "light"
+      ? "border border-[#2b241c]/65 bg-[#fffdf8] text-[#201a14] transition hover:bg-[#f6edd7]"
+      : theme.buttonSecondary;
 
   const handleSubmit = async (formData: FormData) => {
     if (!updateItemAction) {
@@ -69,9 +79,11 @@ export function SetlistItemEditModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="setlist-item-edit-modal-title"
-        className={`max-h-[calc(100vh-4rem)] w-full max-w-3xl overflow-y-auto border-2 ${theme.border} ${theme.panel}`}
+        className={`max-h-[calc(100vh-4rem)] w-full max-w-3xl overflow-y-auto border-2 ${modalSurface}`}
       >
-        <div className={`flex items-center justify-between gap-4 border-b-2 ${theme.border} px-5 py-4`}>
+        <div
+          className={`flex items-center justify-between gap-4 border-b-2 ${modalHeaderBorder} px-5 py-4`}
+        >
           <div>
             <p className={`font-mono text-[10px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
               Edit Item
@@ -158,7 +170,7 @@ export function SetlistItemEditModal({
             <button
               type="button"
               onClick={onClose}
-              className={`${theme.buttonSecondary} min-h-10 px-5 text-sm font-black tracking-[0.14em] uppercase`}
+              className={`${cancelButton} min-h-10 px-5 text-sm font-black tracking-[0.14em] uppercase`}
             >
               キャンセル
             </button>

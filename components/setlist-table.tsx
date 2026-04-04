@@ -136,22 +136,22 @@ export function SetlistTable({
         }
       : {
           row: {
-            song: "bg-[#ffffff] hover:bg-[#fcfcfc]",
-            mc: "bg-[#f0f0f0] hover:bg-[#fafafa]",
-            transition: "bg-[#f7f1e3] hover:bg-[#fffdf8] border-y border-[#1f1b16]",
-            heading: "bg-[#ffffff]",
+            song: "bg-[#fffdf8] hover:bg-[#fffaf0]",
+            mc: "bg-[#f7f1e8] hover:bg-[#fbf4ea]",
+            transition: "bg-[#fcf8ef] hover:bg-[#fffdf8] border-y border-[#2b241c]/12",
+            heading: "bg-[#faf4e8] border-y border-[#2b241c]/12",
           },
           strip: {
-            song: "bg-[#1f1b16]",
-            mc: "bg-[#c99a23]",
-            transition: "bg-[#5f5649]",
+            song: "bg-[#2b241c]",
+            mc: "bg-[#d29a1c]",
+            transition: "bg-[#796d5b]",
             heading: "bg-transparent",
           },
           cue: "text-[#1f1b16]",
-          subtitle: "text-[#5f5649]",
-          muted: "text-[#5f5649]",
-          headingBorder: "border-[#1f1b16]/20",
-          duration: "text-[#5f5649]",
+          subtitle: "text-[#615547]",
+          muted: "text-[#6c6051]",
+          headingBorder: "border-[#2b241c]/16",
+          duration: "text-[#615547]",
         };
 
   return (

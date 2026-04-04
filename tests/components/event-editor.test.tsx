@@ -209,6 +209,62 @@ describe("EventEditorPageContent", () => {
     expect(addStrip).toHaveClass("bg-[#fffef8]");
   });
 
+  it("renders light setlist rows and the edit modal on warm paper surfaces", () => {
+    render(
+      <EventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    expect(
+      requireElement(
+        setlistSection.querySelector('article[data-row-variant="song"]'),
+        "expected song row",
+      ),
+    ).toHaveClass("bg-[#fffdf8]");
+    expect(
+      requireElement(
+        setlistSection.querySelector('article[data-row-variant="mc"]'),
+        "expected mc row",
+      ),
+    ).toHaveClass("bg-[#f7f1e8]");
+    expect(
+      requireElement(
+        setlistSection.querySelector('article[data-row-variant="transition"]'),
+        "expected transition row",
+      ),
+    ).toHaveClass("bg-[#fcf8ef]");
+    expect(
+      requireElement(
+        setlistSection.querySelector('article[data-row-variant="heading"]'),
+        "expected heading row",
+      ),
+    ).toHaveClass("bg-[#faf4e8]");
+
+    fireEvent.click(screen.getAllByRole("button", { name: "編集" })[0]);
+
+    const dialog = screen.getByRole("dialog", { name: "セットリスト項目を編集" });
+    expect(dialog).toHaveClass("bg-[#fffaf1]");
+    expect(dialog).toHaveClass("border-[#2b241c]/22");
+    expect(within(dialog).getByRole("button", { name: "変更を保存" })).toHaveClass(
+      "bg-[#f5c94a]",
+    );
+    expect(within(dialog).getByRole("button", { name: "キャンセル" })).toHaveClass(
+      "border-[#2b241c]/65",
+    );
+  });
+
   it("submits metadata saves through EventEditorPageContent with the current theme", async () => {
     render(
       <EventEditorPageContent
