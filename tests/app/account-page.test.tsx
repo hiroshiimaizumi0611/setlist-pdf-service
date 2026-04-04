@@ -1,9 +1,10 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetAuthSessionWithPlan, redirectMock } = vi.hoisted(() => ({
+const { mockGetAuthSessionWithPlan, redirectMock, redirectError } = vi.hoisted(() => ({
   mockGetAuthSessionWithPlan: vi.fn(),
   redirectMock: vi.fn(),
+  redirectError: new Error("NEXT_REDIRECT"),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -20,9 +21,12 @@ describe("AccountPage", () => {
   beforeEach(() => {
     mockGetAuthSessionWithPlan.mockReset();
     redirectMock.mockReset();
+    redirectMock.mockImplementation(() => {
+      throw redirectError;
+    });
   });
 
-  it("renders the authenticated account summary with a billing link", async () => {
+  it("renders the authenticated account summary with the free plan label and billing link", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -32,7 +36,7 @@ describe("AccountPage", () => {
         },
       },
       currentPlan: {
-        plan: "pro",
+        plan: "free",
       },
     });
 
@@ -44,22 +48,20 @@ describe("AccountPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Account Owner")).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
-    expect(screen.getByText("Pro")).toBeInTheDocument();
+    expect(screen.getByText("Free")).toBeInTheDocument();
+    expect(screen.getByText("Account Summary")).toBeInTheDocument();
+    expect(screen.getByText("Settings / Account")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "プラン管理へ" }),
     ).toHaveAttribute("href", "/settings/billing");
-    expect(
-      within(screen.getByRole("banner")).getByRole("button", {
-        name: "ユーザーメニューを開く",
-      }),
-    ).toBeInTheDocument();
   });
 
-  it("redirects guests to login", async () => {
+  it("short-circuits guests with a login redirect", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue(null);
 
-    await AccountPage();
+    await expect(AccountPage()).rejects.toThrow(redirectError);
 
     expect(redirectMock).toHaveBeenCalledWith("/login");
+    expect(mockGetAuthSessionWithPlan).toHaveBeenCalledTimes(1);
   });
 });
