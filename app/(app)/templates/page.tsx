@@ -105,7 +105,7 @@ export default async function TemplatesPage() {
                     >
                       <input type="hidden" name="sourceEventId" value={event.id} />
                       <div className="min-w-0 space-y-1">
-                        <h3 className="truncate font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
+                        <h3 className="font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
                           {event.title}
                         </h3>
                         <p className={`text-sm ${theme.mutedText}`}>
@@ -154,7 +154,7 @@ export default async function TemplatesPage() {
                   ) : (
                     <div className="grid gap-3 lg:grid-cols-[minmax(0,1.8fr)_5.5rem_minmax(0,1.2fr)_minmax(0,1.1fr)_auto] lg:items-center">
                       <div className="min-w-0 space-y-1">
-                        <h3 className="truncate font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
+                        <h3 className="font-mono text-base font-black tracking-[-0.04em] sm:text-lg">
                           {event.title}
                         </h3>
                         <p className={`text-sm ${theme.mutedText}`}>
@@ -177,21 +177,11 @@ export default async function TemplatesPage() {
           )}
         </section>
 
-        <section className="space-y-4">
-          <div className="space-y-2">
-            <p className={`font-mono text-xs font-semibold uppercase tracking-[0.32em] ${theme.mutedText}`}>
-              保存済み
-            </p>
-            <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">
-              保存済みテンプレート
-            </h2>
-          </div>
-          <TemplateList
-            templates={templates}
-            currentTheme="dark"
-            instantiateAction={createEventFromTemplateFormAction}
-          />
-        </section>
+        <TemplateList
+          templates={templates}
+          currentTheme="dark"
+          instantiateAction={createEventFromTemplateFormAction}
+        />
       </section>
     </main>
   );
