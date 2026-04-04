@@ -46,6 +46,7 @@ describe("AuthForm", () => {
 
     render(<AuthForm mode="login" />);
 
+    expect(screen.getByText("OPERATOR PANEL")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "ログイン" })).toBeInTheDocument();
     expect(screen.queryByLabelText("名前")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アカウントを作成" })).toHaveAttribute(
@@ -77,6 +78,7 @@ describe("AuthForm", () => {
 
     render(<AuthForm mode="register" />);
 
+    expect(screen.getByText("OPERATOR PANEL")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "アカウントを作成" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ログイン" })).toHaveAttribute("href", "/login");
 

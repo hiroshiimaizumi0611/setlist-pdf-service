@@ -55,63 +55,66 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full space-y-5 rounded-3xl border border-[#353534] bg-[#181818]/96 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur"
-    >
-      <div className="space-y-1">
-        <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#91897c]">
-          Backstage Access
+    <form onSubmit={handleSubmit} className="w-full space-y-6">
+      <div className="space-y-3 border-b border-white/10 pb-5">
+        <p className="font-mono text-[11px] uppercase tracking-[0.42em] text-[#f6c453]">
+          OPERATOR PANEL
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#f6f3ee]">
-          {isRegister ? "アカウントを作成" : "ログイン"}
-        </h1>
-        <p className="text-sm leading-6 text-[#bfb7aa]">
-          {isRegister
-            ? "無料プランで公演作成とPDF出力を始めて、必要になったらProでテンプレート保存を追加できます。"
-            : "公演の作成、複製、PDF出力、テンプレート保存を続けましょう。"}
-        </p>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-[#f8f5f0]">
+            {isRegister ? "アカウントを作成" : "ログイン"}
+          </h1>
+          <p className="max-w-md text-sm leading-6 text-[#c9c1b5]">
+            {isRegister
+              ? "無料で始めて、必要になったら公演の保存や運用を広げられます。"
+              : "公演の作成、複製、PDF出力、テンプレート保存を続けましょう。"}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] uppercase tracking-[0.28em] text-[#8f8577]">
+          <span>Secure session</span>
+          <span>/events handoff</span>
+        </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {isRegister ? (
-          <label className="block space-y-2">
+          <label className="block border-b border-white/10 pb-4">
             <span className="text-sm font-medium text-[#d8d1c4]">名前</span>
             <input
               required
               name="name"
               type="text"
               autoComplete="name"
-              className="w-full rounded-2xl border border-[#38332b] bg-[#111111] px-4 py-3 text-sm text-[#f6f3ee] outline-none transition focus:border-[#f6c453] focus:bg-[#171717]"
+              className="mt-3 w-full border-0 border-b border-[#3d382f] bg-transparent px-0 py-3 text-sm text-[#f6f3ee] outline-none transition placeholder:text-[#766e61] focus:border-[#f6c453] focus:ring-0"
             />
           </label>
         ) : null}
 
-        <label className="block space-y-2">
+        <label className="block border-b border-white/10 pb-4">
           <span className="text-sm font-medium text-[#d8d1c4]">メールアドレス</span>
           <input
             required
             name="email"
             type="email"
             autoComplete="email"
-            className="w-full rounded-2xl border border-[#38332b] bg-[#111111] px-4 py-3 text-sm text-[#f6f3ee] outline-none transition focus:border-[#f6c453] focus:bg-[#171717]"
+            className="mt-3 w-full border-0 border-b border-[#3d382f] bg-transparent px-0 py-3 text-sm text-[#f6f3ee] outline-none transition placeholder:text-[#766e61] focus:border-[#f6c453] focus:ring-0"
           />
         </label>
 
-        <label className="block space-y-2">
+        <label className="block border-b border-white/10 pb-4">
           <span className="text-sm font-medium text-[#d8d1c4]">パスワード</span>
           <input
             required
             name="password"
             type="password"
             autoComplete={isRegister ? "new-password" : "current-password"}
-            className="w-full rounded-2xl border border-[#38332b] bg-[#111111] px-4 py-3 text-sm text-[#f6f3ee] outline-none transition focus:border-[#f6c453] focus:bg-[#171717]"
+            className="mt-3 w-full border-0 border-b border-[#3d382f] bg-transparent px-0 py-3 text-sm text-[#f6f3ee] outline-none transition placeholder:text-[#766e61] focus:border-[#f6c453] focus:ring-0"
           />
         </label>
       </div>
 
       {error ? (
-        <p className="rounded-2xl border border-[#9f3a31] bg-[#3a1612] px-4 py-3 text-sm text-[#ffcdc7]">
+        <p className="border-l-2 border-[#f05a4f] bg-[#281411] px-4 py-3 text-sm text-[#ffcdc7]">
           {error}
         </p>
       ) : null}
@@ -119,7 +122,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-2xl border border-[#f6c453] bg-[#f6c453] px-4 py-3 text-sm font-medium text-[#1f1b16] transition hover:bg-[#ffe08a] disabled:cursor-not-allowed disabled:opacity-70"
+        className="w-full rounded-2xl border border-[#f6c453] bg-[#f6c453] px-4 py-3.5 text-sm font-semibold text-[#1f1b16] transition hover:bg-[#ffe08a] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isPending
           ? isRegister
@@ -130,12 +133,18 @@ export function AuthForm({ mode }: AuthFormProps) {
             : "ログイン"}
       </button>
 
-      <p className="text-sm text-[#bfb7aa]">
-        {alternateLabel}{" "}
-        <Link href={alternateHref} className="font-medium text-[#f6c453] underline">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#8f8577]">
+          Secondary access
+        </p>
+        <p className="mt-2 text-sm leading-6 text-[#c9c1b5]">{alternateLabel}</p>
+        <Link
+          href={alternateHref}
+          className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-white/10 px-4 py-3 text-sm font-medium text-[#f8f5f0] transition hover:border-[#f6c453] hover:bg-white/[0.04]"
+        >
           {alternateAction}
         </Link>
-      </p>
+      </div>
     </form>
   );
 }
