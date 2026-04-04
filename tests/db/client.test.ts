@@ -20,7 +20,7 @@ beforeEach(() => {
 
 describe("dbReady local migration behavior", () => {
   it("runs migrations for local development file databases", async () => {
-    vi.doMock("@/lib/env", () => ({
+    vi.doMock("../../lib/env", () => ({
       env: {
         TURSO_DATABASE_URL: "file:/tmp/setlist-local.sqlite",
         TURSO_AUTH_TOKEN: undefined,
@@ -48,7 +48,7 @@ describe("dbReady local migration behavior", () => {
   });
 
   it("does not run migrations for remote production databases", async () => {
-    vi.doMock("@/lib/env", () => ({
+    vi.doMock("../../lib/env", () => ({
       env: {
         TURSO_DATABASE_URL: "libsql://example.turso.io",
         TURSO_AUTH_TOKEN: "token",
