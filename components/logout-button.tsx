@@ -29,7 +29,10 @@ export function LogoutButton({ className }: LogoutButtonProps) {
       type="button"
       onClick={handleLogout}
       disabled={isPending}
-      className={className ?? "rounded-xl border border-[#4a3f32] bg-transparent px-4 py-2 text-sm font-medium text-[#f6f3ee] transition hover:border-[#f6c453] hover:text-[#f6c453] disabled:cursor-not-allowed disabled:opacity-70"}
+      className={
+        className ??
+        "inline-flex items-center rounded-xl border border-[#4a3f32] bg-transparent px-4 py-2 text-sm font-medium text-[#f6f3ee] transition hover:border-[#f6c453] hover:text-[#f6c453] disabled:cursor-not-allowed disabled:opacity-70"
+      }
     >
       {isPending ? "ログアウト中..." : "ログアウト"}
     </button>
