@@ -43,7 +43,7 @@ vi.mock("@/app/(app)/templates/actions", () => ({
 import TemplatesPage from "../../app/(app)/templates/page";
 
 describe("TemplatesPage", () => {
-  it("marks template save names as required", async () => {
+  it("lays out a two-part templates workspace", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: {
@@ -70,14 +70,34 @@ describe("TemplatesPage", () => {
         itemCount: 4,
       },
     ]);
-    mockListTemplates.mockResolvedValue([]);
+    mockListTemplates.mockResolvedValue([
+      {
+        id: "template-1",
+        ownerUserId: "user-1",
+        name: "2026春ツアー用テンプレート",
+        description: "静かな立ち上がりからアンコールまで",
+        createdAt: new Date("2026-03-22T00:00:00.000Z"),
+        updatedAt: new Date("2026-03-22T00:00:00.000Z"),
+        items: [
+          {
+            id: "template-item-1",
+            title: "オープニング",
+            type: "song",
+            position: 1,
+          },
+        ],
+      },
+    ]);
 
     const result = await TemplatesPage();
     render(result);
 
     const header = screen.getByRole("banner");
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
-    expect(screen.getByLabelText("テンプレート名")).toBeRequired();
+    expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "保存済みテンプレート" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
   });
 });
