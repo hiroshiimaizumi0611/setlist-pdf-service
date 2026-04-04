@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 const {
@@ -73,8 +73,9 @@ describe("TemplatesPage", () => {
     const result = await TemplatesPage();
     render(result);
 
+    const header = screen.getByRole("banner");
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
-    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
   });
 });

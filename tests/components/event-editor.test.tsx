@@ -98,8 +98,9 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
+    const header = screen.getByRole("banner");
     expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "アーカイブ" })).toBeInTheDocument();
@@ -602,7 +603,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("status", { name: "Sheet Theme" })).toHaveTextContent("Dark");
     expect(screen.getByText("SHOWRUNNER")).toBeInTheDocument();
     expect(screen.getByText("BACKSTAGE ACCESS")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "公演情報" })).not.toBeInTheDocument();
 
     const shell = screen.getByRole("main");
@@ -748,7 +749,7 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("button", { name: "この内容をテンプレート保存" })).toBeInTheDocument();
     expect(screen.getByLabelText("テンプレート名")).toBeRequired();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
   });
 
   it("shows the shared user menu in the empty editor shell", () => {
@@ -762,7 +763,7 @@ describe("EventEditorPageContent", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
   });
 

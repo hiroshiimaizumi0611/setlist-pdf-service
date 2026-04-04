@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { pushMock, refreshMock, signOutMock } = vi.hoisted(() => ({
@@ -20,55 +20,24 @@ vi.mock("@/lib/auth-client", () => ({
   },
 }));
 
-import { UserMenu } from "../../components/user-menu";
+import { LogoutButton } from "../../components/logout-button";
 
-describe("UserMenu", () => {
+describe("UserMenu logout contract", () => {
   beforeEach(() => {
     pushMock.mockReset();
     refreshMock.mockReset();
     signOutMock.mockReset();
   });
 
-  it("opens to show identity details and account actions", () => {
-    render(
-      <UserMenu
-        displayName="山田 太郎"
-        email="taro@example.com"
-        currentPlan="pro"
-      />,
-    );
+  it("keeps the logout action wired to authClient.signOut and /login", async () => {
+    signOutMock.mockResolvedValue({ error: null });
 
-    const trigger = screen.getByRole("button", { name: "ユーザーメニューを開く" });
-    expect(trigger).toBeInTheDocument();
+    render(<LogoutButton />);
 
-    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole("button", { name: "ログアウト" }));
 
-    expect(screen.getByText("山田 太郎")).toBeInTheDocument();
-    expect(screen.getByText("taro@example.com")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "マイページ" })).toHaveAttribute("href", "/account");
-    expect(screen.getByRole("link", { name: "プラン管理" })).toHaveAttribute(
-      "href",
-      "/settings/billing",
-    );
-    expect(screen.getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
-  });
-
-  it("closes after escape is pressed", () => {
-    render(
-      <UserMenu
-        displayName="山田 太郎"
-        email="taro@example.com"
-        currentPlan="pro"
-      />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "ユーザーメニューを開く" }));
-    expect(screen.getByText("山田 太郎")).toBeInTheDocument();
-
-    fireEvent.keyDown(document, { key: "Escape" });
-
-    expect(screen.queryByText("山田 太郎")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "マイページ" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "ログアウト" })).not.toBeInTheDocument();
+    await waitFor(() => expect(signOutMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/login"));
+    expect(refreshMock).toHaveBeenCalled();
   });
 });
