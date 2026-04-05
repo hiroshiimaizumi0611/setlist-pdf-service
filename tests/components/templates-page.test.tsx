@@ -127,7 +127,8 @@ describe("TemplatesPage", () => {
       "href",
       "/account",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();

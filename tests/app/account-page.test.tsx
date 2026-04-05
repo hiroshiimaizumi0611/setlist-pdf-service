@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockGetAuthSessionWithPlan, redirectMock, redirectError } = vi.hoisted(() => ({
@@ -69,7 +69,8 @@ describe("AccountPage", () => {
       "aria-current",
       "page",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByText("Account Owner")).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();
@@ -79,6 +80,18 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("link", { name: "プラン管理へ" }),
     ).toHaveAttribute("href", "/settings/billing");
+
+    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
+
+    expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "マイページ", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(appNavigation).queryByText("アーカイブ")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("テンプレート")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("請求")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("マイページ")).not.toBeInTheDocument();
   }, 20_000);
 
   it("short-circuits guests with a login redirect", async () => {

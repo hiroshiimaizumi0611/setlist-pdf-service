@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BillingPageContent } from "../../app/(app)/settings/billing/page";
 
@@ -58,7 +58,10 @@ describe("BillingPageContent", () => {
       "href",
       "/account",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const settingsNavigation = within(rail).getByRole("navigation", { name: "設定ナビゲーション" });
+    expect(settingsNavigation).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
@@ -121,7 +124,9 @@ describe("BillingPageContent", () => {
       "href",
       "/account",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(within(rail).getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeInTheDocument();
@@ -166,7 +171,9 @@ describe("BillingPageContent", () => {
       "href",
       "/account",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(within(rail).getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeDisabled();
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
@@ -212,7 +219,39 @@ describe("BillingPageContent", () => {
       "href",
       "/account",
     );
-    expect(within(rail).queryByRole("button", { name: "ログアウト" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).queryByRole("button", { name: "ログアウト" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("banner")).queryByRole("button", { name: "ユーザーメニューを開く" })).not.toBeInTheDocument();
+  });
+
+  it("collapses to icon-only app nav while compacting the settings sidebar", () => {
+    render(
+      <BillingPageContent
+        currentPlan="free"
+        {...authenticatedViewerProps}
+        isStripeConfigured={false}
+        subscription={null}
+      />,
+    );
+
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+
+    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
+
+    expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(appNavigation).queryByText("アーカイブ")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("テンプレート")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("請求")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("マイページ")).not.toBeInTheDocument();
+    expect(within(rail).queryByRole("navigation", { name: "設定ナビゲーション" })).not.toBeInTheDocument();
   });
 });

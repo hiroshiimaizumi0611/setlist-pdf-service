@@ -156,7 +156,8 @@ describe("Performance archive page route wiring", () => {
     expect(
       within(appNavigation).getByRole("link", { name: "アーカイブ", current: "page" }),
     ).toHaveAttribute("aria-current", "page");
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toHaveAttribute(
       "href",
       "/events?theme=light",

@@ -136,7 +136,8 @@ describe("EventEditorPageContent", () => {
       "aria-current",
       "page",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このセットリストを削除" })).toBeInTheDocument();
@@ -245,6 +246,10 @@ describe("EventEditorPageContent", () => {
     fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
 
     expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
+    expect(within(appNavigation).queryByText("アーカイブ")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("テンプレート")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("請求")).not.toBeInTheDocument();
+    expect(within(appNavigation).queryByText("マイページ")).not.toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "aria-current",
       "page",
@@ -261,7 +266,8 @@ describe("EventEditorPageContent", () => {
       "href",
       "/account",
     );
-    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(within(rail).queryByText("PRODUCTION")).not.toBeInTheDocument();
     expect(within(rail).queryByText("MASTER SCHEDULE")).not.toBeInTheDocument();
     expect(within(rail).queryByText("Upcoming & Recent")).not.toBeInTheDocument();
