@@ -181,9 +181,11 @@ export function SidebarRail({
       </div>
 
       <div className="space-y-2.5">
-        <p className={`px-1 text-[9px] font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
-          Navigation
-        </p>
+        {!collapsed ? (
+          <p className={`px-1 text-[9px] font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
+            Navigation
+          </p>
+        ) : null}
         <AppGlobalNav
           activeItem={activeItem}
           collapsed={collapsed}

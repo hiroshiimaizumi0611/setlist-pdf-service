@@ -19,6 +19,7 @@ describe("SidebarRail", () => {
     fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" }));
 
     expect(rail.className).toContain("lg:w-[5rem]");
+    expect(screen.queryByText("Navigation")).not.toBeInTheDocument();
 
     const collapseButton = within(rail).getByRole("button", { name: "サイドバーを展開" });
     expect(collapseButton.className).toContain("h-9");
