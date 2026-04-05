@@ -14,10 +14,10 @@ type SidebarRailProps = {
   brandHref?: string;
   defaultCollapsed?: boolean;
   isAuthenticated?: boolean;
-  pageContent?: (collapsed: boolean) => ReactNode;
-  authenticatedUtility?: (collapsed: boolean) => ReactNode;
-  guestUtility?: (collapsed: boolean) => ReactNode;
-  footer?: (collapsed: boolean) => ReactNode;
+  pageContent?: ReactNode;
+  authenticatedUtility?: ReactNode;
+  guestUtility?: ReactNode;
+  footer?: ReactNode;
   className?: string;
 };
 
@@ -194,27 +194,26 @@ export function SidebarRail({
 
       {!collapsed && pageContent ? (
         <div className={`space-y-3 border-t ${theme.border} pt-4`}>
-          {pageContent(collapsed)}
+          {pageContent}
         </div>
       ) : null}
 
       {utility ? (
         <div className={`space-y-3 border-t ${theme.border} pt-4`}>
-          {utility(collapsed)}
+          {utility}
         </div>
       ) : null}
 
-      <div className="mt-auto space-y-3">
-        {footer ? (
-          <div className={`rounded-3xl border px-3 py-3 ${theme.footerSurface} ${theme.footerBorder}`}>
-            {footer(collapsed)}
+      {(footer !== undefined || isAuthenticated) ? (
+        <div className="mt-auto space-y-3">
+          <div
+            role="contentinfo"
+            className={`rounded-3xl border px-3 py-3 ${theme.footerSurface} ${theme.footerBorder}`}
+          >
+            {footer !== undefined ? footer : <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />}
           </div>
-        ) : (
-          <div className={`rounded-3xl border px-3 py-3 ${theme.footerSurface} ${theme.footerBorder}`}>
-            <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
-          </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </aside>
   );
 }

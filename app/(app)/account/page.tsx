@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthenticatedAppFrame } from "@/components/authenticated-app-frame";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
-import { LogoutButton } from "@/components/logout-button";
 import { UserMenu } from "@/components/user-menu";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
@@ -38,11 +37,6 @@ export default async function AccountPage() {
           currentPlan={currentPlan.plan}
         />
       }
-      footer={(collapsed) => (
-        <footer role="contentinfo" className="space-y-3">
-          <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
-        </footer>
-      )}
     >
       <section className="mx-auto flex max-w-5xl flex-col gap-6 py-6 lg:py-8">
         <article className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>

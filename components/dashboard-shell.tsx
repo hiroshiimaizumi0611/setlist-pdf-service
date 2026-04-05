@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
-import { LogoutButton } from "./logout-button";
 import { SidebarRail } from "./sidebar-rail";
 import type { AppGlobalNavActiveItem } from "./app-global-nav";
 
@@ -143,12 +142,7 @@ export function DashboardShell({
         <SidebarRail
           currentTheme={currentTheme}
           activeItem={activeItem}
-          pageContent={() => sidebar}
-          footer={(collapsed) => (
-            <footer role="contentinfo" className="space-y-3">
-              <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
-            </footer>
-          )}
+          pageContent={sidebar}
         />
 
         <div className="min-w-0 px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:py-6">

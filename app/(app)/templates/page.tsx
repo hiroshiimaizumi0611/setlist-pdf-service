@@ -4,7 +4,6 @@ import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { listTemplates } from "@/lib/services/templates-service";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
-import { LogoutButton } from "@/components/logout-button";
 import { TemplateList } from "@/components/template-list";
 import { TemplateSaveButton } from "@/components/template-save-button";
 import { UserMenu } from "@/components/user-menu";
@@ -58,11 +57,6 @@ export default async function TemplatesPage() {
           currentPlan={currentPlan.plan}
         />
       }
-      footer={(collapsed) => (
-        <footer role="contentinfo" className="space-y-3">
-          <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
-        </footer>
-      )}
     >
       <section className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>
         <div className="space-y-3">

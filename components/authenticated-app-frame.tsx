@@ -11,10 +11,10 @@ type AuthenticatedAppFrameProps = {
   actions?: ReactNode;
   userMenu?: ReactNode;
   activeItem?: AppGlobalNavActiveItem;
-  pageSidebar?: (collapsed: boolean) => ReactNode;
-  authenticatedUtility?: (collapsed: boolean) => ReactNode;
-  guestUtility?: (collapsed: boolean) => ReactNode;
-  footer?: (collapsed: boolean) => ReactNode;
+  pageSidebar?: ReactNode;
+  authenticatedUtility?: ReactNode;
+  guestUtility?: ReactNode;
+  footer?: ReactNode;
   isAuthenticated?: boolean;
   children: ReactNode;
   className?: string;

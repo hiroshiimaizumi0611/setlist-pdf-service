@@ -14,7 +14,6 @@ import { getDashboardThemeStyles } from "@/components/dashboard-shell";
 import { BillingComparisonTable } from "@/components/billing-comparison-table";
 import { BillingPaymentSection } from "@/components/billing-payment-section";
 import { SettingsSidebar } from "@/components/settings-sidebar";
-import { LogoutButton } from "@/components/logout-button";
 import { UpgradeCard } from "@/components/upgrade-card";
 import { UserMenu } from "@/components/user-menu";
 import type { AppPlan } from "@/lib/stripe/plans";
@@ -124,16 +123,8 @@ export function BillingPageContent(props: BillingPageContentProps) {
       eyebrow="プラン管理"
       description="現在のプランと支払い状態を一目で確認できるように、Stitch の subscription 画面に寄せたトップレベルのヘルスをまとめています。"
       userMenu={userMenu}
-      pageSidebar={() => <SettingsSidebar currentPlan={currentPlan} />}
-      footer={
-        isAuthenticated
-          ? (collapsed) => (
-              <footer role="contentinfo" className="space-y-3">
-                <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
-              </footer>
-            )
-          : () => null
-      }
+      pageSidebar={<SettingsSidebar currentPlan={currentPlan} />}
+      footer={isAuthenticated ? undefined : null}
       isAuthenticated={isAuthenticated}
     >
       <section className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>
