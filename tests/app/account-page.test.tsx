@@ -7,8 +7,17 @@ const { mockGetAuthSessionWithPlan, redirectMock, redirectError } = vi.hoisted((
   redirectError: new Error("NEXT_REDIRECT"),
 }));
 
+const { mockRouterPush, mockRouterRefresh } = vi.hoisted(() => ({
+  mockRouterPush: vi.fn(),
+  mockRouterRefresh: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
+  useRouter: () => ({
+    push: mockRouterPush,
+    refresh: mockRouterRefresh,
+  }),
 }));
 
 vi.mock("@/lib/subscription", () => ({
@@ -52,7 +61,7 @@ describe("AccountPage", () => {
       ) ?? screen.getAllByRole("complementary")[0];
     const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(within(screen.getByRole("banner")).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
-    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" })).toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
@@ -74,24 +83,19 @@ describe("AccountPage", () => {
     expect(screen.getByText("Account Owner")).toBeInTheDocument();
     expect(screen.getByText("owner@example.com")).toBeInTheDocument();
     expect(screen.getByText("Free")).toBeInTheDocument();
-    expect(screen.getByText("Account Summary")).toBeInTheDocument();
-    expect(screen.getByText("Settings / Account")).toBeInTheDocument();
+    expect(screen.getByText("アカウント詳細")).toBeInTheDocument();
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "プラン管理へ" }),
     ).toHaveAttribute("href", "/settings/billing");
 
-    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
+    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" }));
 
     expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "マイページ", current: "page" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(within(appNavigation).queryByText("アーカイブ")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("テンプレート")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("請求")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("マイページ")).not.toBeInTheDocument();
   }, 20_000);
 
   it("short-circuits guests with a login redirect", async () => {

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AppGlobalNav } from "@/components/app-global-nav";
+import { AuthenticatedAppFrame } from "@/components/authenticated-app-frame";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { LogoutButton } from "@/components/logout-button";
 import { UserMenu } from "@/components/user-menu";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { resolveAuthenticatedUserIdentity } from "@/lib/user-identity";
@@ -24,45 +25,32 @@ export default async function AccountPage() {
   const userIdentity = resolveAuthenticatedUserIdentity(session.user);
 
   return (
-    <main className={`${theme.page} min-h-screen`}>
-      <header
-        className={`sticky top-0 z-30 border-b ${theme.border} bg-[#131313]/92 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
-      >
-        <div className="mx-auto flex max-w-5xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <div className="space-y-2">
-              <p
-                className={`font-mono text-[11px] font-semibold uppercase tracking-[0.3em] ${theme.headerCurrentShow}`}
-              >
-                Account Summary
-              </p>
-              <p className={`text-xs uppercase tracking-[0.24em] ${theme.mutedText}`}>
-                Settings / Account
-              </p>
-            </div>
-            <AppGlobalNav className="shrink-0" />
-          </div>
-
-          <UserMenu
-            displayName={userIdentity.displayName}
-            email={userIdentity.email}
-            currentPlan={currentPlan.plan}
-          />
-        </div>
-      </header>
-
-      <section className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <AuthenticatedAppFrame
+      currentTheme="dark"
+      activeItem="account"
+      title="アカウント概要"
+      eyebrow="マイページ"
+      description="現在ログインしているオペレーター情報と、利用中のプランをすばやく確認できます。"
+      userMenu={
+        <UserMenu
+          displayName={userIdentity.displayName}
+          email={userIdentity.email}
+          currentPlan={currentPlan.plan}
+        />
+      }
+      footer={(collapsed) => (
+        <footer role="contentinfo" className="space-y-3">
+          <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
+        </footer>
+      )}
+    >
+      <section className="mx-auto flex max-w-5xl flex-col gap-6 py-6 lg:py-8">
         <article className={`border-2 ${theme.border} ${theme.panel} p-6 sm:p-8`}>
           <div className="space-y-4">
             <div className="space-y-3">
-              <p
-                className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
-              >
-                マイページ
-              </p>
-              <h1 className="font-mono text-4xl font-black tracking-[-0.08em] sm:text-5xl">
-                アカウント概要
-              </h1>
+              <h2 className="font-mono text-4xl font-black tracking-[-0.08em] sm:text-5xl">
+                アカウント詳細
+              </h2>
               <p className={`max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
                 現在ログインしているオペレーター情報と、利用中のプランをすばやく確認できます。
               </p>
@@ -87,22 +75,16 @@ export default async function AccountPage() {
                 <p className={`font-mono text-[11px] uppercase tracking-[0.28em] ${theme.mutedText}`}>
                   現在のプラン
                 </p>
-                <p className="mt-3 text-lg font-semibold">
-                  {formatPlanLabel(currentPlan.plan)}
-                </p>
+                <p className="mt-3 text-lg font-semibold">{formatPlanLabel(currentPlan.plan)}</p>
               </section>
             </div>
           </div>
         </article>
 
-        <article
-          className={`${theme.panelAlt} ${theme.text} border-2 ${theme.accentBorder} p-6 sm:p-8`}
-        >
+        <article className={`${theme.panelAlt} ${theme.text} border-2 ${theme.accentBorder} p-6 sm:p-8`}>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
-              <p
-                className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.currentEventText}`}
-              >
+              <p className={`font-mono text-[11px] uppercase tracking-[0.3em] ${theme.currentEventText}`}>
                 Billing
               </p>
               <p className="text-lg font-semibold">請求やプラン変更は billing 画面から管理します。</p>
@@ -120,6 +102,6 @@ export default async function AccountPage() {
           </div>
         </article>
       </section>
-    </main>
+    </AuthenticatedAppFrame>
   );
 }
