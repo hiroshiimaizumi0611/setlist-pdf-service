@@ -227,6 +227,19 @@ describe("Performance archive page content", () => {
     expect(
       screen.getByRole("heading", { name: "アーカイブにはまだ保存済みの公演がありません" }),
     ).toBeInTheDocument();
+    const noSavedEventsSection = screen.getByText(
+      "アーカイブにはまだ保存済みの公演がありません",
+    ).closest("section");
+    expect(noSavedEventsSection).toBeTruthy();
+    if (!noSavedEventsSection) {
+      throw new Error("expected no saved events section");
+    }
+    expect(
+      within(noSavedEventsSection).getByRole("heading", { name: "まだ保存済みの公演がない" }),
+    ).toBeInTheDocument();
+    expect(
+      within(noSavedEventsSection).getByRole("button", { name: "新規公演作成" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText("公演を作成してセットリスト編集を開始"),
     ).not.toBeInTheDocument();
@@ -351,6 +364,19 @@ describe("Performance archive page content", () => {
 
     expect(
       screen.getByRole("heading", { name: "検索結果に一致する公演がありません" }),
+    ).toBeInTheDocument();
+    const filteredNoResultsSection = screen
+      .getByRole("heading", { name: "検索結果に一致する公演がありません" })
+      .closest("section");
+    expect(filteredNoResultsSection).toBeTruthy();
+    if (!filteredNoResultsSection) {
+      throw new Error("expected filtered no-results section");
+    }
+    expect(
+      within(filteredNoResultsSection).getByRole("heading", { name: "条件に一致する公演がない" }),
+    ).toBeInTheDocument();
+    expect(
+      within(filteredNoResultsSection).getByRole("button", { name: "フィルタをリセット" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "RESET FILTERS" })).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
