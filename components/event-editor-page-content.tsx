@@ -163,7 +163,7 @@ export function EventEditorPageContent({
         eyebrow="セットリスト編集"
         title="新規公演を準備"
         description="左の作成ボタンから最初の公演を作成すると、ここに本番用の進行表エディタが表示されます。"
-        globalNav={<AppGlobalNav activeItem="archive" ariaLabel="公演ナビゲーション" />}
+        globalNav={<AppGlobalNav activeItem="archive" />}
         headerActions={
           <>
             <ThemeToggle
@@ -241,7 +241,7 @@ export function EventEditorPageContent({
       eyebrow="技術進行シート"
       title={event.title}
       description={`${headerDescription}。本番進行・曲順・補足メモをひとつの紙面感覚で管理できます。`}
-      globalNav={<AppGlobalNav activeItem="archive" ariaLabel="公演ナビゲーション" />}
+      globalNav={<AppGlobalNav activeItem="archive" />}
       headerActions={
         <>
           <ThemeToggle

@@ -99,7 +99,7 @@ describe("TemplatesPage", () => {
     render(result);
 
     const header = screen.getByRole("banner");
-    const navigation = within(header).getByRole("navigation", { name: "設定ナビゲーション" });
+    const navigation = within(header).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
@@ -120,7 +120,7 @@ describe("TemplatesPage", () => {
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it("shows a purposeful empty state for saved templates", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue({

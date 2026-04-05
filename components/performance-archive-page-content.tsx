@@ -195,7 +195,7 @@ export function PerformanceArchivePageContent({
       eyebrow="公演アーカイブ"
       title="公演アーカイブ"
       description={archiveDescription}
-      globalNav={<AppGlobalNav activeItem="archive" ariaLabel="公演ナビゲーション" />}
+      globalNav={<AppGlobalNav activeItem="archive" />}
       headerActions={
         <>
           <ThemeToggle currentTheme={currentTheme} lightHref={lightHref} darkHref={darkHref} />

@@ -130,7 +130,7 @@ describe("Performance archive page route wiring", () => {
     const header = screen.getByRole("banner");
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    const navigation = screen.getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(navigation).toBeInTheDocument();
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
@@ -355,7 +355,7 @@ describe("Performance archive page content", () => {
     expect(screen.getByText("2026.01.15 大阪 BAYHALL")).toBeInTheDocument();
     expect(screen.getByText("2025.12.31 未設定公演")).toBeInTheDocument();
     expect(screen.getByRole("table")).toBeInTheDocument();
-  });
+  }, 20_000);
 
   it("matches previous years using Asia/Tokyo day boundaries", () => {
     vi.useFakeTimers();

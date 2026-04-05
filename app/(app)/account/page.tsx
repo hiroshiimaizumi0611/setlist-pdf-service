@@ -40,7 +40,7 @@ export default async function AccountPage() {
                 Settings / Account
               </p>
             </div>
-            <AppGlobalNav ariaLabel="設定ナビゲーション" className="shrink-0" />
+            <AppGlobalNav className="shrink-0" />
           </div>
 
           <UserMenu

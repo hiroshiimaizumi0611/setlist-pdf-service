@@ -59,11 +59,7 @@ export default async function TemplatesPage() {
               </p>
             </div>
 
-            <AppGlobalNav
-              activeItem="templates"
-              ariaLabel="設定ナビゲーション"
-              className="shrink-0"
-            />
+            <AppGlobalNav activeItem="templates" className="shrink-0" />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

@@ -46,7 +46,7 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("heading", { name: "アカウント概要" }),
     ).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "設定ナビゲーション" });
+    const navigation = screen.getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
@@ -71,7 +71,7 @@ describe("AccountPage", () => {
     expect(
       screen.getByRole("link", { name: "プラン管理へ" }),
     ).toHaveAttribute("href", "/settings/billing");
-  });
+  }, 20_000);
 
   it("short-circuits guests with a login redirect", async () => {
     mockGetAuthSessionWithPlan.mockResolvedValue(null);

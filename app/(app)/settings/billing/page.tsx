@@ -118,11 +118,7 @@ export function BillingPageContent(props: BillingPageContentProps) {
                 Settings / Billing
               </div>
             </div>
-            <AppGlobalNav
-              activeItem="billing"
-              ariaLabel="設定ナビゲーション"
-              className="shrink-0"
-            />
+            <AppGlobalNav activeItem="billing" className="shrink-0" />
           </div>
 
           <div className="flex items-center gap-3">

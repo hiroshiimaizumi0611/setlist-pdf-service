@@ -266,7 +266,9 @@ describe("EventEditorPage route wiring", () => {
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
-    const navigation = screen.getByRole("navigation", { name: "公演ナビゲーション" });
+    const navigation = within(screen.getByRole("complementary")).getByRole("navigation", {
+      name: "公演ナビゲーション",
+    });
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });
     const currentEventCard = currentEventLink.closest("article");
     expect(currentEventCard).toBeTruthy();

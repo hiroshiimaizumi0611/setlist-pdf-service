@@ -114,7 +114,7 @@ describe("EventEditorPageContent", () => {
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
-    const sharedNavigation = within(header).getByRole("navigation", { name: "公演ナビゲーション" });
+    const sharedNavigation = within(header).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(sharedNavigation).toBeInTheDocument();
     expect(within(sharedNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
