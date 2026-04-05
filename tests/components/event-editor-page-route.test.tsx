@@ -265,8 +265,36 @@ describe("EventEditorPage route wiring", () => {
     expect(screen.getByText(/CURRENT SHOW:/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "セットリスト" })).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByRole("banner")).queryByRole("navigation", {
+        name: "アプリ全体ナビゲーション",
+      }),
+    ).not.toBeInTheDocument();
 
-    const navigation = within(screen.getByRole("complementary")).getByRole("navigation", {
+    const rail = screen.getByRole("complementary");
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    const appNavigation = within(rail).getByRole("navigation", {
+      name: "アプリ全体ナビゲーション",
+    });
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+
+    const navigation = within(rail).getByRole("navigation", {
       name: "公演ナビゲーション",
     });
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });
