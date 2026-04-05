@@ -136,7 +136,7 @@ export function SidebarRail({
   return (
     <aside
       className={[
-        "flex flex-col gap-3 border-b px-3 py-3 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-3 lg:py-3",
+        "flex flex-col gap-3 border-b px-3 py-3 lg:sticky lg:top-0 lg:h-screen lg:overflow-hidden lg:border-b-0 lg:border-r lg:px-3 lg:py-3",
         theme.shell,
         theme.railEdge,
         collapsed ? "lg:w-[5rem]" : "lg:w-[17rem]",
@@ -145,66 +145,73 @@ export function SidebarRail({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className={collapsed ? "flex flex-col items-center gap-2" : "flex items-start gap-2.5"}>
-        <Link
-          href={brandHref}
-          className={`flex min-w-0 ${collapsed ? "w-full justify-center px-0 py-2.5" : "flex-1 items-center gap-2.5 px-3 py-2.5"} rounded-2xl border ${theme.subtleBorder} ${theme.panel} transition hover:border-[#f6c453]/60 hover:bg-[#262626]`}
-        >
-          <RailBrandMark />
-          {!collapsed ? (
-            <span className="min-w-0">
-              <span className={`block truncate text-[13px] font-black tracking-[0.14em] ${theme.brandText}`}>
-                {brandLabel}
+      <div className="flex min-h-0 flex-1 flex-col gap-3">
+        <div className={collapsed ? "flex flex-col items-center gap-2" : "flex items-start gap-2.5"}>
+          <Link
+            href={brandHref}
+            className={`flex min-w-0 ${collapsed ? "w-full justify-center px-0 py-2.5" : "flex-1 items-center gap-2.5 px-3 py-2.5"} rounded-2xl border ${theme.subtleBorder} ${theme.panel} transition hover:border-[#f6c453]/60 hover:bg-[#262626]`}
+          >
+            <RailBrandMark />
+            {!collapsed ? (
+              <span className="min-w-0">
+                <span className={`block truncate text-[13px] font-black tracking-[0.14em] ${theme.brandText}`}>
+                  {brandLabel}
+                </span>
+                <span className={`mt-1 block text-[9px] font-mono uppercase tracking-[0.24em] ${theme.brandMeta}`}>
+                  Backstage
+                </span>
               </span>
-              <span className={`mt-1 block text-[9px] font-mono uppercase tracking-[0.24em] ${theme.brandMeta}`}>
-                Backstage
-              </span>
-            </span>
-          ) : (
-            <span className="sr-only">{brandLabel}</span>
-          )}
-        </Link>
+            ) : (
+              <span className="sr-only">{brandLabel}</span>
+            )}
+          </Link>
 
-        <button
-          type="button"
-          aria-label={collapsed ? "サイドバーを展開" : "サイドバーを折りたたむ"}
-          aria-pressed={collapsed}
-          onClick={() => setCollapsed((current) => !current)}
-          className={[
-            "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
-            theme.toggle,
-            collapsed ? theme.toggleActive : theme.toggleInactive,
-          ].join(" ")}
+          <button
+            type="button"
+            aria-label={collapsed ? "サイドバーを展開" : "サイドバーを折りたたむ"}
+            aria-pressed={collapsed}
+            onClick={() => setCollapsed((current) => !current)}
+            className={[
+              "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
+              theme.toggle,
+              collapsed ? theme.toggleActive : theme.toggleInactive,
+            ].join(" ")}
+          >
+            {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </button>
+        </div>
+
+        <div
+          data-rail-scroll-region="true"
+          className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1"
         >
-          {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </button>
-      </div>
+          <div className="space-y-2.5">
+            {!collapsed ? (
+              <p className={`px-1 text-[9px] font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
+                Navigation
+              </p>
+            ) : null}
+            <AppGlobalNav
+              activeItem={activeItem}
+              collapsed={collapsed}
+              className="space-y-2"
+              ariaLabel="アプリ全体ナビゲーション"
+            />
+          </div>
 
-      <div className="space-y-2.5">
-        {!collapsed ? (
-          <p className={`px-1 text-[9px] font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
-            Navigation
-          </p>
-        ) : null}
-        <AppGlobalNav
-          activeItem={activeItem}
-          collapsed={collapsed}
-          className="space-y-2"
-          ariaLabel="アプリ全体ナビゲーション"
-        />
-      </div>
+          {!collapsed && pageContent ? (
+            <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
+              {pageContent}
+            </div>
+          ) : null}
 
-      {!collapsed && pageContent ? (
-        <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
-          {pageContent}
+          {utility ? (
+            <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
+              {utility}
+            </div>
+          ) : null}
         </div>
-      ) : null}
-
-      {utility ? (
-        <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
-          {utility}
-        </div>
-      ) : null}
+      </div>
 
       {(footer !== undefined || isAuthenticated) ? (
         <div className="mt-auto space-y-3">

@@ -36,4 +36,32 @@ describe("SidebarRail", () => {
     expect(archiveLink?.className).toContain("justify-center");
     expect(archiveLink?.className).toContain("px-0");
   });
+
+  it("keeps the logout footer outside the rail scroll region", () => {
+    render(
+      <SidebarRail
+        currentTheme="dark"
+        activeItem="billing"
+        isAuthenticated={false}
+        footer={<button type="button">footer action</button>}
+        pageContent={
+          <div>
+            <div>settings panel</div>
+            <div style={{ height: 1200 }}>tall content</div>
+          </div>
+        }
+      />,
+    );
+
+    const rail = screen.getByRole("complementary");
+    expect(rail.className).toContain("lg:overflow-hidden");
+
+    const scrollRegion = rail.querySelector('[data-rail-scroll-region="true"]');
+    expect(scrollRegion).toBeTruthy();
+    expect(scrollRegion?.className).toContain("overflow-y-auto");
+
+    const railFooter = within(rail).getByRole("contentinfo");
+    expect(within(railFooter).getByRole("button", { name: "footer action" })).toBeInTheDocument();
+    expect(scrollRegion).not.toContain(railFooter);
+  });
 });
