@@ -110,24 +110,35 @@ describe("EventEditorPageContent", () => {
     );
 
     const header = screen.getByRole("banner");
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
-    const sharedNavigation = within(header).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
-    expect(sharedNavigation).toBeInTheDocument();
-    expect(within(sharedNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
-      "href",
-      "/events",
-    );
-    expect(within(sharedNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(rail).getByRole("link", { name: "アーカイブ" })).toHaveAttribute("href", "/events");
+    expect(within(rail).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(sharedNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+    expect(within(rail).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
     );
+    expect(within(rail).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "新規公演作成" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このセットリストを削除" })).toBeInTheDocument();
     expect(screen.getByText("PRODUCTION")).toBeInTheDocument();
     expect(screen.getByText("MASTER SCHEDULE")).toBeInTheDocument();
@@ -212,6 +223,49 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ダークテーマ" })).toBeInTheDocument();
   }, 20_000);
+
+  it("keeps the rail accessible after collapsing and hides page-specific sidebar content", async () => {
+    render(
+      <AuthenticatedEventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="dark"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+
+    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
+
+    expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(within(rail).queryByText("PRODUCTION")).not.toBeInTheDocument();
+    expect(within(rail).queryByText("MASTER SCHEDULE")).not.toBeInTheDocument();
+    expect(within(rail).queryByText("Upcoming & Recent")).not.toBeInTheDocument();
+  });
 
   it("keeps the light metadata and add-item strips on paper-tone surfaces", () => {
     render(

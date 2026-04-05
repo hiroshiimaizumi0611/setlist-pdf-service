@@ -34,23 +34,34 @@ describe("BillingPageContent", () => {
     );
 
     const banner = screen.getByRole("banner");
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByText("Subscription Management")).toBeInTheDocument();
-    const navigation = within(banner).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+    expect(within(banner).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
     );
-    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
-      "href",
-      "/settings/billing",
-    );
-    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
       "aria-current",
       "page",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
     );
     expect(screen.getByRole("heading", { name: "Current Plan" })).toBeInTheDocument();
     expect(screen.getByText("プラン比較")).toBeInTheDocument();
@@ -87,19 +98,30 @@ describe("BillingPageContent", () => {
     expect(
       screen.getByText("登録済みの支払い方法は Billing Portal から更新できます。"),
     ).toBeInTheDocument();
-    const navigation = within(banner).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+    expect(within(banner).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
     );
-    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
       "aria-current",
       "page",
     );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "お支払い設定を開く" })).toBeInTheDocument();
@@ -124,19 +146,27 @@ describe("BillingPageContent", () => {
 
     const banner = screen.getByRole("banner");
     expect(screen.getByText("Stripe 未設定のため、お支払い方法は利用できません。")).toBeInTheDocument();
-    const navigation = within(banner).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+    const rail = screen.getByRole("complementary");
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+    expect(within(banner).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
     );
-    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(navigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
       "aria-current",
       "page",
     );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByText("有効中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "支払い方法を確認" })).toBeDisabled();
     expect(within(screen.getByRole("banner")).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
@@ -161,8 +191,28 @@ describe("BillingPageContent", () => {
     expect(
       within(screen.getByRole("banner")).getByRole("link", { name: "ログイン" }),
     ).toHaveAttribute("href", "/login");
-    expect(
-      within(screen.getByRole("banner")).queryByRole("button", { name: "ユーザーメニューを開く" }),
-    ).not.toBeInTheDocument();
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+    expect(within(appNavigation).getByRole("link", { name: "請求", current: "page" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).queryByRole("button", { name: "ログアウト" })).not.toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).queryByRole("button", { name: "ユーザーメニューを開く" })).not.toBeInTheDocument();
   });
 });

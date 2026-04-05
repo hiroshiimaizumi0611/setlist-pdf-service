@@ -128,25 +128,35 @@ describe("Performance archive page route wiring", () => {
     render(result);
 
     const header = screen.getByRole("banner");
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
-    const navigation = screen.getByRole("navigation", { name: "アプリ全体ナビゲーション" });
-    expect(navigation).toBeInTheDocument();
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+    expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
     );
-    expect(within(navigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
     );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
     expect(
-      within(navigation).getByRole("link", { name: "アーカイブ", current: "page" }),
+      within(appNavigation).getByRole("link", { name: "アーカイブ", current: "page" }),
     ).toHaveAttribute("aria-current", "page");
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "ライトテーマ" })).toHaveAttribute(
       "href",
       "/events?theme=light",

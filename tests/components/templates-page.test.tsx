@@ -99,24 +99,35 @@ describe("TemplatesPage", () => {
     render(result);
 
     const header = screen.getByRole("banner");
-    const navigation = within(header).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
+    const rail =
+      screen.getAllByRole("complementary").find((candidate) =>
+        within(candidate).queryByRole("navigation", { name: "アプリ全体ナビゲーション" }),
+      ) ?? screen.getAllByRole("complementary")[0];
+    const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
     expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
     expect(screen.getByText("1 items")).toBeInTheDocument();
     expect(screen.getByText("静かな立ち上がりからアンコールまで")).toBeInTheDocument();
-    expect(within(navigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+    expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
     );
-    expect(within(navigation).getByRole("link", { name: "テンプレート", current: "page" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート", current: "page" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(within(navigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
     );
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+      "href",
+      "/account",
+    );
+    expect(within(rail).getByRole("button", { name: "ログアウト" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "この公演から保存" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "このテンプレートで公演作成" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
