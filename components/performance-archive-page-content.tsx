@@ -9,6 +9,7 @@ import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { FormPendingButton } from "./form-pending-button";
 import { PerformanceArchiveFilters } from "./performance-archive-filters";
 import { PerformanceArchiveTable } from "./performance-archive-table";
+import { StatusPanel } from "./status-panel";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 
@@ -276,29 +277,45 @@ export function PerformanceArchivePageContent({
       />
 
       {!hasArchiveEvents ? (
-        <section className={`border ${theme.border} ${theme.panel} p-6`}>
-          <p className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
-            空のアーカイブ
-          </p>
-          <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
-            アーカイブにはまだ保存済みの公演がありません
-          </h2>
-          <p className={`mt-3 max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-            検索とフィルタはこのまま表示され、最初の公演を作成するとここにアーカイブ一覧が並びます。
-          </p>
-        </section>
+        <StatusPanel
+          theme={theme}
+          label="ARCHIVE EMPTY"
+          title="まだ保存済みの公演がない"
+          description="最初の公演を作ると、ここから編集・複製・PDF確認へつながります。"
+          actions={
+            createEventAction ? (
+              <form action={createEventAction} className="contents">
+                <input type="hidden" name="theme" value={currentTheme} />
+                <FormPendingButton
+                  idleLabel="新規公演作成"
+                  pendingLabel="作成中..."
+                  className={`${theme.buttonPrimary} min-h-11 px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
+                />
+              </form>
+            ) : null
+          }
+        />
       ) : isFiltering && !hasFilteredEvents ? (
-        <section className={`border ${theme.border} ${theme.panel} p-6`}>
-          <p className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}>
-            FILTERED ARCHIVE
-          </p>
-          <h2 className="mt-3 font-mono text-3xl font-black tracking-[-0.08em]">
-            検索結果に一致する公演がありません
-          </h2>
-          <p className={`mt-3 max-w-2xl text-sm leading-7 ${theme.mutedText}`}>
-            別のキーワードを試すか、RESET FILTERS で一覧に戻してください。
-          </p>
-        </section>
+        <StatusPanel
+          theme={theme}
+          label="FILTERED ARCHIVE"
+          title="条件に一致する公演がない"
+          description="検索語や会場・テーマ・日付範囲を見直すと、該当する公演が見つかる可能性があります。"
+          actions={
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedVenue("all-venues");
+                setSelectedEventTheme("all-themes");
+                setSelectedDateRange("all-dates");
+              }}
+              className={`${theme.buttonSecondary} min-h-11 px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
+            >
+              フィルタをリセット
+            </button>
+          }
+        />
       ) : (
         <PerformanceArchiveTable
           events={filteredEvents}

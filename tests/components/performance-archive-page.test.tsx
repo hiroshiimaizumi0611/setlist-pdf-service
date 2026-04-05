@@ -209,6 +209,7 @@ describe("Performance archive page content", () => {
         events={[]}
         currentTheme="dark"
         currentPlan="free"
+        createEventAction={async () => {}}
       />,
     );
 
@@ -225,11 +226,11 @@ describe("Performance archive page content", () => {
       screen.getByText("検索で一覧を絞り込み、RESET FILTERS で元に戻せます。"),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "アーカイブにはまだ保存済みの公演がありません" }),
+      screen.getByRole("heading", { name: "まだ保存済みの公演がない" }),
     ).toBeInTheDocument();
-    const noSavedEventsSection = screen.getByText(
-      "アーカイブにはまだ保存済みの公演がありません",
-    ).closest("section");
+    const noSavedEventsSection = screen
+      .getByRole("heading", { name: "まだ保存済みの公演がない" })
+      .closest("section");
     expect(noSavedEventsSection).toBeTruthy();
     if (!noSavedEventsSection) {
       throw new Error("expected no saved events section");
@@ -362,19 +363,14 @@ describe("Performance archive page content", () => {
 
     fireEvent.change(searchInput, { target: { value: "NOT-A-MATCH" } });
 
-    expect(
-      screen.getByRole("heading", { name: "検索結果に一致する公演がありません" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "条件に一致する公演がない" })).toBeInTheDocument();
     const filteredNoResultsSection = screen
-      .getByRole("heading", { name: "検索結果に一致する公演がありません" })
+      .getByRole("heading", { name: "条件に一致する公演がない" })
       .closest("section");
     expect(filteredNoResultsSection).toBeTruthy();
     if (!filteredNoResultsSection) {
       throw new Error("expected filtered no-results section");
     }
-    expect(
-      within(filteredNoResultsSection).getByRole("heading", { name: "条件に一致する公演がない" }),
-    ).toBeInTheDocument();
     expect(
       within(filteredNoResultsSection).getByRole("button", { name: "フィルタをリセット" }),
     ).toBeInTheDocument();

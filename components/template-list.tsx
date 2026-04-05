@@ -1,6 +1,8 @@
+import Link from "next/link";
 import type { listTemplates } from "@/lib/services/templates-service";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
+import { StatusPanel } from "./status-panel";
 import { TemplateRow } from "./template-row";
 
 type TemplateListProps = {
@@ -31,9 +33,22 @@ export function TemplateList({
       </div>
 
       {templates.length === 0 ? (
-        <p className={`mt-6 border-2 border-dashed ${theme.border} ${theme.panelMuted} px-5 py-4 text-sm leading-7 ${theme.mutedText}`}>
-          まだ保存済みテンプレートがありません。公演内容を保存すると、この一覧から次回公演をすぐ立ち上げられます。
-        </p>
+        <div className="mt-6">
+          <StatusPanel
+            theme={theme}
+            label="REUSABLE ASSETS"
+            title="まだ保存済みテンプレートがない"
+            description="一度公演を保存すると、次回以降の公演立ち上げが速くなる。"
+            actions={
+              <Link
+                href="/events"
+                className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
+              >
+                保存元の公演を確認
+              </Link>
+            }
+          />
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           <div className={`hidden items-center gap-3 border-b ${theme.border} pb-2 font-mono text-[11px] uppercase tracking-[0.22em] ${theme.mutedText} lg:grid lg:grid-cols-[minmax(0,1.7fr)_7rem_auto]`}>

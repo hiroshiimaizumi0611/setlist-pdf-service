@@ -157,9 +157,31 @@ describe("TemplatesPage", () => {
 
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "まだ保存済みテンプレートがありません。公演内容を保存すると、この一覧から次回公演をすぐ立ち上げられます。",
-      ),
+      screen.getByRole("heading", { name: "まだ保存対象の公演がない" }),
+    ).toBeInTheDocument();
+    const noSourceEventsSection = screen
+      .getByRole("heading", { name: "まだ保存対象の公演がない" })
+      .closest("section");
+    expect(noSourceEventsSection).toBeTruthy();
+    if (!noSourceEventsSection) {
+      throw new Error("expected no source events section");
+    }
+    expect(
+      within(noSourceEventsSection).getByRole("link", { name: "アーカイブへ移動" }),
+    ).toHaveAttribute("href", "/events");
+
+    expect(
+      screen.getByRole("heading", { name: "まだ保存済みテンプレートがない" }),
+    ).toBeInTheDocument();
+    const noTemplatesSection = screen
+      .getByRole("heading", { name: "まだ保存済みテンプレートがない" })
+      .closest("section");
+    expect(noTemplatesSection).toBeTruthy();
+    if (!noTemplatesSection) {
+      throw new Error("expected no templates section");
+    }
+    expect(
+      within(noTemplatesSection).getByText(/一度公演を保存すると、次回以降の公演立ち上げが速くなる/),
     ).toBeInTheDocument();
   });
 });

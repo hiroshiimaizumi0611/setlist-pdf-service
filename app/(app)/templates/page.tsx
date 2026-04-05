@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthenticatedAppFrame } from "@/components/authenticated-app-frame";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { listEventSummaries } from "@/lib/services/events-service";
 import { listTemplates } from "@/lib/services/templates-service";
 import { getDashboardThemeStyles } from "@/components/dashboard-shell";
+import { StatusPanel } from "@/components/status-panel";
 import { TemplateList } from "@/components/template-list";
 import { TemplateSaveButton } from "@/components/template-save-button";
 import { UserMenu } from "@/components/user-menu";
@@ -72,9 +74,22 @@ export default async function TemplatesPage() {
         </div>
 
         {events.length === 0 ? (
-          <p className={`mt-6 border-2 border-dashed ${theme.border} ${theme.panelMuted} px-5 py-4 text-sm ${theme.mutedText}`}>
-            まだ保存対象の公演がありません。先に公演を作成すると、ここからテンプレート化できます。
-          </p>
+          <div className="mt-6">
+            <StatusPanel
+              theme={theme}
+              label="SOURCE ARCHIVE"
+              title="まだ保存対象の公演がない"
+              description="公演を作成すると、この画面からテンプレートへ保存できます。"
+              actions={
+                <Link
+                  href="/events"
+                  className={`${theme.buttonSecondary} inline-flex min-h-11 items-center justify-center px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
+                >
+                  アーカイブへ移動
+                </Link>
+              }
+            />
+          </div>
         ) : (
           <div className="mt-6 space-y-3">
             <div className={`hidden items-center gap-3 border-b ${theme.border} pb-2 font-mono text-[11px] uppercase tracking-[0.22em] ${theme.mutedText} lg:grid lg:grid-cols-[minmax(0,1.8fr)_5.5rem_minmax(0,1.2fr)_minmax(0,1.1fr)_auto]`}>
