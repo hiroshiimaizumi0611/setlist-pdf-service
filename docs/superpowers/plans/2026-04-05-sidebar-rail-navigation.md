@@ -4,7 +4,7 @@
 
 **Goal:** Move shared app navigation into a Stitch-style left rail with icons, collapse support, and a footer logout action across the authenticated app screens.
 
-**Architecture:** Replace the new header-level shared nav with a sidebar rail model that combines app-wide navigation, page-specific sidebar content, and a footer utility area. Reuse `DashboardShell` where possible, then align `/templates`, `/settings/billing`, and `/account` around the same rail structure so navigation placement is consistent even when page content differs.
+**Architecture:** Replace the new header-level shared nav with a sidebar rail model that combines app-wide navigation, page-specific sidebar content, and a footer utility area. Keep `DashboardShell` server-side, and host the collapse state inside a new client `SidebarRail` wrapper so server-rendered page composition does not regress. Align `/templates`, `/settings/billing`, and `/account` around that same shared rail wrapper so navigation placement, collapse behavior, and footer utilities stay consistent across bespoke page bodies.
 
 **Tech Stack:** Next.js App Router, React 19, Tailwind CSS v4, Vitest, Testing Library
 
@@ -17,7 +17,7 @@
 - `components/app-global-nav.tsx`
   - Rework from header pills into a left-rail navigation with icons, collapsed rendering, and `account` support.
 - `components/dashboard-shell.tsx`
-  - Move global nav out of the header and into the left rail; add collapse state and a footer utility slot.
+  - Move global nav out of the header and into the left rail; pass page-specific sidebar content and a footer utility slot into a client rail wrapper without converting the shell itself to a client component.
 - `components/event-editor-page-content.tsx`
   - Pass the correct active rail item and keep event-specific sidebar content in the page-specific slot.
 - `components/performance-archive-page-content.tsx`
@@ -30,6 +30,8 @@
   - Same as billing, with `マイページ` active.
 - `components/logout-button.tsx`
   - Confirm it works visually and semantically in a left-rail footer position.
+- `components/authenticated-app-frame.tsx`
+  - Shared non-dashboard wrapper for templates, billing, and account so they reuse the same rail/header structure instead of drifting.
 - `tests/components/event-editor.test.tsx`
   - Update expectations from header nav to left-rail nav.
 - `tests/components/event-editor-page-route.test.tsx`
@@ -56,6 +58,8 @@
   - Ensure page-specific event navigation still works when the left rail also contains app-wide navigation.
 - `components/settings-sidebar.tsx`
   - Decide whether to keep or slim this content once the app-wide rail sits above it.
+- `app/(app)/settings/billing/page.tsx`
+  - Preserve the guest login CTA path while ensuring no logout footer renders for anonymous billing.
 
 ## Reference Material
 
@@ -82,6 +86,9 @@ Update tests to assert:
 - links exist for `アーカイブ`, `テンプレート`, `請求`, `マイページ`
 - `aria-current="page"` is set for the correct item on each route
 - `ログアウト` is reachable from the left rail footer
+- the collapse toggle exists and can switch the rail into icon-only mode
+- icon-only nav items still expose accessible names
+- page-specific sidebar content hides or compacts as intended in collapsed mode
 
 Example checks:
 
@@ -93,11 +100,20 @@ expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).
   "href",
   "/templates",
 );
+await user.click(screen.getByRole("button", { name: "サイドバーを縮小" }));
+expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
+  "aria-current",
+  "page",
+);
 ```
 
 - [ ] **Step 2: Keep page-specific sidebar assertions separate**
 
 Make sure event-list and settings-sidebar tests still target their own navigation landmarks so they do not accidentally pass against the new app rail.
+
+- [ ] **Step 2.5: Cover the anonymous billing branch explicitly**
+
+Add an assertion that guest billing still shows the login CTA and does **not** render the footer logout control.
 
 - [ ] **Step 3: Run the focused tests to verify they fail**
 
@@ -124,6 +140,7 @@ git commit -m "test: define sidebar rail navigation expectations"
 
 **Files:**
 - Create: `components/sidebar-rail.tsx`
+- Create: `components/authenticated-app-frame.tsx`
 - Modify: `components/app-global-nav.tsx`
 - Modify: `components/logout-button.tsx`
 
@@ -136,6 +153,7 @@ It should own:
 - app-wide nav slot
 - page-specific content slot
 - footer slot
+- authenticated/guest-aware utility region
 
 Keep the API small:
 
@@ -158,11 +176,21 @@ Add:
 - active/inactive styling that still works without labels
 - accessible names via visible text or `aria-label`
 
-- [ ] **Step 3: Adapt `LogoutButton` for the rail footer**
+- [ ] **Step 3: Build a shared `AuthenticatedAppFrame` for non-dashboard pages**
+
+This wrapper should compose:
+
+- the same `SidebarRail`
+- a consistent top header container for page title + actions + `UserMenu`
+- a main content slot
+
+This makes `/templates`, `/settings/billing`, and `/account` consume one rail/header API instead of hand-rolling the structure three times.
+
+- [ ] **Step 4: Adapt `LogoutButton` for the rail footer**
 
 Do not change sign-out behavior. Only make sure it can render naturally in a rail footer when the rail is collapsed or expanded.
 
-- [ ] **Step 4: Run the focused tests**
+- [ ] **Step 5: Run the focused tests**
 
 Run:
 
@@ -172,10 +200,10 @@ npm run test -- tests/components/event-editor.test.tsx tests/components/billing-
 
 Expected: still FAIL because the new rail is not mounted yet.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add components/sidebar-rail.tsx components/app-global-nav.tsx components/logout-button.tsx
+git add components/sidebar-rail.tsx components/authenticated-app-frame.tsx components/app-global-nav.tsx components/logout-button.tsx
 git commit -m "feat: build shared sidebar rail components"
 ```
 
@@ -191,12 +219,13 @@ git commit -m "feat: build shared sidebar rail components"
 Refactor `DashboardShell` so:
 
 - the header keeps brand meta, page actions, and `UserMenu`
-- the left rail renders `SidebarRail`
+- the left rail renders client `SidebarRail`
 - page-specific sidebar content still renders below the app nav
+- footer utility comes from a shared authenticated pattern
 
 - [ ] **Step 2: Add client-side collapse state**
 
-Start with lightweight local component state. Do not add persistence unless it falls out cleanly.
+Host this state inside `SidebarRail` (or a small client child directly above it), not in `DashboardShell`, so `DashboardShell` remains server-rendered. Do not add persistence unless it falls out cleanly.
 
 - [ ] **Step 3: Mount the app rail on archive/editor**
 
@@ -237,6 +266,7 @@ The page should show:
 - app rail on the left with `テンプレート` active
 - existing template content on the right
 - `UserMenu` remaining in the top header area
+- the shared `AuthenticatedAppFrame` instead of bespoke rail/header markup
 
 - [ ] **Step 2: Preserve the two-section templates workflow**
 
@@ -290,7 +320,7 @@ Preserve:
 
 - [ ] **Step 3: Move logout responsibility to the rail footer**
 
-Remove standalone top-level logout placements so the left rail becomes the single obvious place for sign-out.
+Make the left rail footer the single obvious place for sign-out on authenticated pages by having `DashboardShell` and `AuthenticatedAppFrame` always mount `LogoutButton` there for signed-in users. Guests on billing should not receive a logout footer.
 
 - [ ] **Step 4: Run the focused tests**
 
@@ -325,6 +355,7 @@ Confirm that:
 - icon-only items still expose names
 - active state is still discoverable
 - collapse toggle has a meaningful accessible name
+- page-specific sidebar content follows the intended collapsed behavior
 
 - [ ] **Step 2: Run the full test suite**
 
