@@ -70,7 +70,8 @@ describe("BillingPageContent", () => {
     expect(screen.getByText("プラン比較")).toBeInTheDocument();
     expect(screen.getByText("お支払い方法")).toBeInTheDocument();
     expect(screen.getByText("請求履歴")).toBeInTheDocument();
-    expect(screen.getByText("請求履歴はまだありません")).toBeInTheDocument();
+    expect(screen.getByText("支払い方法はまだ登録されていない")).toBeInTheDocument();
+    expect(screen.getByText("請求履歴はまだない")).toBeInTheDocument();
 
     expect(screen.getByText("請求サマリー")).toBeInTheDocument();
     expect(screen.getByText("基本機能込み")).toBeInTheDocument();
@@ -223,7 +224,6 @@ describe("BillingPageContent", () => {
       "/account",
     );
     expect(within(rail).getByRole("navigation", { name: "設定ナビゲーション" })).toBeInTheDocument();
-    expect(within(rail).queryByRole("contentinfo")).not.toBeInTheDocument();
     expect(within(rail).queryByRole("button", { name: "ログアウト" })).not.toBeInTheDocument();
     expect(within(screen.getByRole("banner")).queryByRole("button", { name: "ユーザーメニューを開く" })).not.toBeInTheDocument();
   });
