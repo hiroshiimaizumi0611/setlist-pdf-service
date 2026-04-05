@@ -28,7 +28,7 @@ export function ExportPdfButton({
           setIsNavigating(true);
           router.push(previewHref);
         }}
-        className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-5 text-sm font-black tracking-[0.16em] uppercase`}
+        className={`${theme.buttonPrimary} inline-flex min-h-10 items-center justify-center whitespace-nowrap px-4 text-xs font-black tracking-[0.14em] uppercase`}
       >
         PDF出力
       </button>

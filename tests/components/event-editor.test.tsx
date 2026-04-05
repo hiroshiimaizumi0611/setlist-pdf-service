@@ -716,7 +716,7 @@ describe("EventEditorPageContent", () => {
       throw new Error("expected dark event rail");
     }
     expect(rail).toHaveClass("bg-[#161616]");
-    expect(rail).toHaveClass("lg:w-[19rem]");
+    expect(rail).toHaveClass("lg:w-[17rem]");
 
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });
     const currentEventCard = currentEventLink.closest("article");

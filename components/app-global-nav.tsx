@@ -87,17 +87,17 @@ const APP_GLOBAL_NAV_ITEMS: readonly AppGlobalNavItem[] = [
 
 const APP_GLOBAL_NAV_CLASSES = {
   base:
-    "group flex min-h-12 items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
+    "group flex min-h-10 items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-[13px] font-semibold transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
   active:
     "border-[#f6c453] bg-[#f6c453] text-[#1f1b16] shadow-[0_0_0_1px_rgba(246,196,83,0.24)]",
   inactive:
     "border-[#38332b] bg-[#1b1b1b] text-[#d5ccbe] hover:border-[#4a453e] hover:bg-[#232323] hover:text-[#f6f3ee]",
 } as const;
 
-function getNavItemClassName(isActive: boolean) {
+function getNavItemClassName(isActive: boolean, collapsed: boolean) {
   return `${APP_GLOBAL_NAV_CLASSES.base} ${
     isActive ? APP_GLOBAL_NAV_CLASSES.active : APP_GLOBAL_NAV_CLASSES.inactive
-  }`;
+  } ${collapsed ? "justify-center px-0" : ""}`;
 }
 
 export function AppGlobalNav({
@@ -120,9 +120,9 @@ export function AppGlobalNav({
                 aria-current={isActive ? "page" : undefined}
                 aria-label={collapsed ? item.label : undefined}
                 title={item.label}
-                className={getNavItemClassName(isActive)}
+                className={getNavItemClassName(isActive, collapsed)}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <Icon className="h-[18px] w-[18px] shrink-0" />
                 {collapsed ? (
                   <span className="sr-only">{item.label}</span>
                 ) : (

@@ -55,7 +55,7 @@ export function UserMenu({ displayName, email, currentPlan }: UserMenuProps) {
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
         onClick={() => setIsOpen((current) => !current)}
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-[#4a3f32] bg-[#201a14] text-sm font-black text-[#f6c453] transition hover:border-[#f6c453] hover:text-[#ffe08a] focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-[#131313]"
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-[#4a3f32] bg-[#201a14] text-[13px] font-black text-[#f6c453] transition hover:border-[#f6c453] hover:text-[#ffe08a] focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-[#131313]"
       >
         {getInitial(displayName, email)}
       </button>

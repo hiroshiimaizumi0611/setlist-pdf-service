@@ -110,7 +110,7 @@ function ChevronRightIcon() {
 
 function RailBrandMark() {
   return (
-    <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f6c453] text-sm font-black tracking-[-0.08em] text-[#1f1b16] shadow-[0_10px_30px_rgba(246,196,83,0.18)]">
+    <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-[#f6c453] text-[11px] font-black tracking-[-0.04em] text-[#1f1b16] shadow-[0_8px_22px_rgba(246,196,83,0.18)]">
       SP
     </span>
   );
@@ -136,27 +136,27 @@ export function SidebarRail({
   return (
     <aside
       className={[
-        "flex flex-col gap-4 border-b px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4",
+        "flex flex-col gap-3 border-b px-3 py-3 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r lg:px-3 lg:py-3",
         theme.shell,
         theme.railEdge,
-        collapsed ? "lg:w-[6rem]" : "lg:w-[19rem]",
+        collapsed ? "lg:w-[5rem]" : "lg:w-[17rem]",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex items-start gap-3">
+      <div className={collapsed ? "flex flex-col items-center gap-2" : "flex items-start gap-2.5"}>
         <Link
           href={brandHref}
-          className={`flex min-w-0 flex-1 items-center gap-3 rounded-2xl border ${theme.subtleBorder} ${theme.panel} px-3 py-3 transition hover:border-[#f6c453]/60 hover:bg-[#262626]`}
+          className={`flex min-w-0 ${collapsed ? "w-full justify-center px-0 py-2.5" : "flex-1 items-center gap-2.5 px-3 py-2.5"} rounded-2xl border ${theme.subtleBorder} ${theme.panel} transition hover:border-[#f6c453]/60 hover:bg-[#262626]`}
         >
           <RailBrandMark />
           {!collapsed ? (
             <span className="min-w-0">
-              <span className={`block truncate text-sm font-black tracking-[0.16em] ${theme.brandText}`}>
+              <span className={`block truncate text-[13px] font-black tracking-[0.14em] ${theme.brandText}`}>
                 {brandLabel}
               </span>
-              <span className={`mt-1 block text-[10px] font-mono uppercase tracking-[0.26em] ${theme.brandMeta}`}>
+              <span className={`mt-1 block text-[9px] font-mono uppercase tracking-[0.24em] ${theme.brandMeta}`}>
                 Backstage
               </span>
             </span>
@@ -171,7 +171,7 @@ export function SidebarRail({
           aria-pressed={collapsed}
           onClick={() => setCollapsed((current) => !current)}
           className={[
-            "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
+            "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border transition focus:outline-none focus:ring-2 focus:ring-[#f6c453] focus:ring-offset-2 focus:ring-offset-transparent",
             theme.toggle,
             collapsed ? theme.toggleActive : theme.toggleInactive,
           ].join(" ")}
@@ -180,8 +180,8 @@ export function SidebarRail({
         </button>
       </div>
 
-      <div className="space-y-3">
-        <p className={`px-1 text-[10px] font-mono uppercase tracking-[0.3em] ${theme.mutedText}`}>
+      <div className="space-y-2.5">
+        <p className={`px-1 text-[9px] font-mono uppercase tracking-[0.28em] ${theme.mutedText}`}>
           Navigation
         </p>
         <AppGlobalNav
@@ -193,13 +193,13 @@ export function SidebarRail({
       </div>
 
       {!collapsed && pageContent ? (
-        <div className={`space-y-3 border-t ${theme.border} pt-4`}>
+        <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
           {pageContent}
         </div>
       ) : null}
 
       {utility ? (
-        <div className={`space-y-3 border-t ${theme.border} pt-4`}>
+        <div className={`space-y-3 border-t ${theme.border} pt-3.5`}>
           {utility}
         </div>
       ) : null}
@@ -210,7 +210,15 @@ export function SidebarRail({
             role="contentinfo"
             className={`rounded-3xl border px-3 py-3 ${theme.footerSurface} ${theme.footerBorder}`}
           >
-            {footer !== undefined ? footer : <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />}
+            {footer !== undefined ? (
+              footer
+            ) : (
+              <LogoutButton
+                collapsed={collapsed}
+                variant="rail"
+                className={collapsed ? "w-full justify-center px-0" : "w-full justify-start px-3"}
+              />
+            )}
           </div>
         </div>
       ) : null}
