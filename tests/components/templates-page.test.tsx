@@ -105,12 +105,13 @@ describe("TemplatesPage", () => {
       ) ?? screen.getAllByRole("complementary")[0];
     const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
     expect(screen.getByText("テンプレート管理")).toBeInTheDocument();
-    expect(screen.getByText("既存の公演からテンプレートを保存")).toBeInTheDocument();
+    expect(screen.getByText("既存公演から保存")).toBeInTheDocument();
+    expect(screen.getByText("保存済みテンプレート一覧")).toBeInTheDocument();
     expect(screen.getByText("保存済みテンプレート")).toBeInTheDocument();
     expect(screen.getByText("1 items")).toBeInTheDocument();
     expect(screen.getByText("静かな立ち上がりからアンコールまで")).toBeInTheDocument();
     expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
-    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" })).toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",
