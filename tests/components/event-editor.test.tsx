@@ -118,21 +118,24 @@ describe("EventEditorPageContent", () => {
     expect(screen.getByText("BACKSTAGE PRO")).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
-    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "アーカイブ" })).toHaveAttribute("href", "/events");
-    expect(within(rail).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
+    expect(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" })).toBeInTheDocument();
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
+      "href",
+      "/events",
+    );
+    expect(within(appNavigation).getByRole("link", { name: "テンプレート" })).toHaveAttribute(
       "href",
       "/templates",
     );
-    expect(within(rail).getByRole("link", { name: "請求" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "請求" })).toHaveAttribute(
       "href",
       "/settings/billing",
     );
-    expect(within(rail).getByRole("link", { name: "マイページ" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "マイページ" })).toHaveAttribute(
       "href",
       "/account",
     );
-    expect(within(appNavigation).getByRole("link", { name: "アーカイブ", current: "page" })).toHaveAttribute(
+    expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -243,13 +246,9 @@ describe("EventEditorPageContent", () => {
       ) ?? screen.getAllByRole("complementary")[0];
     const appNavigation = within(rail).getByRole("navigation", { name: "アプリ全体ナビゲーション" });
 
-    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを縮小" }));
+    fireEvent.click(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" }));
 
     expect(within(rail).getByRole("button", { name: "サイドバーを展開" })).toBeInTheDocument();
-    expect(within(appNavigation).queryByText("アーカイブ")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("テンプレート")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("請求")).not.toBeInTheDocument();
-    expect(within(appNavigation).queryByText("マイページ")).not.toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "aria-current",
       "page",
@@ -717,7 +716,7 @@ describe("EventEditorPageContent", () => {
       throw new Error("expected dark event rail");
     }
     expect(rail).toHaveClass("bg-[#161616]");
-    expect(rail).toHaveClass("lg:w-60");
+    expect(rail).toHaveClass("lg:w-[19rem]");
 
     const currentEventLink = within(navigation).getByRole("link", { current: "page" });
     const currentEventCard = currentEventLink.closest("article");

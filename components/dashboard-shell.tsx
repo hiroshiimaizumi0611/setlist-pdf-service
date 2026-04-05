@@ -1,13 +1,16 @@
 import type { ReactNode } from "react";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
+import { LogoutButton } from "./logout-button";
+import { SidebarRail } from "./sidebar-rail";
+import type { AppGlobalNavActiveItem } from "./app-global-nav";
 
 type DashboardShellProps = {
   currentTheme: PdfThemeName;
   sidebar: ReactNode;
+  activeItem?: AppGlobalNavActiveItem;
   eyebrow: string;
   title: string;
   description: string;
-  globalNav?: ReactNode;
   headerActions?: ReactNode;
   children: ReactNode;
 };
@@ -125,10 +128,10 @@ export function getDashboardThemeStyles(theme: PdfThemeName) {
 export function DashboardShell({
   currentTheme,
   sidebar,
+  activeItem = "archive",
   eyebrow,
   title,
   description,
-  globalNav,
   headerActions,
   children,
 }: DashboardShellProps) {
@@ -136,41 +139,50 @@ export function DashboardShell({
 
   return (
     <main className={`${theme.page} min-h-screen`}>
-      <header
-        className={`fixed inset-x-0 top-0 z-50 border-b ${theme.railBorder} ${theme.headerShell} px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8`}
-      >
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <span
-              className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
-            >
-              {theme.headerBrand}
-            </span>
-            <div
-              className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-4 text-[10px] font-mono uppercase tracking-[0.3em] ${theme.mutedText}`}
-            >
-              {theme.headerMeta}
-              <span className={`ml-3 ${theme.headerCurrentShow}`}>CURRENT SHOW: {title}</span>
+      <div className="mx-auto flex min-h-screen max-w-[1600px] flex-col lg:grid lg:grid-cols-[auto_minmax(0,1fr)]">
+        <SidebarRail
+          currentTheme={currentTheme}
+          activeItem={activeItem}
+          pageContent={() => sidebar}
+          footer={(collapsed) => (
+            <footer role="contentinfo" className="space-y-3">
+              <LogoutButton collapsed={collapsed} variant="rail" className="w-full" />
+            </footer>
+          )}
+        />
+
+        <div className="min-w-0 px-4 pb-8 pt-5 sm:px-6 lg:px-8 lg:py-6">
+          <header
+            className={`sticky top-0 z-20 border-b ${theme.railBorder} ${theme.headerShell} px-4 py-4 backdrop-blur-md sm:px-5`}
+          >
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-4">
+                  <span
+                    className={`text-xl font-black tracking-tighter ${theme.headerCurrentShow}`}
+                  >
+                    {theme.headerBrand}
+                  </span>
+                  <div
+                    className={`hidden min-[900px]:block border-l ${theme.railBorder} pl-4 text-[10px] font-mono uppercase tracking-[0.3em] ${theme.mutedText}`}
+                  >
+                    {theme.headerMeta}
+                    <span className={`ml-3 ${theme.headerCurrentShow}`}>
+                      CURRENT SHOW: {title}
+                    </span>
+                  </div>
+                </div>
+                <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>{description}</p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {headerActions ? (
+                  <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
+                ) : null}
+              </div>
             </div>
-            {globalNav ? <div className="w-full min-[900px]:w-auto">{globalNav}</div> : null}
-          </div>
+          </header>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {headerActions ? (
-              <div className="flex flex-wrap items-center gap-3">{headerActions}</div>
-            ) : null}
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col lg:block">
-        <aside
-          className={`${theme.rail} ${theme.railBorder} border-b px-4 pb-5 pt-18 lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:h-full lg:w-60 lg:border-b-0 lg:border-r lg:px-5 lg:pb-4 lg:pt-16`}
-        >
-          {sidebar}
-        </aside>
-
-        <div className="min-w-0 px-4 pb-8 pt-22 sm:px-6 lg:pl-[17.5rem] lg:pr-8 lg:pt-20">
           <section className={`border-l-4 ${theme.border} pl-4`}>
             <p
               className={`font-mono text-[11px] uppercase tracking-[0.32em] ${theme.mutedText}`}
@@ -180,9 +192,6 @@ export function DashboardShell({
             <h1 className="mt-2 font-mono text-3xl font-black tracking-[-0.08em] sm:text-4xl">
               {title}
             </h1>
-            <p className={`mt-3 max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
-              {description}
-            </p>
           </section>
 
           <div className="mt-5 space-y-5">{children}</div>

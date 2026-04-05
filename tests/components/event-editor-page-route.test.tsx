@@ -272,7 +272,7 @@ describe("EventEditorPage route wiring", () => {
     ).not.toBeInTheDocument();
 
     const rail = screen.getByRole("complementary");
-    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" })).toBeInTheDocument();
     const appNavigation = within(rail).getByRole("navigation", {
       name: "アプリ全体ナビゲーション",
     });

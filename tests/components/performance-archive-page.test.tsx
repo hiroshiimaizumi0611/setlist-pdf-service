@@ -136,7 +136,7 @@ describe("Performance archive page route wiring", () => {
     expect(screen.getByRole("heading", { name: "公演アーカイブ" })).toBeInTheDocument();
     expect(within(header).getByRole("button", { name: "ユーザーメニューを開く" })).toBeInTheDocument();
     expect(within(header).queryByRole("navigation", { name: "アプリ全体ナビゲーション" })).not.toBeInTheDocument();
-    expect(within(rail).getByRole("button", { name: "サイドバーを縮小" })).toBeInTheDocument();
+    expect(within(rail).getByRole("button", { name: "サイドバーを折りたたむ" })).toBeInTheDocument();
     expect(within(appNavigation).getByRole("link", { name: "アーカイブ" })).toHaveAttribute(
       "href",
       "/events",

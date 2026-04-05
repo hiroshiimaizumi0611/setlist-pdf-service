@@ -3,8 +3,6 @@ import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
 import type { SetlistItemType } from "@/lib/services/events-service";
 import type { AuthenticatedUserIdentity } from "@/lib/user-identity";
-import Link from "next/link";
-import { AppGlobalNav } from "./app-global-nav";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 import { EventList } from "./event-list";
 import { EventMetadataForm } from "./event-metadata-form";
@@ -138,13 +136,6 @@ export function EventEditorPageContent({
         />
       </form>
 
-      <Link
-        href={`/events?theme=${currentTheme}`}
-        className={`${theme.buttonSecondary} inline-flex min-h-11 w-full items-center justify-center px-4 text-sm font-black tracking-[0.14em] uppercase`}
-      >
-        アーカイブ
-      </Link>
-
       <EventList
         events={events}
         currentEventId={currentEventId}
@@ -160,10 +151,10 @@ export function EventEditorPageContent({
       <DashboardShell
         currentTheme={currentTheme}
         sidebar={sidebarChrome}
+        activeItem="archive"
         eyebrow="セットリスト編集"
         title="新規公演を準備"
         description="左の作成ボタンから最初の公演を作成すると、ここに本番用の進行表エディタが表示されます。"
-        globalNav={<AppGlobalNav activeItem="archive" />}
         headerActions={
           <>
             <ThemeToggle
@@ -238,10 +229,10 @@ export function EventEditorPageContent({
     <DashboardShell
       currentTheme={currentTheme}
       sidebar={sidebarChrome}
+      activeItem="archive"
       eyebrow="技術進行シート"
       title={event.title}
       description={`${headerDescription}。本番進行・曲順・補足メモをひとつの紙面感覚で管理できます。`}
-      globalNav={<AppGlobalNav activeItem="archive" />}
       headerActions={
         <>
           <ThemeToggle
