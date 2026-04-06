@@ -274,64 +274,69 @@ const DOCUMENT_STYLES = `
 function getDensityMetrics(
   densityPreset: SetlistPdfLayout["densityPreset"],
   rowExpansion: number,
+  outputPreset: SetlistPdfLayout["outputPreset"],
 ): DensityMetrics {
   const typographyScale = Math.min(1.48, 1 + (Math.max(1, rowExpansion) - 1) * 0.28);
+  const titleScale = outputPreset.tuning.titleScale;
+  const bodyScale = outputPreset.tuning.bodyScale;
+  const marginScale = outputPreset.tuning.marginScale;
+  const rowSpacingScale = outputPreset.tuning.rowSpacingScale;
 
   switch (densityPreset) {
     case "relaxed":
       return {
         headerBorderTop: scaleDensityMetric(4, Math.min(1.18, typographyScale)),
-        headerBandPadding: `${scaleDensityMetric(14, typographyScale)} ${scaleDensityMetric(18, typographyScale)} ${scaleDensityMetric(16, typographyScale)}`,
-        kickerSize: scaleDensityMetric(21, typographyScale),
-        titleSize: scaleDensityMetric(19, typographyScale),
-        metaSize: scaleDensityMetric(10.5, Math.min(1.18, typographyScale)),
-        cuePadding: `${scaleDensityMetric(10, typographyScale)} ${scaleDensityMetric(8, typographyScale)}`,
-        cueFontSize: scaleDensityMetric(11.5, typographyScale),
-        songFontSize: scaleDensityMetric(17, typographyScale),
-        transitionFontSize: scaleDensityMetric(11.5, typographyScale),
-        headingCueSize: scaleDensityMetric(22, typographyScale),
-        headingTitleSize: scaleDensityMetric(21, typographyScale),
-        rowCopyPadding: scaleDensityMetric(14, typographyScale),
-        footerTopPadding: scaleDensityMetric(7, Math.min(1.15, typographyScale)),
-        footerMetaSize: scaleDensityMetric(10, Math.min(1.15, typographyScale)),
-        footerPageSize: scaleDensityMetric(12, Math.min(1.12, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(14, typographyScale * marginScale)} ${scaleDensityMetric(18, typographyScale * marginScale)} ${scaleDensityMetric(16, typographyScale * marginScale)}`,
+        kickerSize: scaleDensityMetric(21, typographyScale * titleScale),
+        titleSize: scaleDensityMetric(19, typographyScale * titleScale),
+        metaSize: scaleDensityMetric(10.5, Math.min(1.18, typographyScale * bodyScale)),
+        cuePadding: `${scaleDensityMetric(10, typographyScale * rowSpacingScale)} ${scaleDensityMetric(8, typographyScale * rowSpacingScale)}`,
+        cueFontSize: scaleDensityMetric(11.5, typographyScale * bodyScale),
+        songFontSize: scaleDensityMetric(17, typographyScale * bodyScale),
+        transitionFontSize: scaleDensityMetric(11.5, typographyScale * bodyScale),
+        headingCueSize: scaleDensityMetric(22, typographyScale * titleScale),
+        headingTitleSize: scaleDensityMetric(21, typographyScale * titleScale),
+        rowCopyPadding: scaleDensityMetric(14, typographyScale * rowSpacingScale),
+        footerTopPadding: scaleDensityMetric(7, Math.min(1.15, typographyScale * marginScale)),
+        footerMetaSize: scaleDensityMetric(10, Math.min(1.15, typographyScale * bodyScale)),
+        footerPageSize: scaleDensityMetric(12, Math.min(1.12, typographyScale * titleScale)),
       };
     case "compact":
       return {
         headerBorderTop: scaleDensityMetric(3, Math.min(1.08, typographyScale)),
-        headerBandPadding: `${scaleDensityMetric(10, typographyScale)} ${scaleDensityMetric(14, typographyScale)} ${scaleDensityMetric(12, typographyScale)}`,
-        kickerSize: scaleDensityMetric(18, typographyScale),
-        titleSize: scaleDensityMetric(16, typographyScale),
-        metaSize: scaleDensityMetric(9, Math.min(1.14, typographyScale)),
-        cuePadding: `${scaleDensityMetric(7, typographyScale)} ${scaleDensityMetric(6, typographyScale)}`,
-        cueFontSize: scaleDensityMetric(10, typographyScale),
-        songFontSize: scaleDensityMetric(13, typographyScale),
-        transitionFontSize: scaleDensityMetric(10, typographyScale),
-        headingCueSize: scaleDensityMetric(18, typographyScale),
-        headingTitleSize: scaleDensityMetric(18, typographyScale),
-        rowCopyPadding: scaleDensityMetric(10, typographyScale),
-        footerTopPadding: scaleDensityMetric(5, Math.min(1.1, typographyScale)),
-        footerMetaSize: scaleDensityMetric(9, Math.min(1.1, typographyScale)),
-        footerPageSize: scaleDensityMetric(11, Math.min(1.08, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(10, typographyScale * marginScale)} ${scaleDensityMetric(14, typographyScale * marginScale)} ${scaleDensityMetric(12, typographyScale * marginScale)}`,
+        kickerSize: scaleDensityMetric(18, typographyScale * titleScale),
+        titleSize: scaleDensityMetric(16, typographyScale * titleScale),
+        metaSize: scaleDensityMetric(9, Math.min(1.14, typographyScale * bodyScale)),
+        cuePadding: `${scaleDensityMetric(7, typographyScale * rowSpacingScale)} ${scaleDensityMetric(6, typographyScale * rowSpacingScale)}`,
+        cueFontSize: scaleDensityMetric(10, typographyScale * bodyScale),
+        songFontSize: scaleDensityMetric(13, typographyScale * bodyScale),
+        transitionFontSize: scaleDensityMetric(10, typographyScale * bodyScale),
+        headingCueSize: scaleDensityMetric(18, typographyScale * titleScale),
+        headingTitleSize: scaleDensityMetric(18, typographyScale * titleScale),
+        rowCopyPadding: scaleDensityMetric(10, typographyScale * rowSpacingScale),
+        footerTopPadding: scaleDensityMetric(5, Math.min(1.1, typographyScale * marginScale)),
+        footerMetaSize: scaleDensityMetric(9, Math.min(1.1, typographyScale * bodyScale)),
+        footerPageSize: scaleDensityMetric(11, Math.min(1.08, typographyScale * titleScale)),
       };
     case "standard":
     default:
       return {
         headerBorderTop: scaleDensityMetric(4, Math.min(1.14, typographyScale)),
-        headerBandPadding: `${scaleDensityMetric(12, typographyScale)} ${scaleDensityMetric(16, typographyScale)} ${scaleDensityMetric(14, typographyScale)}`,
-        kickerSize: scaleDensityMetric(20, typographyScale),
-        titleSize: scaleDensityMetric(18, typographyScale),
-        metaSize: scaleDensityMetric(10, Math.min(1.16, typographyScale)),
-        cuePadding: `${scaleDensityMetric(8, typographyScale)} ${scaleDensityMetric(7, typographyScale)}`,
-        cueFontSize: scaleDensityMetric(11, typographyScale),
-        songFontSize: scaleDensityMetric(15, typographyScale),
-        transitionFontSize: scaleDensityMetric(11, typographyScale),
-        headingCueSize: scaleDensityMetric(20, typographyScale),
-        headingTitleSize: scaleDensityMetric(20, typographyScale),
-        rowCopyPadding: scaleDensityMetric(12, typographyScale),
-        footerTopPadding: scaleDensityMetric(6, Math.min(1.12, typographyScale)),
-        footerMetaSize: scaleDensityMetric(10, Math.min(1.12, typographyScale)),
-        footerPageSize: scaleDensityMetric(12, Math.min(1.1, typographyScale)),
+        headerBandPadding: `${scaleDensityMetric(12, typographyScale * marginScale)} ${scaleDensityMetric(16, typographyScale * marginScale)} ${scaleDensityMetric(14, typographyScale * marginScale)}`,
+        kickerSize: scaleDensityMetric(20, typographyScale * titleScale),
+        titleSize: scaleDensityMetric(18, typographyScale * titleScale),
+        metaSize: scaleDensityMetric(10, Math.min(1.16, typographyScale * bodyScale)),
+        cuePadding: `${scaleDensityMetric(8, typographyScale * rowSpacingScale)} ${scaleDensityMetric(7, typographyScale * rowSpacingScale)}`,
+        cueFontSize: scaleDensityMetric(11, typographyScale * bodyScale),
+        songFontSize: scaleDensityMetric(15, typographyScale * bodyScale),
+        transitionFontSize: scaleDensityMetric(11, typographyScale * bodyScale),
+        headingCueSize: scaleDensityMetric(20, typographyScale * titleScale),
+        headingTitleSize: scaleDensityMetric(20, typographyScale * titleScale),
+        rowCopyPadding: scaleDensityMetric(12, typographyScale * rowSpacingScale),
+        footerTopPadding: scaleDensityMetric(6, Math.min(1.12, typographyScale * marginScale)),
+        footerMetaSize: scaleDensityMetric(10, Math.min(1.12, typographyScale * bodyScale)),
+        footerPageSize: scaleDensityMetric(12, Math.min(1.1, typographyScale * titleScale)),
       };
   }
 }
@@ -359,6 +364,7 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
   const densityMetrics = getDensityMetrics(
     layout.densityPreset,
     layout.pageGeometry.rowExpansion,
+    layout.outputPreset,
   );
 
   return {
@@ -393,8 +399,14 @@ function getDocumentVariables(layout: SetlistPdfLayout): CSSProperties {
     ["--document-row-copy-padding" as string]: densityMetrics.rowCopyPadding,
     ["--document-transition-gap" as string]:
       layout.densityPreset === "compact"
-        ? scaleDensityMetric(6, Math.min(1.08, layout.pageGeometry.rowExpansion))
-        : scaleDensityMetric(8, Math.min(1.16, layout.pageGeometry.rowExpansion)),
+        ? scaleDensityMetric(
+            6,
+            Math.min(1.08, layout.pageGeometry.rowExpansion * layout.outputPreset.tuning.rowSpacingScale),
+          )
+        : scaleDensityMetric(
+            8,
+            Math.min(1.16, layout.pageGeometry.rowExpansion * layout.outputPreset.tuning.rowSpacingScale),
+          ),
     ["--document-footer-padding-top" as string]: densityMetrics.footerTopPadding,
     ["--document-footer-meta-size" as string]: densityMetrics.footerMetaSize,
     ["--document-footer-page-size" as string]: densityMetrics.footerPageSize,
@@ -589,6 +601,7 @@ export function PdfDocument({ event, layout }: PdfDocumentProps) {
       aria-label="Setlist PDF document"
       data-pdf-document
       data-density-preset={layout.densityPreset}
+      data-output-preset={layout.outputPresetId}
       data-theme={layout.theme.name}
       role="document"
       style={getDocumentVariables(layout)}

@@ -49,12 +49,14 @@ describe("GET /api/events/[eventId]/pdf", () => {
     mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
     mocks.signPdfDocumentToken.mockReturnValue("signed-token");
     mocks.buildPdfDocumentUrl.mockReturnValue(
-      "https://app.example.com/events/event-o-west/pdf/document?theme=dark&token=signed-token",
+      "https://app.example.com/events/event-o-west/pdf/document?theme=dark&preset=large-type&token=signed-token",
     );
     mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
 
     const response = await GET(
-      new Request("http://localhost/api/events/event-o-west/pdf?theme=dark"),
+      new Request(
+        "http://localhost/api/events/event-o-west/pdf?theme=dark&preset=large-type",
+      ),
       {
         params: Promise.resolve({ eventId: oWestEvent.id }),
       },
@@ -76,11 +78,12 @@ describe("GET /api/events/[eventId]/pdf", () => {
     expect(mocks.buildPdfDocumentUrl).toHaveBeenCalledWith({
       eventId: oWestEvent.id,
       theme: "dark",
+      preset: "large-type",
       token: "signed-token",
     });
     expect(mocks.generatePdfFromDocument).toHaveBeenCalledWith({
       documentUrl:
-        "https://app.example.com/events/event-o-west/pdf/document?theme=dark&token=signed-token",
+        "https://app.example.com/events/event-o-west/pdf/document?theme=dark&preset=large-type&token=signed-token",
     });
   });
 

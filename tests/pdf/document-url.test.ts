@@ -41,4 +41,18 @@ describe("buildPdfDocumentUrl", () => {
       "http://localhost:3000/events/event-o-west/pdf/document?theme=light&token=signed-token-value",
     );
   });
+
+  it("includes the selected preset when one is supplied", async () => {
+    const { buildPdfDocumentUrl } = await import("../../lib/pdf/document-url");
+
+    expect(
+      buildPdfDocumentUrl({
+        eventId: "event-o-west",
+        theme: "dark",
+        preset: "large-type",
+      }),
+    ).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
+    );
+  });
 });

@@ -87,6 +87,7 @@ describe("EventPdfDocument route wiring", () => {
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
       theme: "dark",
+      presetId: "standard-dark",
     });
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);
@@ -116,6 +117,7 @@ describe("EventPdfDocument route wiring", () => {
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
       theme: "dark",
+      presetId: "standard-dark",
     });
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);

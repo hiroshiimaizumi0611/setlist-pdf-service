@@ -4,6 +4,11 @@ import { generatePdfFromDocument } from "@/lib/pdf/generate-pdf-from-document";
 import { signPdfDocumentToken } from "@/lib/pdf/document-token";
 import { buildPdfDocumentUrl } from "@/lib/pdf/document-url";
 import { findEventWithItemsById } from "@/lib/repositories/event-repository";
+import {
+  getDefaultPdfOutputPresetId,
+  isPdfOutputPresetId,
+  type PdfOutputPresetId,
+} from "@/lib/pdf/output-presets";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 
 export const runtime = "nodejs";
@@ -19,6 +24,16 @@ type PdfRouteContext = {
 function resolveTheme(request: Request): PdfThemeName {
   const theme = new URL(request.url).searchParams.get("theme");
   return theme === "dark" ? "dark" : "light";
+}
+
+function resolvePreset(request: Request, theme: PdfThemeName): PdfOutputPresetId {
+  const value = new URL(request.url).searchParams.get("preset");
+
+  if (value && isPdfOutputPresetId(value)) {
+    return value;
+  }
+
+  return getDefaultPdfOutputPresetId(theme);
 }
 
 function slugify(value: string | null | undefined) {
@@ -61,6 +76,7 @@ export async function GET(request: Request, context: PdfRouteContext) {
     }
 
     const theme = resolveTheme(request);
+    const preset = resolvePreset(request, theme);
     const token = signPdfDocumentToken({
       eventId: event.id,
       theme,
@@ -69,6 +85,7 @@ export async function GET(request: Request, context: PdfRouteContext) {
     const documentUrl = buildPdfDocumentUrl({
       eventId: event.id,
       theme,
+      preset,
       token,
     });
     const pdfBytes = await generatePdfFromDocument({ documentUrl });

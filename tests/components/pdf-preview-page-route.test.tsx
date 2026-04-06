@@ -63,7 +63,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
     mocks.mockBuildPdfDocumentUrl.mockReturnValue(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
 
     const result = await PdfPreviewPage({
@@ -78,10 +78,12 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
       theme: "dark",
+      presetId: "standard-dark",
     });
     expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
       eventId: oWestEvent.id,
       theme: "dark",
+      preset: "standard-dark",
     });
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.event).toBe(oWestEvent);
@@ -111,7 +113,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
     mocks.mockBuildPdfDocumentUrl.mockReturnValue(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
 
     const result = await PdfPreviewPage({
@@ -122,10 +124,12 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
       theme: "dark",
+      presetId: "standard-dark",
     });
     expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
       eventId: oWestEvent.id,
       theme: "dark",
+      preset: "standard-dark",
     });
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.requestedPresetId).toBe("standard-dark");
@@ -152,7 +156,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
     mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
     mocks.mockBuildPdfDocumentUrl.mockReturnValue(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
 
     const result = await PdfPreviewPage({

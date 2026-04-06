@@ -111,6 +111,14 @@ export const PDF_OUTPUT_PRESET_BY_ID: Record<PdfOutputPresetId, PdfOutputPreset>
     return accumulator;
   }, {} as Record<PdfOutputPresetId, PdfOutputPreset>);
 
+export function isPdfOutputPresetId(value: string): value is PdfOutputPresetId {
+  return value in PDF_OUTPUT_PRESET_BY_ID;
+}
+
+export function getDefaultPdfOutputPresetId(theme: PdfThemeName) {
+  return theme === "dark" ? "standard-dark" : "standard-light";
+}
+
 export function getPdfOutputPreset(presetId: PdfOutputPresetId) {
   return PDF_OUTPUT_PRESET_BY_ID[presetId];
 }

@@ -113,14 +113,13 @@ export default async function EventPdfPreviewPage({
   const layout = buildSetlistPdfLayout({
     event,
     theme: currentTheme,
+    presetId: activePresetId,
   });
-  const documentUrl = new URL(
-    buildPdfDocumentUrl({
-      eventId: event.id,
-      theme: currentTheme,
-    }),
-  );
-  documentUrl.searchParams.set("preset", activePresetId);
+  const documentUrl = buildPdfDocumentUrl({
+    eventId: event.id,
+    theme: currentTheme,
+    preset: activePresetId,
+  });
   const downloadParams = new URLSearchParams({
     theme: currentTheme,
     preset: activePresetId,
@@ -135,7 +134,7 @@ export default async function EventPdfPreviewPage({
       requestedPresetId={requestedPresetId}
       activePresetId={activePresetId}
       blockedPresetId={blockedPresetId}
-      documentHref={documentUrl.toString()}
+      documentHref={documentUrl}
       downloadHref={`/api/events/${event.id}/pdf?${downloadParams.toString()}`}
     />
   );

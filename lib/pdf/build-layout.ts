@@ -3,6 +3,12 @@ import type { EventWithItems } from "../repositories/event-repository";
 import { getPdfThemeTokens, type PdfThemeName, type PdfThemeTokens } from "./theme-tokens";
 import { formatEventDateForDisplay } from "./format-event-date";
 import {
+  getDefaultPdfOutputPresetId,
+  getPdfOutputPreset,
+  type PdfOutputPreset,
+  type PdfOutputPresetId,
+} from "./output-presets";
+import {
   DENSITY_PRESETS,
   getDensityPreset,
   getRowDensityWeight,
@@ -36,6 +42,7 @@ type RenderableRow = ReturnType<typeof buildRenderableItems<EventWithItems["item
 export type SetlistPdfLayoutInput = {
   event: Pick<EventWithItems, "title" | "venue" | "eventDate" | "notes" | "items">;
   theme?: PdfThemeName;
+  presetId?: PdfOutputPresetId;
 };
 
 export type SetlistPdfWarning = {
@@ -96,6 +103,8 @@ export type SetlistPdfLayout = {
     labelWidth: number;
   };
   theme: PdfThemeTokens;
+  outputPresetId: PdfOutputPresetId;
+  outputPreset: PdfOutputPreset;
   densityPreset: SetlistPdfDensityPreset;
   pageGeometry: SetlistPdfPageGeometry;
   pageCount: number;
@@ -167,6 +176,16 @@ function getUsedHeight(rows: SetlistPdfRowLayout[], rowGap: number) {
     (total, row, index) => total + row.height + (index === 0 ? 0 : rowGap),
     0,
   );
+}
+
+function scaleDensityValue(value: number, factor: number) {
+  return Math.max(1, Math.round(value * factor));
+}
+
+function resolveOutputPreset(input: SetlistPdfLayoutInput) {
+  const theme = input.theme ?? "light";
+  const presetId = input.presetId ?? getDefaultPdfOutputPresetId(theme);
+  return getPdfOutputPreset(presetId);
 }
 
 function buildPagesForGeometry(input: {
@@ -262,6 +281,7 @@ function buildPagesForGeometry(input: {
 
 export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfLayout {
   const theme = getPdfThemeTokens(input.theme ?? "light");
+  const outputPreset = resolveOutputPreset(input);
   const contentTop = MARGINS.top + HEADER_HEIGHT;
   const contentBottom = PAGE_SIZE.height - MARGINS.bottom - FOOTER_HEIGHT;
   const contentWidth = PAGE_SIZE.width - MARGINS.left - MARGINS.right;
@@ -271,10 +291,23 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
     (total, row) => total + getRowDensityWeight(row.itemType as SetlistPdfRowType),
     0,
   );
-  const densityPreset = getDensityPreset(effectiveRowDensity);
+  const densityPreset = outputPreset.id.startsWith("standard-")
+    ? getDensityPreset(effectiveRowDensity)
+    : outputPreset.tuning.densityPreset;
   const densityGeometry = DENSITY_PRESETS[densityPreset];
-  let rowHeights = densityGeometry.rowHeights;
-  let rowGap = densityGeometry.rowGap;
+  let rowHeights = {
+    song: scaleDensityValue(densityGeometry.rowHeights.song, outputPreset.tuning.rowSpacingScale),
+    mc: scaleDensityValue(densityGeometry.rowHeights.mc, outputPreset.tuning.rowSpacingScale),
+    transition: scaleDensityValue(
+      densityGeometry.rowHeights.transition,
+      outputPreset.tuning.rowSpacingScale,
+    ),
+    heading: scaleDensityValue(
+      densityGeometry.rowHeights.heading,
+      outputPreset.tuning.rowSpacingScale,
+    ),
+  } satisfies Record<SetlistPdfRowType, number>;
+  let rowGap = scaleDensityValue(densityGeometry.rowGap, outputPreset.tuning.rowSpacingScale);
   let rowExpansion = 1;
   let topOffset = 0;
 
@@ -352,6 +385,8 @@ export function buildSetlistPdfLayout(input: SetlistPdfLayoutInput): SetlistPdfL
       labelWidth: LABEL_COLUMN_WIDTH,
     },
     theme,
+    outputPresetId: outputPreset.id,
+    outputPreset,
     densityPreset,
     pageGeometry: {
       contentTop,

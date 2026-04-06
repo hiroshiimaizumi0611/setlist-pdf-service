@@ -3,6 +3,11 @@ import { PdfDocument } from "@/components/pdf-document";
 import { findEventWithItemsById } from "@/lib/repositories/event-repository";
 import { buildSetlistPdfLayout } from "@/lib/pdf/build-layout";
 import { verifyPdfDocumentToken } from "@/lib/pdf/document-token";
+import {
+  getDefaultPdfOutputPresetId,
+  isPdfOutputPresetId,
+  type PdfOutputPresetId,
+} from "@/lib/pdf/output-presets";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getEventForUser } from "@/lib/services/events-service";
 import { getAuthSessionWithPlan } from "@/lib/subscription";
@@ -16,6 +21,7 @@ type EventPdfDocumentPageProps = {
   searchParams?: Promise<{
     theme?: string | string[];
     token?: string | string[];
+    preset?: string | string[];
   }>;
 };
 
@@ -26,6 +32,19 @@ function resolveTheme(value: string | string[] | undefined): PdfThemeName {
 
 function resolveToken(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+function resolvePresetId(
+  value: string | string[] | undefined,
+  theme: PdfThemeName,
+): PdfOutputPresetId {
+  const candidate = Array.isArray(value) ? value[0] : value;
+
+  if (candidate && isPdfOutputPresetId(candidate)) {
+    return candidate;
+  }
+
+  return getDefaultPdfOutputPresetId(theme);
 }
 
 async function getTokenAuthorizedEvent({
@@ -56,6 +75,7 @@ export default async function EventPdfDocumentPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const token = resolveToken(resolvedSearchParams?.token);
+  const presetId = resolvePresetId(resolvedSearchParams?.preset, currentTheme);
 
   if (token) {
     const event = await getTokenAuthorizedEvent({
@@ -71,6 +91,7 @@ export default async function EventPdfDocumentPage({
     const layout = buildSetlistPdfLayout({
       event,
       theme: currentTheme,
+      presetId,
     });
 
     return <PdfDocument event={event} layout={layout} />;
@@ -101,6 +122,7 @@ export default async function EventPdfDocumentPage({
   const layout = buildSetlistPdfLayout({
     event,
     theme: currentTheme,
+    presetId,
   });
 
   return <PdfDocument event={event} layout={layout} />;

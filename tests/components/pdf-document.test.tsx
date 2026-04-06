@@ -254,4 +254,54 @@ describe("PdfDocument", () => {
     expect(compactDocument).toHaveAttribute("data-density-preset", "compact");
     expect(compactFirstRow).toHaveAttribute("data-density-preset", "compact");
   });
+
+  it("lets a preset move the same medium-density event into relaxed rendering", () => {
+    const standardLayout = buildSetlistPdfLayout({
+      event: buildSyntheticEvent([
+        { id: "row-1", itemType: "song", title: "Song 01" },
+        { id: "row-2", itemType: "song", title: "Song 02" },
+        { id: "row-3", itemType: "song", title: "Song 03" },
+        { id: "row-4", itemType: "song", title: "Song 04" },
+        { id: "row-5", itemType: "song", title: "Song 05" },
+        { id: "row-6", itemType: "song", title: "Song 06" },
+        { id: "row-7", itemType: "song", title: "Song 07" },
+        { id: "row-8", itemType: "song", title: "Song 08" },
+      ]),
+      theme: "dark",
+    });
+    const largeTypeLayout = buildSetlistPdfLayout({
+      event: buildSyntheticEvent([
+        { id: "row-1", itemType: "song", title: "Song 01" },
+        { id: "row-2", itemType: "song", title: "Song 02" },
+        { id: "row-3", itemType: "song", title: "Song 03" },
+        { id: "row-4", itemType: "song", title: "Song 04" },
+        { id: "row-5", itemType: "song", title: "Song 05" },
+        { id: "row-6", itemType: "song", title: "Song 06" },
+        { id: "row-7", itemType: "song", title: "Song 07" },
+        { id: "row-8", itemType: "song", title: "Song 08" },
+      ]),
+      theme: "dark",
+      presetId: "large-type",
+    } as any);
+
+    expect(standardLayout.densityPreset).toBe("standard");
+    expect(largeTypeLayout.densityPreset).toBe("relaxed");
+    expect(largeTypeLayout.pageGeometry.rowGap).toBeGreaterThan(
+      standardLayout.pageGeometry.rowGap,
+    );
+
+    render(
+      <PdfDocument
+        event={{
+          updatedAt: new Date("2026-03-21T00:00:00.000Z"),
+        }}
+        layout={largeTypeLayout}
+      />,
+    );
+
+    expect(screen.getByRole("document", { name: "Setlist PDF document" })).toHaveAttribute(
+      "data-density-preset",
+      "relaxed",
+    );
+  });
 });
