@@ -52,6 +52,11 @@ describe("PdfPreviewPage", () => {
     expect(screen.getByRole("link", { name: "DARK" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByText("出力サイズ選択")).toBeInTheDocument();
     expect(screen.getByText("A4 (210 x 297mm)")).toBeInTheDocument();
+    expect(screen.getByText("PDF出力プリセット")).toBeInTheDocument();
+    expect(screen.getByText("Standard Light")).toBeInTheDocument();
+    expect(screen.getByText("Large Type")).toBeInTheDocument();
+    expect(screen.getByText("Pro")).toBeInTheDocument();
+    expect(screen.getByText("Large Type で足元でも読みやすく")).toBeInTheDocument();
     expect(screen.getByText("ページ継続確認")).toBeInTheDocument();
     expect(screen.getByText("最終更新時刻:")).toBeInTheDocument();
     expect(screen.queryByText("M01")).not.toBeInTheDocument();
