@@ -3,6 +3,11 @@ import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { getEventForUser } from "@/lib/services/events-service";
 import { buildSetlistPdfLayout } from "@/lib/pdf/build-layout";
 import { buildPdfDocumentUrl } from "@/lib/pdf/document-url";
+import {
+  PDF_OUTPUT_PRESET_BY_ID,
+  type PdfOutputPresetId,
+} from "@/lib/pdf/output-presets";
+import { APP_PLAN_NAMES, type AppPlan } from "@/lib/stripe/plans";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { PdfPreviewPage } from "@/components/pdf-preview-page";
 
@@ -14,12 +19,55 @@ type EventPdfPreviewPageProps = {
   }>;
   searchParams?: Promise<{
     theme?: string | string[];
+    preset?: string | string[];
   }>;
 };
 
 function resolveTheme(value: string | string[] | undefined): PdfThemeName {
   const candidate = Array.isArray(value) ? value[0] : value;
   return candidate === "light" ? "light" : "dark";
+}
+
+function resolveDefaultPreset(theme: PdfThemeName): PdfOutputPresetId {
+  return theme === "light" ? "standard-light" : "standard-dark";
+}
+
+function resolvePreset({
+  value,
+  theme,
+  currentPlan,
+}: {
+  value: string | string[] | undefined;
+  theme: PdfThemeName;
+  currentPlan: AppPlan;
+}) {
+  const fallbackPresetId = resolveDefaultPreset(theme);
+  const candidate = Array.isArray(value) ? value[0] : value;
+
+  if (!candidate || !(candidate in PDF_OUTPUT_PRESET_BY_ID)) {
+    return {
+      activePresetId: fallbackPresetId,
+      blockedPresetId: null,
+    };
+  }
+
+  const requestedPresetId = candidate as PdfOutputPresetId;
+  const requestedPreset = PDF_OUTPUT_PRESET_BY_ID[requestedPresetId];
+
+  if (
+    requestedPreset.requiredPlan === APP_PLAN_NAMES.pro &&
+    currentPlan !== APP_PLAN_NAMES.pro
+  ) {
+    return {
+      activePresetId: fallbackPresetId,
+      blockedPresetId: requestedPreset.id,
+    };
+  }
+
+  return {
+    activePresetId: requestedPreset.id,
+    blockedPresetId: null,
+  };
 }
 
 export default async function EventPdfPreviewPage({
@@ -38,6 +86,11 @@ export default async function EventPdfPreviewPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const { session } = authSession;
+  const { activePresetId, blockedPresetId } = resolvePreset({
+    value: resolvedSearchParams?.preset,
+    theme: currentTheme,
+    currentPlan: authSession.currentPlan.plan,
+  });
 
   const event = await getEventForUser({
     userId: session.user.id,
@@ -58,9 +111,16 @@ export default async function EventPdfPreviewPage({
     event,
     theme: currentTheme,
   });
-  const documentHref = buildPdfDocumentUrl({
-    eventId: event.id,
+  const documentUrl = new URL(
+    buildPdfDocumentUrl({
+      eventId: event.id,
+      theme: currentTheme,
+    }),
+  );
+  documentUrl.searchParams.set("preset", activePresetId);
+  const downloadParams = new URLSearchParams({
     theme: currentTheme,
+    preset: activePresetId,
   });
 
   return (
@@ -68,8 +128,11 @@ export default async function EventPdfPreviewPage({
       event={event}
       layout={layout}
       currentTheme={currentTheme}
-      documentHref={documentHref}
-      downloadHref={`/api/events/${event.id}/pdf?theme=${currentTheme}`}
+      currentPlan={authSession.currentPlan.plan}
+      activePresetId={activePresetId}
+      blockedPresetId={blockedPresetId}
+      documentHref={documentUrl.toString()}
+      downloadHref={`/api/events/${event.id}/pdf?${downloadParams.toString()}`}
     />
   );
 }

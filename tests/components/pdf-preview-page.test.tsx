@@ -1,42 +1,49 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { buildSetlistPdfLayout } from "../../lib/pdf/build-layout";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { oWestEvent } from "../fixtures/o-west-event";
 import { PdfPreviewPage } from "../../components/pdf-preview-page";
 
+function buildPreviewPageProps() {
+  const layout = buildSetlistPdfLayout({
+    event: nagoyaRadhallEvent,
+    theme: "dark",
+  });
+  const event = {
+    id: "event-nagoya-radhall",
+    ownerUserId: "user-1",
+    title: "2026.03.28 名古屋 RADHALL",
+    venue: nagoyaRadhallEvent.venue,
+    eventDate: nagoyaRadhallEvent.eventDate,
+    notes: "本番用セットリスト",
+    createdAt: new Date("2026-03-21T00:00:00.000Z"),
+    updatedAt: new Date("2026-03-21T00:00:00.000Z"),
+    items: [],
+  };
+
+  return {
+    event,
+    layout,
+    currentTheme: "dark" as const,
+    currentPlan: "free" as const,
+    activePresetId: "standard-dark" as const,
+    documentHref:
+      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=standard-dark",
+    downloadHref: "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
+  };
+}
+
 describe("PdfPreviewPage", () => {
   it(
     "embeds the real document route in the workspace shell and hides direct paper rows",
     () => {
-    const layout = buildSetlistPdfLayout({
-      event: nagoyaRadhallEvent,
-      theme: "dark",
-    });
-    const documentHref =
-      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark";
+    const props = buildPreviewPageProps();
+    const { layout, documentHref } = props;
 
     expect(layout.densityPreset).toBe("standard");
 
-    render(
-      <PdfPreviewPage
-        event={{
-          id: "event-nagoya-radhall",
-          ownerUserId: "user-1",
-          title: "2026.03.28 名古屋 RADHALL",
-          venue: nagoyaRadhallEvent.venue,
-          eventDate: nagoyaRadhallEvent.eventDate,
-          notes: "本番用セットリスト",
-          createdAt: new Date("2026-03-21T00:00:00.000Z"),
-          updatedAt: new Date("2026-03-21T00:00:00.000Z"),
-          items: [],
-        }}
-        layout={layout}
-        currentTheme="dark"
-        documentHref={documentHref}
-        downloadHref="/api/events/event-nagoya-radhall/pdf?theme=dark"
-      />,
-    );
+    render(<PdfPreviewPage {...props} />);
 
     expect(screen.getByRole("main")).toHaveClass("min-h-screen");
     expect(screen.getByRole("heading", { name: "2026.03.28 名古屋 RADHALL" })).toBeInTheDocument();
@@ -45,7 +52,7 @@ describe("PdfPreviewPage", () => {
     expect(embeddedPreview).toHaveAttribute("src", documentHref);
     expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      "/api/events/event-nagoya-radhall/pdf?theme=dark",
+      "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
     );
     expect(screen.getByRole("link", { name: "PDF出力" })).not.toHaveAttribute("target");
     expect(screen.getByText("PDFテーマ切替")).toBeInTheDocument();
@@ -55,8 +62,13 @@ describe("PdfPreviewPage", () => {
     expect(screen.getByText("PDF出力プリセット")).toBeInTheDocument();
     expect(screen.getByText("Standard Light")).toBeInTheDocument();
     expect(screen.getByText("Large Type")).toBeInTheDocument();
-    expect(screen.getByText("Pro")).toBeInTheDocument();
+    expect(screen.getAllByText("Pro").length).toBeGreaterThan(0);
     expect(screen.getByText("Large Type で足元でも読みやすく")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Standard Dark" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "Large Type" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
     expect(screen.getByText("ページ継続確認")).toBeInTheDocument();
     expect(screen.getByText("最終更新時刻:")).toBeInTheDocument();
     expect(screen.queryByText("M01")).not.toBeInTheDocument();
@@ -112,8 +124,10 @@ describe("PdfPreviewPage", () => {
         }}
         layout={layout}
         currentTheme="light"
-        documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=light"
-        downloadHref="/api/events/event-nagoya-radhall/pdf?theme=light"
+        currentPlan="free"
+        activePresetId="standard-light"
+        documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=light&preset=standard-light"
+        downloadHref="/api/events/event-nagoya-radhall/pdf?theme=light&preset=standard-light"
       />,
     );
 
@@ -147,13 +161,18 @@ describe("PdfPreviewPage", () => {
         }}
         layout={layout}
         currentTheme="dark"
-        documentHref={documentHref}
-        downloadHref={`/api/events/${oWestEvent.id}/pdf?theme=dark`}
+        currentPlan="free"
+        activePresetId="standard-dark"
+        documentHref={`${documentHref}&preset=standard-dark`}
+        downloadHref={`/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`}
       />,
     );
 
     expect(screen.getByText("3 pages")).toBeInTheDocument();
-    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute("src", documentHref);
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
+      "src",
+      `${documentHref}&preset=standard-dark`,
+    );
     expect(screen.queryByText("1 / 3")).not.toBeInTheDocument();
     expect(screen.queryByText("2 / 3")).not.toBeInTheDocument();
     expect(screen.queryByText("3 / 3")).not.toBeInTheDocument();
@@ -229,16 +248,84 @@ describe("PdfPreviewPage", () => {
         }}
         layout={layout}
         currentTheme="light"
-        documentHref={documentHref}
-        downloadHref={downloadHref}
+        currentPlan="free"
+        activePresetId="standard-light"
+        documentHref={`${documentHref}&preset=standard-light`}
+        downloadHref={`${downloadHref}&preset=standard-light`}
       />,
     );
 
     expect(screen.getByText("1 pages")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
       "href",
-      downloadHref,
+      `${downloadHref}&preset=standard-light`,
     );
-    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute("src", documentHref);
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
+      "src",
+      `${documentHref}&preset=standard-light`,
+    );
+  });
+
+  it("keeps pro presets visible for free users and shows upgrade treatment instead of activating them", () => {
+    const props = buildPreviewPageProps();
+
+    render(<PdfPreviewPage {...props} />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Large Type" }),
+    );
+
+    expect(screen.getByText("Large Type は Pro プランで利用できます。")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Proへアップグレード" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
+    );
+    expect(screen.getByRole("link", { name: "Standard Dark" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
+      "href",
+      "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
+    );
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
+      "src",
+      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=standard-dark",
+    );
+  });
+
+  it("lets pro users select every preset via preview-aligned URLs", () => {
+    const props = buildPreviewPageProps();
+
+    render(
+      <PdfPreviewPage
+        {...props}
+        currentPlan="pro"
+        activePresetId="large-type"
+        documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type"
+        downloadHref="/api/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type",
+    );
+    expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: "Compact" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall/pdf?theme=dark&preset=compact",
+    );
+    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
+      "href",
+      "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type",
+    );
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
+      "src",
+      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type",
+    );
   });
 });

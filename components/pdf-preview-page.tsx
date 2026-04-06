@@ -1,13 +1,19 @@
 import Link from "next/link";
 import type { SetlistPdfLayout } from "@/lib/pdf/build-layout";
+import type { PdfOutputPresetId } from "@/lib/pdf/output-presets";
+import type { AppPlan } from "@/lib/stripe/plans";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { EventWithItems } from "@/lib/repositories/event-repository";
+import { PdfPresetSelector } from "./pdf-preset-selector";
 import { PdfPreviewInspector } from "./pdf-preview-inspector";
 
 type PdfPreviewPageProps = {
   event: EventWithItems;
   layout: SetlistPdfLayout;
   currentTheme: PdfThemeName;
+  currentPlan: AppPlan;
+  activePresetId: PdfOutputPresetId;
+  blockedPresetId?: PdfOutputPresetId | null;
   documentHref: string;
   downloadHref: string;
 };
@@ -32,12 +38,15 @@ export function PdfPreviewPage({
   event,
   layout,
   currentTheme,
+  currentPlan,
+  activePresetId,
+  blockedPresetId,
   documentHref,
   downloadHref,
 }: PdfPreviewPageProps) {
   const previewBaseHref = `/events/${event.id}/pdf`;
-  const lightHref = `${previewBaseHref}?theme=light`;
-  const darkHref = `${previewBaseHref}?theme=dark`;
+  const lightHref = `${previewBaseHref}?theme=light&preset=${activePresetId}`;
+  const darkHref = `${previewBaseHref}?theme=dark&preset=${activePresetId}`;
 
   return (
     <main className="min-h-screen bg-[#111111] text-[#f6f3ee]">
@@ -88,6 +97,13 @@ export function PdfPreviewPage({
               <span>Live Document</span>
               <span className="text-[#f6c453]">{currentTheme} theme</span>
             </div>
+            <PdfPresetSelector
+              previewBaseHref={previewBaseHref}
+              currentTheme={currentTheme}
+              currentPlan={currentPlan}
+              activePresetId={activePresetId}
+              blockedPresetId={blockedPresetId}
+            />
             <div className="overflow-hidden rounded-[28px] border border-[#2f2a24] bg-[#0b0b0b] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
               <iframe
                 key={documentHref}
