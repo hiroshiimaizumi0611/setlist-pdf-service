@@ -2,15 +2,15 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { oWestEvent } from "../fixtures/o-west-event";
 
 const mocks = vi.hoisted(() => ({
-  requireAuthSession: vi.fn(),
+  getAuthSessionWithPlan: vi.fn(),
   findEventWithItemsById: vi.fn(),
   signPdfDocumentToken: vi.fn(),
   buildPdfDocumentUrl: vi.fn(),
   generatePdfFromDocument: vi.fn(),
 }));
 
-vi.mock("../../lib/auth", () => ({
-  requireAuthSession: mocks.requireAuthSession,
+vi.mock("../../lib/subscription", () => ({
+  getAuthSessionWithPlan: mocks.getAuthSessionWithPlan,
 }));
 
 vi.mock("../../lib/repositories/event-repository", () => ({
@@ -33,7 +33,7 @@ import { GET, runtime } from "../../app/api/events/[eventId]/pdf/route";
 
 describe("GET /api/events/[eventId]/pdf", () => {
   beforeEach(() => {
-    mocks.requireAuthSession.mockReset();
+    mocks.getAuthSessionWithPlan.mockReset();
     mocks.findEventWithItemsById.mockReset();
     mocks.signPdfDocumentToken.mockReset();
     mocks.buildPdfDocumentUrl.mockReset();
@@ -43,8 +43,13 @@ describe("GET /api/events/[eventId]/pdf", () => {
   it("returns a downloadable PDF response", async () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
-    mocks.requireAuthSession.mockResolvedValue({
-      user: { id: oWestEvent.ownerUserId },
+    mocks.getAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: { id: oWestEvent.ownerUserId },
+      },
+      currentPlan: {
+        plan: "pro",
+      },
     });
     mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
     mocks.signPdfDocumentToken.mockReturnValue("signed-token");
@@ -73,6 +78,7 @@ describe("GET /api/events/[eventId]/pdf", () => {
       expect.objectContaining({
         eventId: oWestEvent.id,
         theme: "dark",
+        preset: "large-type",
       }),
     );
     expect(mocks.buildPdfDocumentUrl).toHaveBeenCalledWith({
@@ -87,11 +93,73 @@ describe("GET /api/events/[eventId]/pdf", () => {
     });
   });
 
+  it("falls back to the standard preset for free users even when a pro preset is requested", async () => {
+    const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+
+    mocks.getAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: { id: oWestEvent.ownerUserId },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+    mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
+    mocks.signPdfDocumentToken.mockReturnValue("signed-token");
+    mocks.buildPdfDocumentUrl.mockReturnValue(
+      "https://app.example.com/events/event-o-west/pdf/document?theme=dark&preset=standard-dark&token=signed-token",
+    );
+    mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
+
+    const response = await GET(
+      new Request(
+        "http://localhost/api/events/event-o-west/pdf?theme=dark&preset=large-type",
+      ),
+      {
+        params: Promise.resolve({ eventId: oWestEvent.id }),
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.signPdfDocumentToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        preset: "standard-dark",
+      }),
+    );
+    expect(mocks.buildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "dark",
+      preset: "standard-dark",
+      token: "signed-token",
+    });
+  });
+
+  it("returns unauthorized when the session is missing", async () => {
+    mocks.getAuthSessionWithPlan.mockResolvedValue(null);
+
+    const response = await GET(
+      new Request("http://localhost/api/events/event-o-west/pdf?theme=dark"),
+      {
+        params: Promise.resolve({ eventId: oWestEvent.id }),
+      },
+    );
+
+    expect(response.status).toBe(401);
+    expect(mocks.findEventWithItemsById).not.toHaveBeenCalled();
+    expect(mocks.signPdfDocumentToken).not.toHaveBeenCalled();
+    expect(mocks.generatePdfFromDocument).not.toHaveBeenCalled();
+  });
+
   it("falls back to an unknown-venue filename when venue is missing", async () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
-    mocks.requireAuthSession.mockResolvedValue({
-      user: { id: oWestEvent.ownerUserId },
+    mocks.getAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: { id: oWestEvent.ownerUserId },
+      },
+      currentPlan: {
+        plan: "pro",
+      },
     });
     mocks.findEventWithItemsById.mockResolvedValue({
       ...oWestEvent,
@@ -117,8 +185,13 @@ describe("GET /api/events/[eventId]/pdf", () => {
   it("formats filename dates in Japan time", async () => {
     const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
 
-    mocks.requireAuthSession.mockResolvedValue({
-      user: { id: oWestEvent.ownerUserId },
+    mocks.getAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: { id: oWestEvent.ownerUserId },
+      },
+      currentPlan: {
+        plan: "pro",
+      },
     });
     mocks.findEventWithItemsById.mockResolvedValue({
       ...oWestEvent,

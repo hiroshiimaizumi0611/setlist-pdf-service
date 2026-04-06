@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 describe("pdf document token helpers", () => {
-  it("encodes the event id, theme, and expiry", async () => {
+  it("encodes the event id, theme, preset, and expiry", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-28T00:00:00.000Z"));
 
@@ -29,6 +29,7 @@ describe("pdf document token helpers", () => {
     const token = signPdfDocumentToken({
       eventId: "event-o-west",
       theme: "dark",
+      preset: "large-type",
       expiresInSeconds: 3600,
     });
 
@@ -38,6 +39,7 @@ describe("pdf document token helpers", () => {
     expect(verified).toEqual({
       eventId: "event-o-west",
       theme: "dark",
+      preset: "large-type",
       exp: 1774659600,
     });
   });
@@ -53,6 +55,7 @@ describe("pdf document token helpers", () => {
     const token = signPdfDocumentToken({
       eventId: "event-o-west",
       theme: "light",
+      preset: "standard-light",
       expiresInSeconds: 60,
     });
 
@@ -72,6 +75,7 @@ describe("pdf document token helpers", () => {
     const token = signPdfDocumentToken({
       eventId: "event-o-west",
       theme: "light",
+      preset: "standard-light",
       expiresInSeconds: 60,
     });
     const tamperedToken = `${token.slice(0, -1)}x`;
@@ -90,6 +94,7 @@ describe("pdf document token helpers", () => {
     const token = signPdfDocumentToken({
       eventId: "event-o-west",
       theme: "light",
+      preset: "standard-light",
       expiresInSeconds: 60,
     });
     const [payload, signature] = token.split(".");

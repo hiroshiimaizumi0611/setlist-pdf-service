@@ -1,16 +1,19 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "../env";
+import type { PdfOutputPresetId } from "./output-presets";
 import type { PdfThemeName } from "./theme-tokens";
 
 type PdfDocumentTokenPayload = {
   eventId: string;
   theme: PdfThemeName;
+  preset: PdfOutputPresetId;
   exp: number;
 };
 
 type SignPdfDocumentTokenInput = {
   eventId: string;
   theme: PdfThemeName;
+  preset: PdfOutputPresetId;
   expiresInSeconds?: number;
 };
 
@@ -57,6 +60,7 @@ function isPdfDocumentTokenPayload(
   return (
     typeof payload.eventId === "string" &&
     (payload.theme === "light" || payload.theme === "dark") &&
+    typeof payload.preset === "string" &&
     typeof payload.exp === "number" &&
     Number.isFinite(payload.exp)
   );
@@ -65,10 +69,11 @@ function isPdfDocumentTokenPayload(
 export function signPdfDocumentToken({
   eventId,
   theme,
+  preset,
   expiresInSeconds = 60 * 60,
 }: SignPdfDocumentTokenInput) {
   const exp = Math.floor(Date.now() / 1000) + Math.floor(expiresInSeconds);
-  const payload = { eventId, theme, exp };
+  const payload = { eventId, theme, preset, exp };
   const encodedPayload = base64UrlEncode(
     Buffer.from(JSON.stringify(payload), "utf8"),
   );

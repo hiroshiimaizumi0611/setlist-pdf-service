@@ -1,13 +1,11 @@
-import { requireAuthSession } from "@/lib/auth";
+import { getAuthSessionWithPlan } from "@/lib/subscription";
 import { formatEventDateForFilename } from "@/lib/pdf/format-event-date";
 import { generatePdfFromDocument } from "@/lib/pdf/generate-pdf-from-document";
 import { signPdfDocumentToken } from "@/lib/pdf/document-token";
 import { buildPdfDocumentUrl } from "@/lib/pdf/document-url";
 import { findEventWithItemsById } from "@/lib/repositories/event-repository";
 import {
-  getDefaultPdfOutputPresetId,
-  isPdfOutputPresetId,
-  type PdfOutputPresetId,
+  resolvePdfOutputPresetSelection,
 } from "@/lib/pdf/output-presets";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 
@@ -24,16 +22,6 @@ type PdfRouteContext = {
 function resolveTheme(request: Request): PdfThemeName {
   const theme = new URL(request.url).searchParams.get("theme");
   return theme === "dark" ? "dark" : "light";
-}
-
-function resolvePreset(request: Request, theme: PdfThemeName): PdfOutputPresetId {
-  const value = new URL(request.url).searchParams.get("preset");
-
-  if (value && isPdfOutputPresetId(value)) {
-    return value;
-  }
-
-  return getDefaultPdfOutputPresetId(theme);
 }
 
 function slugify(value: string | null | undefined) {
@@ -67,25 +55,35 @@ function toArrayBuffer(bytes: Uint8Array) {
 
 export async function GET(request: Request, context: PdfRouteContext) {
   try {
-    const session = await requireAuthSession();
+    const authSession = await getAuthSessionWithPlan();
+
+    if (!authSession) {
+      return Response.json({ error: "Unauthorized." }, { status: 401 });
+    }
+
     const { eventId } = await context.params;
     const event = await findEventWithItemsById(eventId);
 
-    if (!event || event.ownerUserId !== session.user.id) {
+    if (!event || event.ownerUserId !== authSession.session.user.id) {
       return Response.json({ error: "Event not found." }, { status: 404 });
     }
 
     const theme = resolveTheme(request);
-    const preset = resolvePreset(request, theme);
+    const { activePresetId } = resolvePdfOutputPresetSelection({
+      requestedPreset: new URL(request.url).searchParams.get("preset"),
+      theme,
+      currentPlan: authSession.currentPlan.plan,
+    });
     const token = signPdfDocumentToken({
       eventId: event.id,
       theme,
+      preset: activePresetId,
       expiresInSeconds: PDF_DOCUMENT_TOKEN_TTL_SECONDS,
     });
     const documentUrl = buildPdfDocumentUrl({
       eventId: event.id,
       theme,
-      preset,
+      preset: activePresetId,
       token,
     });
     const pdfBytes = await generatePdfFromDocument({ documentUrl });
@@ -100,10 +98,6 @@ export async function GET(request: Request, context: PdfRouteContext) {
       },
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized.") {
-      return Response.json({ error: "Unauthorized." }, { status: 401 });
-    }
-
     throw error;
   }
 }

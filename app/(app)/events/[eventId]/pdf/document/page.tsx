@@ -4,9 +4,8 @@ import { findEventWithItemsById } from "@/lib/repositories/event-repository";
 import { buildSetlistPdfLayout } from "@/lib/pdf/build-layout";
 import { verifyPdfDocumentToken } from "@/lib/pdf/document-token";
 import {
-  getDefaultPdfOutputPresetId,
-  isPdfOutputPresetId,
-  type PdfOutputPresetId,
+  getRequestedPdfOutputPresetId,
+  resolvePdfOutputPresetSelection,
 } from "@/lib/pdf/output-presets";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getEventForUser } from "@/lib/services/events-service";
@@ -34,31 +33,25 @@ function resolveToken(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? null : value ?? null;
 }
 
-function resolvePresetId(
-  value: string | string[] | undefined,
-  theme: PdfThemeName,
-): PdfOutputPresetId {
-  const candidate = Array.isArray(value) ? value[0] : value;
-
-  if (candidate && isPdfOutputPresetId(candidate)) {
-    return candidate;
-  }
-
-  return getDefaultPdfOutputPresetId(theme);
-}
-
 async function getTokenAuthorizedEvent({
   eventId,
   theme,
+  preset,
   token,
 }: {
   eventId: string;
   theme: PdfThemeName;
+  preset: string;
   token: string;
 }) {
   const payload = verifyPdfDocumentToken(token);
 
-  if (!payload || payload.eventId !== eventId || payload.theme !== theme) {
+  if (
+    !payload ||
+    payload.eventId !== eventId ||
+    payload.theme !== theme ||
+    payload.preset !== preset
+  ) {
     return null;
   }
 
@@ -75,12 +68,16 @@ export default async function EventPdfDocumentPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const token = resolveToken(resolvedSearchParams?.token);
-  const presetId = resolvePresetId(resolvedSearchParams?.preset, currentTheme);
+  const requestedPresetId = getRequestedPdfOutputPresetId(
+    resolvedSearchParams?.preset,
+    currentTheme,
+  );
 
   if (token) {
     const event = await getTokenAuthorizedEvent({
       eventId,
       theme: currentTheme,
+      preset: requestedPresetId,
       token,
     });
 
@@ -91,7 +88,7 @@ export default async function EventPdfDocumentPage({
     const layout = buildSetlistPdfLayout({
       event,
       theme: currentTheme,
-      presetId,
+      presetId: requestedPresetId,
     });
 
     return <PdfDocument event={event} layout={layout} />;
@@ -119,10 +116,16 @@ export default async function EventPdfDocumentPage({
     return notFound();
   }
 
+  const { activePresetId } = resolvePdfOutputPresetSelection({
+    requestedPreset: resolvedSearchParams?.preset,
+    theme: currentTheme,
+    currentPlan: authSession.currentPlan.plan,
+  });
+
   const layout = buildSetlistPdfLayout({
     event,
     theme: currentTheme,
-    presetId,
+    presetId: activePresetId,
   });
 
   return <PdfDocument event={event} layout={layout} />;

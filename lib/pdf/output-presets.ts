@@ -112,11 +112,55 @@ export const PDF_OUTPUT_PRESET_BY_ID: Record<PdfOutputPresetId, PdfOutputPreset>
   }, {} as Record<PdfOutputPresetId, PdfOutputPreset>);
 
 export function isPdfOutputPresetId(value: string): value is PdfOutputPresetId {
-  return value in PDF_OUTPUT_PRESET_BY_ID;
+  return Object.prototype.hasOwnProperty.call(PDF_OUTPUT_PRESET_BY_ID, value);
 }
 
 export function getDefaultPdfOutputPresetId(theme: PdfThemeName) {
   return theme === "dark" ? "standard-dark" : "standard-light";
+}
+
+export function getRequestedPdfOutputPresetId(
+  value: string | string[] | undefined,
+  theme: PdfThemeName,
+) {
+  const candidate = Array.isArray(value) ? value[0] : value;
+
+  if (candidate && isPdfOutputPresetId(candidate)) {
+    return candidate;
+  }
+
+  return getDefaultPdfOutputPresetId(theme);
+}
+
+export function resolvePdfOutputPresetSelection({
+  requestedPreset,
+  theme,
+  currentPlan,
+}: {
+  requestedPreset: string | string[] | undefined;
+  theme: PdfThemeName;
+  currentPlan: AppPlan;
+}) {
+  const requestedPresetId = getRequestedPdfOutputPresetId(requestedPreset, theme);
+  const requestedPresetRecord = getPdfOutputPreset(requestedPresetId);
+  const fallbackPresetId = getDefaultPdfOutputPresetId(theme);
+
+  if (
+    requestedPresetRecord.requiredPlan === APP_PLAN_NAMES.pro &&
+    currentPlan !== APP_PLAN_NAMES.pro
+  ) {
+    return {
+      requestedPresetId,
+      activePresetId: fallbackPresetId,
+      blockedPresetId: requestedPresetId,
+    } as const;
+  }
+
+  return {
+    requestedPresetId,
+    activePresetId: requestedPresetId,
+    blockedPresetId: null,
+  } as const;
 }
 
 export function getPdfOutputPreset(presetId: PdfOutputPresetId) {

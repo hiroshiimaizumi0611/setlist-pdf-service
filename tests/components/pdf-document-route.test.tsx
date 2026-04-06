@@ -98,6 +98,7 @@ describe("EventPdfDocument route wiring", () => {
     mocks.mockVerifyPdfDocumentToken.mockReturnValue({
       eventId: oWestEvent.id,
       theme: "dark",
+      preset: "large-type",
       exp: Math.floor(Date.now() / 1000) + 60,
     });
     mocks.mockFindEventWithItemsById.mockResolvedValue(oWestEvent);
@@ -108,6 +109,7 @@ describe("EventPdfDocument route wiring", () => {
       searchParams: Promise.resolve({
         theme: "dark",
         token: "valid-token",
+        preset: "large-type",
       }),
     });
 
@@ -117,10 +119,33 @@ describe("EventPdfDocument route wiring", () => {
     expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
       event: oWestEvent,
       theme: "dark",
-      presetId: "standard-dark",
+      presetId: "large-type",
     });
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);
+  });
+
+  it("rejects a mutated preset when the token was signed for a different preset", async () => {
+    mocks.mockGetAuthSessionWithPlan.mockResolvedValue(null);
+    mocks.mockVerifyPdfDocumentToken.mockReturnValue({
+      eventId: oWestEvent.id,
+      theme: "dark",
+      preset: "standard-dark",
+      exp: Math.floor(Date.now() / 1000) + 60,
+    });
+
+    await PdfDocumentRoute({
+      params: Promise.resolve({ eventId: oWestEvent.id }),
+      searchParams: Promise.resolve({
+        theme: "dark",
+        token: "valid-token",
+        preset: "large-type",
+      }),
+    });
+
+    expect(mocks.mockNotFound).toHaveBeenCalled();
+    expect(mocks.mockFindEventWithItemsById).not.toHaveBeenCalled();
+    expect(mocks.mockBuildSetlistPdfLayout).not.toHaveBeenCalled();
   });
 
   it("rejects invalid or expired tokens instead of falling back to session auth", async () => {
