@@ -1,12 +1,21 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "../env";
-import type { PdfOutputPresetId } from "./output-presets";
+import {
+  getDefaultPdfOutputPresetId,
+  type PdfOutputPresetId,
+} from "./output-presets";
 import type { PdfThemeName } from "./theme-tokens";
 
 type PdfDocumentTokenPayload = {
   eventId: string;
   theme: PdfThemeName;
   preset: PdfOutputPresetId;
+  exp: number;
+};
+
+type LegacyPdfDocumentTokenPayload = {
+  eventId: string;
+  theme: PdfThemeName;
   exp: number;
 };
 
@@ -66,6 +75,23 @@ function isPdfDocumentTokenPayload(
   );
 }
 
+function isLegacyPdfDocumentTokenPayload(
+  value: unknown,
+): value is LegacyPdfDocumentTokenPayload {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const payload = value as Record<string, unknown>;
+
+  return (
+    typeof payload.eventId === "string" &&
+    (payload.theme === "light" || payload.theme === "dark") &&
+    typeof payload.exp === "number" &&
+    Number.isFinite(payload.exp)
+  );
+}
+
 export function signPdfDocumentToken({
   eventId,
   theme,
@@ -112,15 +138,26 @@ export function verifyPdfDocumentToken(token: string) {
   try {
     const payload = JSON.parse(payloadBuffer.toString("utf8"));
 
-    if (!isPdfDocumentTokenPayload(payload)) {
-      return null;
+    if (isPdfDocumentTokenPayload(payload)) {
+      if (payload.exp <= Math.floor(Date.now() / 1000)) {
+        return null;
+      }
+
+      return payload;
     }
 
-    if (payload.exp <= Math.floor(Date.now() / 1000)) {
-      return null;
+    if (isLegacyPdfDocumentTokenPayload(payload)) {
+      if (payload.exp <= Math.floor(Date.now() / 1000)) {
+        return null;
+      }
+
+      return {
+        ...payload,
+        preset: getDefaultPdfOutputPresetId(payload.theme),
+      };
     }
 
-    return payload;
+    return null;
   } catch {
     return null;
   }

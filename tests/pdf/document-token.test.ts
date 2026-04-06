@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const originalEnv = { ...process.env };
@@ -18,6 +19,24 @@ afterEach(() => {
 });
 
 describe("pdf document token helpers", () => {
+  function signLegacyToken(payload: {
+    eventId: string;
+    theme: "light" | "dark";
+    exp: number;
+  }) {
+    const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString(
+      "base64url",
+    );
+    const encodedSignature = createHmac(
+      "sha256",
+      "document-token-test-secret-32-chars",
+    )
+      .update(encodedPayload)
+      .digest("base64url");
+
+    return `${encodedPayload}.${encodedSignature}`;
+  }
+
   it("encodes the event id, theme, preset, and expiry", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-28T00:00:00.000Z"));
@@ -100,5 +119,27 @@ describe("pdf document token helpers", () => {
     const [payload, signature] = token.split(".");
 
     expect(verifyPdfDocumentToken(`${payload}.${signature}!`)).toBeNull();
+  });
+
+  it("accepts legacy tokens and normalizes them to the default preset for the theme", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-28T00:00:00.000Z"));
+
+    const { verifyPdfDocumentToken } = await import(
+      "../../lib/pdf/document-token"
+    );
+
+    const token = signLegacyToken({
+      eventId: "event-o-west",
+      theme: "dark",
+      exp: 1774659600,
+    });
+
+    expect(verifyPdfDocumentToken(token)).toEqual({
+      eventId: "event-o-west",
+      theme: "dark",
+      preset: "standard-dark",
+      exp: 1774659600,
+    });
   });
 });
