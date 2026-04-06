@@ -282,7 +282,7 @@ describe("PdfDocument", () => {
       ]),
       theme: "dark",
       presetId: "large-type",
-    } as any);
+    });
 
     expect(standardLayout.densityPreset).toBe("standard");
     expect(largeTypeLayout.densityPreset).toBe("relaxed");
