@@ -12,6 +12,7 @@ type PdfPreviewPageProps = {
   layout: SetlistPdfLayout;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  requestedPresetId: PdfOutputPresetId;
   activePresetId: PdfOutputPresetId;
   blockedPresetId?: PdfOutputPresetId | null;
   documentHref: string;
@@ -39,14 +40,15 @@ export function PdfPreviewPage({
   layout,
   currentTheme,
   currentPlan,
+  requestedPresetId,
   activePresetId,
   blockedPresetId,
   documentHref,
   downloadHref,
 }: PdfPreviewPageProps) {
   const previewBaseHref = `/events/${event.id}/pdf`;
-  const lightHref = `${previewBaseHref}?theme=light&preset=${activePresetId}`;
-  const darkHref = `${previewBaseHref}?theme=dark&preset=${activePresetId}`;
+  const lightHref = `${previewBaseHref}?theme=light&preset=${requestedPresetId}`;
+  const darkHref = `${previewBaseHref}?theme=dark&preset=${requestedPresetId}`;
 
   return (
     <main className="min-h-screen bg-[#111111] text-[#f6f3ee]">
@@ -101,6 +103,7 @@ export function PdfPreviewPage({
               previewBaseHref={previewBaseHref}
               currentTheme={currentTheme}
               currentPlan={currentPlan}
+              requestedPresetId={requestedPresetId}
               activePresetId={activePresetId}
               blockedPresetId={blockedPresetId}
             />

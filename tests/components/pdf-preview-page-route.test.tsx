@@ -86,11 +86,14 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);
+    expect(result.props.requestedPresetId).toBe("standard-dark");
+    expect(result.props.activePresetId).toBe("standard-dark");
+    expect(result.props.blockedPresetId).toBeNull();
     expect(result.props.documentHref).toBe(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
     expect(result.props.downloadHref).toBe(
-      `/api/events/${oWestEvent.id}/pdf?theme=dark`,
+      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`,
     );
   });
 
@@ -125,11 +128,46 @@ describe("EventPdfPreviewPage route wiring", () => {
       theme: "dark",
     });
     expect(result.props.currentTheme).toBe("dark");
+    expect(result.props.requestedPresetId).toBe("standard-dark");
+    expect(result.props.activePresetId).toBe("standard-dark");
     expect(result.props.documentHref).toBe(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
     expect(result.props.downloadHref).toBe(
-      `/api/events/${oWestEvent.id}/pdf?theme=dark`,
+      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`,
+    );
+  });
+
+  it("preserves a blocked pro preset query for free users while rendering with a valid fallback preset", async () => {
+    mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+    mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
+    mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark",
+    );
+
+    const result = await PdfPreviewPage({
+      params: Promise.resolve({ eventId: oWestEvent.id }),
+      searchParams: Promise.resolve({ theme: "dark", preset: "large-type" }),
+    });
+
+    expect(result.props.requestedPresetId).toBe("large-type");
+    expect(result.props.activePresetId).toBe("standard-dark");
+    expect(result.props.blockedPresetId).toBe("large-type");
+    expect(result.props.documentHref).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
+    );
+    expect(result.props.downloadHref).toBe(
+      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`,
     );
   });
 

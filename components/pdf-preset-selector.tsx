@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import {
   getPdfOutputPreset,
   getPdfOutputPresets,
@@ -15,6 +14,7 @@ type PdfPresetSelectorProps = {
   previewBaseHref: string;
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
+  requestedPresetId: PdfOutputPresetId;
   activePresetId: PdfOutputPresetId;
   blockedPresetId?: PdfOutputPresetId | null;
 };
@@ -37,12 +37,18 @@ function buildPresetHref({
 }
 
 function getPresetCardClassName({
+  isRequested,
   isActive,
   isLocked,
 }: {
+  isRequested: boolean;
   isActive: boolean;
   isLocked: boolean;
 }) {
+  if (isRequested && isLocked) {
+    return "border-[#f6c453] bg-[#22180d] text-[#f6f3ee] shadow-[0_18px_42px_rgba(0,0,0,0.28)]";
+  }
+
   if (isActive) {
     return "border-[#f6c453] bg-[#241d11] text-[#f6f3ee] shadow-[0_18px_42px_rgba(0,0,0,0.28)]";
   }
@@ -81,13 +87,12 @@ export function PdfPresetSelector({
   previewBaseHref,
   currentTheme,
   currentPlan,
+  requestedPresetId,
   activePresetId,
   blockedPresetId = null,
 }: PdfPresetSelectorProps) {
-  const [requestedBlockedPresetId, setRequestedBlockedPresetId] =
-    useState<PdfOutputPresetId | null>(blockedPresetId);
-  const blockedPreset = requestedBlockedPresetId
-    ? getPdfOutputPreset(requestedBlockedPresetId)
+  const blockedPreset = blockedPresetId
+    ? getPdfOutputPreset(blockedPresetId)
     : null;
 
   return (
@@ -108,41 +113,16 @@ export function PdfPresetSelector({
 
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {getPdfOutputPresets().map((preset) => {
+          const isRequested = preset.id === requestedPresetId;
           const isActive = preset.id === activePresetId;
           const isLocked =
             preset.requiredPlan === APP_PLAN_NAMES.pro &&
             currentPlan !== APP_PLAN_NAMES.pro;
-          const cardClassName = getPresetCardClassName({ isActive, isLocked });
-
-          if (isLocked) {
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                aria-label={preset.label}
-                aria-disabled="true"
-                onClick={() => setRequestedBlockedPresetId(preset.id)}
-                className={`flex min-h-[132px] w-full flex-col justify-between rounded-[20px] border px-4 py-4 text-left transition ${cardClassName}`}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-black uppercase tracking-[0.08em] text-inherit">
-                        {preset.label}
-                      </p>
-                      <p className="mt-2 text-xs leading-5 text-inherit/80">
-                        {preset.description}
-                      </p>
-                    </div>
-                    <PresetPlanBadge preset={preset} isLocked />
-                  </div>
-                </div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#f6c453]">
-                  Proで選択可能
-                </p>
-              </button>
-            );
-          }
+          const cardClassName = getPresetCardClassName({
+            isRequested,
+            isActive,
+            isLocked,
+          });
 
           return (
             <Link
@@ -153,7 +133,7 @@ export function PdfPresetSelector({
                 presetId: preset.id,
               })}
               aria-label={preset.label}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={isRequested ? "page" : undefined}
               className={`flex min-h-[132px] flex-col justify-between rounded-[20px] border px-4 py-4 transition ${cardClassName}`}
             >
               <div className="space-y-3">
@@ -166,11 +146,21 @@ export function PdfPresetSelector({
                       {preset.description}
                     </p>
                   </div>
-                  <PresetPlanBadge preset={preset} isLocked={false} />
+                  <PresetPlanBadge preset={preset} isLocked={isLocked} />
                 </div>
               </div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8d8578]">
-                {isActive ? "active preset" : "switch preview"}
+              <p
+                className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
+                  isLocked || isRequested ? "text-[#f6c453]" : "text-[#8d8578]"
+                }`}
+              >
+                {isRequested && isLocked
+                  ? "previewing fallback"
+                  : isRequested
+                    ? "active route state"
+                    : isLocked
+                      ? "Proで選択可能"
+                      : "switch preview"}
               </p>
             </Link>
           );
@@ -187,7 +177,7 @@ export function PdfPresetSelector({
               {blockedPreset.label} は Pro プランで利用できます。
             </p>
             <p className="text-xs leading-5 text-[#c6b49c]">
-              Freeでは現在の standard preset を維持したまま、上位 preset の違いを確認できます。
+              URLは {blockedPreset.label} を保持したまま、Freeで利用可能な fallback preset でプレビューを表示しています。
             </p>
           </div>
           <Link

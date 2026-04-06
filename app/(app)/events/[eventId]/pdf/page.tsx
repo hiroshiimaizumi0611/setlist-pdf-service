@@ -46,6 +46,7 @@ function resolvePreset({
 
   if (!candidate || !(candidate in PDF_OUTPUT_PRESET_BY_ID)) {
     return {
+      requestedPresetId: fallbackPresetId,
       activePresetId: fallbackPresetId,
       blockedPresetId: null,
     };
@@ -59,12 +60,14 @@ function resolvePreset({
     currentPlan !== APP_PLAN_NAMES.pro
   ) {
     return {
+      requestedPresetId: requestedPreset.id,
       activePresetId: fallbackPresetId,
       blockedPresetId: requestedPreset.id,
     };
   }
 
   return {
+    requestedPresetId: requestedPreset.id,
     activePresetId: requestedPreset.id,
     blockedPresetId: null,
   };
@@ -86,7 +89,7 @@ export default async function EventPdfPreviewPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const { session } = authSession;
-  const { activePresetId, blockedPresetId } = resolvePreset({
+  const { requestedPresetId, activePresetId, blockedPresetId } = resolvePreset({
     value: resolvedSearchParams?.preset,
     theme: currentTheme,
     currentPlan: authSession.currentPlan.plan,
@@ -129,6 +132,7 @@ export default async function EventPdfPreviewPage({
       layout={layout}
       currentTheme={currentTheme}
       currentPlan={authSession.currentPlan.plan}
+      requestedPresetId={requestedPresetId}
       activePresetId={activePresetId}
       blockedPresetId={blockedPresetId}
       documentHref={documentUrl.toString()}
