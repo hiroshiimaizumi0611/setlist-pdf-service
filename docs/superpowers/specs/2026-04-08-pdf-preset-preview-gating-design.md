@@ -150,6 +150,9 @@ Free でもこの URL を保ってよい。
 
 API を直接叩いても Pro 出力を bypass できないことは維持する。
 
+サーバー側は、modal を経ずに Pro preset download を直接許可しない。  
+`標準プリセットで出力` は、あくまで UI 上の modal 分岐として扱う。
+
 ## Testing
 
 - free user can preview pro presets
