@@ -70,11 +70,19 @@ export async function GET(request: Request, context: PdfRouteContext) {
 
     const theme = resolveTheme(request);
     const requestedPreset = new URL(request.url).searchParams.get("preset") ?? undefined;
-    const { downloadPresetId } = resolvePdfOutputPresetSelection({
+    const {
+      downloadPresetId,
+      isExportGated,
+    } = resolvePdfOutputPresetSelection({
       requestedPreset,
       theme,
       currentPlan: authSession.currentPlan.plan,
     });
+
+    if (isExportGated) {
+      return Response.json({ error: "Forbidden." }, { status: 403 });
+    }
+
     const token = signPdfDocumentToken({
       eventId: event.id,
       theme,

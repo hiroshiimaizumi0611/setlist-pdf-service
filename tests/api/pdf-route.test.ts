@@ -93,9 +93,7 @@ describe("GET /api/events/[eventId]/pdf", () => {
     });
   });
 
-  it("falls back to the standard preset for free users even when a pro preset is requested", async () => {
-    const pdfBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]);
-
+  it("rejects direct pro preset exports from free users", async () => {
     mocks.getAuthSessionWithPlan.mockResolvedValue({
       session: {
         user: { id: oWestEvent.ownerUserId },
@@ -105,11 +103,6 @@ describe("GET /api/events/[eventId]/pdf", () => {
       },
     });
     mocks.findEventWithItemsById.mockResolvedValue(oWestEvent);
-    mocks.signPdfDocumentToken.mockReturnValue("signed-token");
-    mocks.buildPdfDocumentUrl.mockReturnValue(
-      "https://app.example.com/events/event-o-west/pdf/document?theme=dark&preset=standard-dark&token=signed-token",
-    );
-    mocks.generatePdfFromDocument.mockResolvedValue(pdfBytes);
 
     const response = await GET(
       new Request(
@@ -120,18 +113,11 @@ describe("GET /api/events/[eventId]/pdf", () => {
       },
     );
 
-    expect(response.status).toBe(200);
-    expect(mocks.signPdfDocumentToken).toHaveBeenCalledWith(
-      expect.objectContaining({
-        preset: "standard-dark",
-      }),
-    );
-    expect(mocks.buildPdfDocumentUrl).toHaveBeenCalledWith({
-      eventId: oWestEvent.id,
-      theme: "dark",
-      preset: "standard-dark",
-      token: "signed-token",
-    });
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "Forbidden." });
+    expect(mocks.signPdfDocumentToken).not.toHaveBeenCalled();
+    expect(mocks.buildPdfDocumentUrl).not.toHaveBeenCalled();
+    expect(mocks.generatePdfFromDocument).not.toHaveBeenCalled();
   });
 
   it("allows a free user to export the standard preset directly", async () => {
