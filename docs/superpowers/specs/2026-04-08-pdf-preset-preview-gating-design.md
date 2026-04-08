@@ -146,7 +146,6 @@ Free でもこの URL を保ってよい。
   - Free でも Pro preset preview 可
 - download route
   - Free は Pro preset download 不可
-  - fallback を返すか、もしくは modal 経由で free preset download に誘導する
 
 API を直接叩いても Pro 出力を bypass できないことは維持する。
 
