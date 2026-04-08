@@ -120,6 +120,14 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   await registerAndLogin(page, credentials);
   const currentTheme = "dark" as const;
   const currentEventId = await seedEventWithSong(credentials.email, currentTheme);
+  const buildPreviewUrl = (theme: "light" | "dark", preset: string) =>
+    `/events/${currentEventId}/pdf?theme=${theme}&preset=${preset}`;
+  const buildDownloadUrl = (theme: "light" | "dark", preset: string) =>
+    `/api/events/${currentEventId}/pdf?theme=${theme}&preset=${preset}`;
+  const buildPreviewUrlPattern = (theme: "light" | "dark", preset: string) =>
+    new RegExp(
+      `${buildPreviewUrl(theme, preset).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    );
 
   await page.goto(`/events/${currentEventId}?theme=${currentTheme}`);
 
@@ -164,7 +172,7 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   );
   await expect(page.getByRole("link", { name: "Standard Dark" })).toHaveAttribute(
     "href",
-    `/events/${currentEventId}/pdf?theme=${currentTheme}&preset=standard-dark`,
+    buildPreviewUrl(currentTheme, "standard-dark"),
   );
   await expect(page.getByRole("link", { name: "Large Type" })).toBeVisible();
 
@@ -214,51 +222,43 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
   );
 
   await page.getByRole("link", { name: "Large Type" }).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/events/${currentEventId}/pdf\\?theme=${currentTheme}&preset=large-type$`),
-  );
-  await expect(page.getByText("Upgrade to unlock")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Proへアップグレード" })).toHaveAttribute(
-    "href",
-    "/settings/billing",
-  );
+  await expect(page).toHaveURL(buildPreviewUrlPattern(currentTheme, "large-type"));
   await expect(page.getByRole("link", { name: "Large Type" })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  await expect(page.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
-    "href",
-    `/api/events/${currentEventId}/pdf?theme=${currentTheme}&preset=standard-dark`,
+  await expect(page.getByRole("button", { name: "PDF出力" })).toBeVisible();
+  await expect(
+    page
+      .frameLocator('iframe[title="紙面プレビュー"]')
+      .locator("[data-pdf-document]"),
+  ).toHaveAttribute("data-output-preset", "large-type");
+
+  await page.reload();
+  await expect(page).toHaveURL(buildPreviewUrlPattern(currentTheme, "large-type"));
+  await expect(page.getByRole("link", { name: "Large Type" })).toHaveAttribute(
+    "aria-current",
+    "page",
   );
   await expect(
-    page.locator('iframe[title="紙面プレビュー"]'),
-  ).toHaveAttribute("src", /\/events\/.+\/pdf\/document\?/);
-  const blockedEmbeddedDocumentHref = await page
-    .locator('iframe[title="紙面プレビュー"]')
-    .getAttribute("src");
-
-  if (!blockedEmbeddedDocumentHref) {
-    throw new Error("Embedded document URL is missing after requesting a blocked preset.");
-  }
-
-  const blockedEmbeddedDocumentUrl = new URL(blockedEmbeddedDocumentHref, page.url());
-  expect(blockedEmbeddedDocumentUrl.pathname).toBe(
-    `/events/${currentEventId}/pdf/document`,
-  );
-  expect(blockedEmbeddedDocumentUrl.searchParams.get("theme")).toBe(currentTheme);
-  expect(blockedEmbeddedDocumentUrl.searchParams.get("preset")).toBe("standard-dark");
+    page
+      .frameLocator('iframe[title="紙面プレビュー"]')
+      .locator("[data-pdf-document]"),
+  ).toHaveAttribute("data-output-preset", "large-type");
 
   const alternateTheme = currentTheme === "dark" ? "light" : "dark";
   const alternateThemeLabel = alternateTheme === "dark" ? "DARK" : "LIGHT";
 
   await page.getByRole("link", { name: alternateThemeLabel, exact: true }).click();
   await page.waitForLoadState("domcontentloaded");
-  await expect(page).toHaveURL(
-    new RegExp(`/events/${currentEventId}/pdf\\?theme=${alternateTheme}&preset=large-type$`),
-  );
+  await expect(page).toHaveURL(buildPreviewUrlPattern(alternateTheme, "large-type"));
   await expect(
     page.getByRole("link", { name: alternateThemeLabel, exact: true }),
   ).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Large Type" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 
   const switchedEmbeddedDocumentHref = await embeddedDocument.getAttribute("src");
 
@@ -279,52 +279,64 @@ test("supports the free-tier event flow, preview export, duplication, and upgrad
     page
       .frameLocator('iframe[title="紙面プレビュー"]')
       .locator("[data-pdf-document]"),
-  ).toHaveAttribute("data-output-preset", "standard-light");
+  ).toHaveAttribute("data-output-preset", "large-type");
   await expectEmbeddedPageNumbers(page, pageCount);
   await expect(page.getByText("PDF出力プリセット")).toBeVisible();
   await expect(page.getByRole("link", { name: "Large Type" })).toHaveAttribute(
     "href",
-    `/events/${currentEventId}/pdf?theme=${alternateTheme}&preset=large-type`,
+    buildPreviewUrl(alternateTheme, "large-type"),
   );
   await expect(page.getByRole("link", { name: "Standard Dark" })).toHaveAttribute(
     "href",
-    `/events/${currentEventId}/pdf?theme=${alternateTheme}&preset=standard-dark`,
+    buildPreviewUrl(alternateTheme, "standard-dark"),
   );
-  await expect(page.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: "PDF出力" })).toBeVisible();
+
+  await page.getByRole("button", { name: "PDF出力" }).click();
+  const dialog = page.getByRole("dialog", { name: "PDF出力の制限" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("このプリセットで出力するにはProが必要です")).toBeVisible();
+  await expect(
+    dialog.getByRole("link", { name: "標準プリセットで出力" }),
+  ).toHaveAttribute("href", buildDownloadUrl(alternateTheme, "standard-light"));
+  await expect(dialog.getByRole("link", { name: "Proにアップグレード" })).toHaveAttribute(
     "href",
-    `/api/events/${currentEventId}/pdf?theme=${alternateTheme}&preset=standard-light`,
-  );
-  expect(switchedEmbeddedDocumentUrl.searchParams.get("preset")).toBe("standard-light");
-
-  await expect(previewPdfLink).toHaveAttribute(
-    "href",
-    new RegExp(`^/api/events/${currentEventId}/pdf\\?theme=${alternateTheme}&preset=standard-light$`),
-  );
-  const switchedPdfHref = await previewPdfLink.getAttribute("href");
-
-  if (!switchedPdfHref) {
-    throw new Error("PDF export link is missing after switching preview theme.");
-  }
-
-  const switchedPreviewDownloadUrl = new URL(switchedPdfHref, page.url());
-  expect(switchedPreviewDownloadUrl.pathname).toBe(`/api/events/${currentEventId}/pdf`);
-  expect(switchedPreviewDownloadUrl.searchParams.get("theme")).toBe(alternateTheme);
-  expect(switchedPreviewDownloadUrl.searchParams.get("preset")).toBe("standard-light");
-  expect(switchedPreviewDownloadUrl.searchParams.get("theme")).toBe(
-    switchedEmbeddedDocumentUrl.searchParams.get("theme"),
+    "/settings/billing",
   );
 
-  const pdfResponse = await page.context().request.get(
-    new URL(switchedPdfHref, page.url()).toString(),
-  );
-  const pdfBuffer = await pdfResponse.body();
+  const standardDownloadRequestPromise = page.waitForRequest((request) => {
+    const url = new URL(request.url());
+    return (
+      request.method() === "GET" &&
+      url.pathname === `/api/events/${currentEventId}/pdf` &&
+      url.searchParams.get("theme") === alternateTheme &&
+      url.searchParams.get("preset") === "standard-light"
+    );
+  });
+  await dialog.getByRole("link", { name: "標準プリセットで出力" }).click({
+    noWaitAfter: true,
+  });
+  const standardDownloadRequest = await standardDownloadRequestPromise;
+  const standardDownloadUrl = new URL(standardDownloadRequest.url());
 
-  expect(pdfResponse.ok()).toBe(true);
-  expect(pdfResponse.headers()["content-type"]).toContain("application/pdf");
-  expect(pdfResponse.headers()["content-disposition"]).toContain(".pdf");
-  expect(pdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
-  expect(pdfBuffer.byteLength).toBeGreaterThan(500);
-  expect(pdfBuffer.byteLength).toBeLessThan(2_000_000);
+  expect(standardDownloadUrl.pathname).toBe(`/api/events/${currentEventId}/pdf`);
+  expect(standardDownloadUrl.searchParams.get("theme")).toBe(alternateTheme);
+  expect(standardDownloadUrl.searchParams.get("preset")).toBe("standard-light");
+  expect(standardDownloadRequest.method()).toBe("GET");
+
+  const blockedExportResponse = await page.context().request.get(
+    buildDownloadUrl(alternateTheme, "large-type"),
+  );
+
+  expect(blockedExportResponse.status()).toBe(403);
+
+  await page.goto(buildPreviewUrl(alternateTheme, "large-type"));
+  await page.waitForLoadState("domcontentloaded");
+  await page.getByRole("button", { name: "PDF出力" }).click();
+  await expect(page.getByRole("dialog", { name: "PDF出力の制限" })).toBeVisible();
+  await page.getByRole("link", { name: "Proにアップグレード" }).click();
+  await expect(page).toHaveURL(/\/settings\/billing$/);
+  await expect(page.getByRole("heading", { name: "請求サマリー" })).toBeVisible();
 
   await page.goto(editorUrlBeforePreview);
   await expect(page).toHaveURL(editorUrlBeforePreview);
