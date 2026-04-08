@@ -95,11 +95,11 @@ export function PdfPresetSelector({
             PDF出力プリセット
           </h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#8d8578]">
-            preview + export sync
+            preview selectable / export gated
           </span>
         </div>
         <p className="text-xs leading-5 text-[#9f9688]">
-          プレビューURLとPDF出力を同じ preset に揃えます。
+          Pro preset は preview できます。出力時のみ Pro が必要です。
         </p>
       </div>
 

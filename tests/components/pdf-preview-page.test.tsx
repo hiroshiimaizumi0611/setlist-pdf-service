@@ -61,6 +61,8 @@ describe("PdfPreviewPage", () => {
     expect(screen.getByText("出力サイズ選択")).toBeInTheDocument();
     expect(screen.getByText("A4 (210 x 297mm)")).toBeInTheDocument();
     expect(screen.getByText("PDF出力プリセット")).toBeInTheDocument();
+    expect(screen.getByText("preview selectable / export gated")).toBeInTheDocument();
+    expect(screen.getByText("Pro preset は preview できます。出力時のみ Pro が必要です。")).toBeInTheDocument();
     expect(screen.getByText("Standard Light")).toBeInTheDocument();
     expect(screen.getByText("Large Type")).toBeInTheDocument();
     expect(screen.getAllByText("Pro").length).toBeGreaterThan(0);
