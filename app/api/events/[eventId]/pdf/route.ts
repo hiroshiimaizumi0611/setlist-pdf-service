@@ -70,10 +70,7 @@ export async function GET(request: Request, context: PdfRouteContext) {
 
     const theme = resolveTheme(request);
     const requestedPreset = new URL(request.url).searchParams.get("preset") ?? undefined;
-    const {
-      downloadPresetId,
-      isExportGated,
-    } = resolvePdfOutputPresetSelection({
+    const { downloadPresetId, isExportGated } = resolvePdfOutputPresetSelection({
       requestedPreset,
       theme,
       currentPlan: authSession.currentPlan.plan,
