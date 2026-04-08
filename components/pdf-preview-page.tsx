@@ -4,6 +4,7 @@ import type { PdfOutputPresetId } from "@/lib/pdf/output-presets";
 import type { AppPlan } from "@/lib/stripe/plans";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { EventWithItems } from "@/lib/repositories/event-repository";
+import { PdfExportGateModal } from "./pdf-export-gate-modal";
 import { PdfPresetSelector } from "./pdf-preset-selector";
 import { PdfPreviewInspector } from "./pdf-preview-inspector";
 
@@ -35,6 +36,21 @@ function formatPreviewSubtitle(event: EventWithItems) {
   return parts.length > 0 ? parts.join("  ") : "日付・会場未設定";
 }
 
+function buildPreviewDocumentHref({
+  documentHref,
+  currentTheme,
+  requestedPresetId,
+}: {
+  documentHref: string;
+  currentTheme: PdfThemeName;
+  requestedPresetId: PdfOutputPresetId;
+}) {
+  const url = new URL(documentHref);
+  url.searchParams.set("theme", currentTheme);
+  url.searchParams.set("preset", requestedPresetId);
+  return url.toString();
+}
+
 export function PdfPreviewPage({
   event,
   layout,
@@ -42,11 +58,17 @@ export function PdfPreviewPage({
   currentPlan,
   requestedPresetId,
   activePresetId,
-  blockedPresetId,
+  blockedPresetId: _blockedPresetId,
   documentHref,
   downloadHref,
 }: PdfPreviewPageProps) {
+  void _blockedPresetId;
   const previewBaseHref = `/events/${event.id}/pdf`;
+  const previewDocumentHref = buildPreviewDocumentHref({
+    documentHref,
+    currentTheme,
+    requestedPresetId,
+  });
   const lightHref = `${previewBaseHref}?theme=light&preset=${requestedPresetId}`;
   const darkHref = `${previewBaseHref}?theme=dark&preset=${requestedPresetId}`;
 
@@ -79,12 +101,12 @@ export function PdfPreviewPage({
             >
               編集へ戻る
             </Link>
-            <a
-              href={downloadHref}
-              className="inline-flex min-h-11 items-center justify-center border border-[#f6c453] bg-[#f6c453] px-5 text-sm font-black uppercase tracking-[0.14em] text-[#1f1b16] transition hover:bg-[#ffe08a]"
-            >
-              PDF出力
-            </a>
+            <PdfExportGateModal
+              currentTheme={currentTheme}
+              currentPlan={currentPlan}
+              activePresetId={activePresetId}
+              downloadHref={downloadHref}
+            />
           </div>
         </div>
       </header>
@@ -105,13 +127,12 @@ export function PdfPreviewPage({
               currentPlan={currentPlan}
               requestedPresetId={requestedPresetId}
               activePresetId={activePresetId}
-              blockedPresetId={blockedPresetId}
             />
             <div className="overflow-hidden rounded-[28px] border border-[#2f2a24] bg-[#0b0b0b] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
               <iframe
-                key={documentHref}
+                key={previewDocumentHref}
                 title="紙面プレビュー"
-                src={documentHref}
+                src={previewDocumentHref}
                 className="h-[960px] w-full bg-white"
               />
             </div>

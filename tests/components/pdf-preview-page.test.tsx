@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { buildSetlistPdfLayout } from "../../lib/pdf/build-layout";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
@@ -270,22 +270,19 @@ describe("PdfPreviewPage", () => {
     );
   });
 
-  it("keeps blocked pro preset selection in the route state for free users", () => {
+  it("lets free users preview Large Type without the old blocked banner", () => {
     const props = buildPreviewPageProps();
 
     render(
       <PdfPreviewPage
         {...props}
         requestedPresetId="large-type"
+        activePresetId="large-type"
         blockedPresetId="large-type"
+        documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type"
       />,
     );
 
-    expect(screen.getByText("Large Type は Pro プランで利用できます。")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Proへアップグレード" })).toHaveAttribute(
-      "href",
-      "/settings/billing",
-    );
     expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
       "href",
       "/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type",
@@ -293,6 +290,10 @@ describe("PdfPreviewPage", () => {
     expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
       "aria-current",
       "page",
+    );
+    expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type",
     );
     expect(screen.getByRole("link", { name: "Standard Dark" })).toHaveAttribute(
       "href",
@@ -306,14 +307,47 @@ describe("PdfPreviewPage", () => {
       "href",
       "/events/event-nagoya-radhall/pdf?theme=light&preset=large-type",
     );
-    expect(screen.getByRole("link", { name: "PDF出力" })).toHaveAttribute(
+    expect(
+      within(screen.getByRole("link", { name: "Large Type" })).getByText(
+        "preview available / export requires Pro",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Large Type は Pro プランで利用できます。")).not.toBeInTheDocument();
+    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
+      "src",
+      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type",
+    );
+  });
+
+  it("opens an export gate modal for free users previewing Large Type", () => {
+    const props = buildPreviewPageProps();
+
+    render(
+      <PdfPreviewPage
+        {...props}
+        requestedPresetId="large-type"
+        activePresetId="large-type"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "PDF出力" }));
+
+    const dialog = screen.getByRole("dialog", { name: "PDF出力の制限" });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText("このプリセットで出力するにはProが必要です")).toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: "標準プリセットで出力" })).toHaveAttribute(
       "href",
       "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
     );
-    expect(screen.getByTitle("紙面プレビュー")).toHaveAttribute(
-      "src",
-      "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=standard-dark",
+    expect(within(dialog).getByRole("link", { name: "Proにアップグレード" })).toHaveAttribute(
+      "href",
+      "/settings/billing",
     );
+    expect(within(dialog).getByRole("button", { name: "キャンセル" })).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
+
+    expect(screen.queryByRole("dialog", { name: "PDF出力の制限" })).not.toBeInTheDocument();
   });
 
   it("lets pro users select every preset via preview-aligned URLs", () => {

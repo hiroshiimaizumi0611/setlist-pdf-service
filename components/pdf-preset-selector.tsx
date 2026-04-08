@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  getPdfOutputPreset,
   getPdfOutputPresets,
   type PdfOutputPreset,
   type PdfOutputPresetId,
@@ -45,10 +44,6 @@ function getPresetCardClassName({
   isActive: boolean;
   isLocked: boolean;
 }) {
-  if (isRequested && isLocked) {
-    return "border-[#f6c453] bg-[#22180d] text-[#f6f3ee] shadow-[0_18px_42px_rgba(0,0,0,0.28)]";
-  }
-
   if (isActive) {
     return "border-[#f6c453] bg-[#241d11] text-[#f6f3ee] shadow-[0_18px_42px_rgba(0,0,0,0.28)]";
   }
@@ -89,12 +84,9 @@ export function PdfPresetSelector({
   currentPlan,
   requestedPresetId,
   activePresetId,
-  blockedPresetId = null,
+  blockedPresetId,
 }: PdfPresetSelectorProps) {
-  const blockedPreset = blockedPresetId
-    ? getPdfOutputPreset(blockedPresetId)
-    : null;
-
+  void blockedPresetId;
   return (
     <section className="rounded-[24px] border border-[#2f2a24] bg-[#111111]/92 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur">
       <div className="flex flex-col gap-2 border-b border-[#2b2721] pb-3">
@@ -151,43 +143,15 @@ export function PdfPresetSelector({
               </div>
               <p
                 className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
-                  isLocked || isRequested ? "text-[#f6c453]" : "text-[#8d8578]"
+                  isActive || isRequested || isLocked ? "text-[#f6c453]" : "text-[#8d8578]"
                 }`}
               >
-                {isRequested && isLocked
-                  ? "previewing fallback"
-                  : isRequested
-                    ? "active route state"
-                    : isLocked
-                      ? "Proで選択可能"
-                      : "switch preview"}
+                {isLocked ? "preview available / export requires Pro" : isRequested ? "active route state" : "switch preview"}
               </p>
             </Link>
           );
         })}
       </div>
-
-      {blockedPreset ? (
-        <div className="mt-4 flex flex-col gap-3 rounded-[18px] border border-[#5d4320] bg-[#22180d] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-[#f6c453]">
-              Upgrade to unlock
-            </p>
-            <p className="text-sm font-semibold text-[#f6f3ee]">
-              {blockedPreset.label} は Pro プランで利用できます。
-            </p>
-            <p className="text-xs leading-5 text-[#c6b49c]">
-              URLは {blockedPreset.label} を保持したまま、Freeで利用可能な fallback preset でプレビューを表示しています。
-            </p>
-          </div>
-          <Link
-            href="/settings/billing"
-            className="inline-flex min-h-11 items-center justify-center border border-[#f6c453] bg-[#f6c453] px-4 text-sm font-black text-[#1f1b16] transition hover:bg-[#ffe08a]"
-          >
-            Proへアップグレード
-          </Link>
-        </div>
-      ) : null}
     </section>
   );
 }
