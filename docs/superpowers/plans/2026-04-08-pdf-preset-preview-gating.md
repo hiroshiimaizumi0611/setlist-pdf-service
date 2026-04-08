@@ -186,8 +186,10 @@ If no separate modal file was created, omit it from the commit.
 
 **Files:**
 - Modify: `app/(app)/events/[eventId]/pdf/page.tsx`
+- Modify: `app/(app)/events/[eventId]/pdf/document/page.tsx`
 - Modify: `lib/pdf/output-presets.ts`
 - Modify: `tests/components/pdf-preview-page-route.test.tsx`
+- Modify: `tests/components/pdf-document-route.test.tsx`
 
 - [ ] **Step 1: Write failing route expectations**
 
@@ -196,6 +198,9 @@ Add route tests that prove:
 - free + `preset=large-type`
   - preview/requested preset stays `large-type`
   - download preset resolves to `standard-dark` or `standard-light` by theme
+- free + `preset=large-type` on the document route
+  - preview document continues to render the requested preset
+  - only the download preset is separated
 - pro users still get the same preset for both preview and download
 
 - [ ] **Step 2: Run the focused route test to verify failure**
@@ -221,7 +226,7 @@ Keep naming explicit and avoid hidden fallback behavior.
 
 - [ ] **Step 4: Update the preview route**
 
-Make `app/(app)/events/[eventId]/pdf/page.tsx` pass:
+Make `app/(app)/events/[eventId]/pdf/page.tsx` and `app/(app)/events/[eventId]/pdf/document/page.tsx` pass:
 
 - requested preset for active selector state
 - preview preset for iframe layout/document
@@ -234,6 +239,7 @@ Run:
 
 ```bash
 npm run test -- tests/components/pdf-preview-page-route.test.tsx
+npm run test -- tests/components/pdf-document-route.test.tsx
 ```
 
 Expected: PASS
@@ -241,7 +247,7 @@ Expected: PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add app/(app)/events/[eventId]/pdf/page.tsx lib/pdf/output-presets.ts tests/components/pdf-preview-page-route.test.tsx
+git add app/(app)/events/[eventId]/pdf/page.tsx app/(app)/events/[eventId]/pdf/document/page.tsx lib/pdf/output-presets.ts tests/components/pdf-preview-page-route.test.tsx tests/components/pdf-document-route.test.tsx
 git commit -m "refactor: separate pdf preview and download preset state"
 ```
 
