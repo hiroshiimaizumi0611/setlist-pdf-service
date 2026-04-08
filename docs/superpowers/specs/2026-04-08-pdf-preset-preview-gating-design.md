@@ -119,13 +119,8 @@ preview URL は常に requested preset を保持する。
 - `/events/:id/pdf?theme=dark&preset=large-type`
 
 Free でもこの URL を保ってよい。  
-ただし `download` リンク自体は、
-
-- 直接 fallback URL にしてもよいし
-- button click で modal を開いて分岐してもよい
-
-今回のおすすめは後者。  
-リンクの見た目よりも、押した時の意図確認を優先する。
+ただし `download` は必ず button click で modal を開いて分岐する。  
+この spec では、`fallback URL へ直接飛ばす` 方式は採用しない。
 
 ## UI Behavior
 
@@ -133,12 +128,15 @@ Free でもこの URL を保ってよい。
 
 - Free ユーザーでも Pro preset card を通常 selectable にする
 - `Pro` badge は維持する
+- 現在の `fallback preview + blocked banner` は廃止する
 - blocked ではなく `preview available / export requires Pro` の表現へ変える
 
 `PdfPreviewPage`
 
 - Free + Pro preset active の場合、上部か selector 近辺に小さな notice を出してよい
 - ただし主導線は `PDF出力` 押下時の modal に置く
+- 現在の `Freeでは現在の standard preset を維持したまま...` という upgrade banner は置き換える
+- active 表示は requested preset に対して行い、free でも Pro preset が active のまま見える
 
 ## Access Control
 
