@@ -132,6 +132,14 @@ export function getRequestedPdfOutputPresetId(
   return getDefaultPdfOutputPresetId(theme);
 }
 
+export type PdfOutputPresetSelection = {
+  requestedPresetId: PdfOutputPresetId;
+  previewPresetId: PdfOutputPresetId;
+  downloadPresetId: PdfOutputPresetId;
+  isExportGated: boolean;
+  blockedPresetId: PdfOutputPresetId | null;
+};
+
 export function resolvePdfOutputPresetSelection({
   requestedPreset,
   theme,
@@ -143,24 +151,20 @@ export function resolvePdfOutputPresetSelection({
 }) {
   const requestedPresetId = getRequestedPdfOutputPresetId(requestedPreset, theme);
   const requestedPresetRecord = getPdfOutputPreset(requestedPresetId);
-  const fallbackPresetId = getDefaultPdfOutputPresetId(theme);
-
-  if (
+  const isExportGated =
     requestedPresetRecord.requiredPlan === APP_PLAN_NAMES.pro &&
-    currentPlan !== APP_PLAN_NAMES.pro
-  ) {
-    return {
-      requestedPresetId,
-      activePresetId: fallbackPresetId,
-      blockedPresetId: requestedPresetId,
-    } as const;
-  }
+    currentPlan !== APP_PLAN_NAMES.pro;
+  const downloadPresetId = isExportGated
+    ? getDefaultPdfOutputPresetId(theme)
+    : requestedPresetId;
 
   return {
     requestedPresetId,
-    activePresetId: requestedPresetId,
-    blockedPresetId: null,
-  } as const;
+    previewPresetId: requestedPresetId,
+    downloadPresetId,
+    isExportGated,
+    blockedPresetId: isExportGated ? requestedPresetId : null,
+  } satisfies PdfOutputPresetSelection;
 }
 
 export function getPdfOutputPreset(presetId: PdfOutputPresetId) {

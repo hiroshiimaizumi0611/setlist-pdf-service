@@ -42,7 +42,13 @@ export default async function EventPdfPreviewPage({
   ]);
   const currentTheme = resolveTheme(resolvedSearchParams?.theme);
   const { session } = authSession;
-  const { requestedPresetId, activePresetId, blockedPresetId } =
+  const {
+    requestedPresetId,
+    previewPresetId,
+    downloadPresetId,
+    isExportGated,
+    blockedPresetId,
+  } =
     resolvePdfOutputPresetSelection({
       requestedPreset: resolvedSearchParams?.preset,
       theme: currentTheme,
@@ -67,16 +73,16 @@ export default async function EventPdfPreviewPage({
   const layout = buildSetlistPdfLayout({
     event,
     theme: currentTheme,
-    presetId: activePresetId,
+    presetId: previewPresetId,
   });
   const documentUrl = buildPdfDocumentUrl({
     eventId: event.id,
     theme: currentTheme,
-    preset: activePresetId,
+    preset: previewPresetId,
   });
   const downloadParams = new URLSearchParams({
     theme: currentTheme,
-    preset: activePresetId,
+    preset: downloadPresetId,
   });
 
   return (
@@ -86,8 +92,8 @@ export default async function EventPdfPreviewPage({
       currentTheme={currentTheme}
       currentPlan={authSession.currentPlan.plan}
       requestedPresetId={requestedPresetId}
-      activePresetId={activePresetId}
-      blockedPresetId={blockedPresetId}
+      activePresetId={requestedPresetId}
+      blockedPresetId={isExportGated ? blockedPresetId : null}
       documentHref={documentUrl}
       downloadHref={`/api/events/${event.id}/pdf?${downloadParams.toString()}`}
     />

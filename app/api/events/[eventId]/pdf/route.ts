@@ -70,7 +70,7 @@ export async function GET(request: Request, context: PdfRouteContext) {
 
     const theme = resolveTheme(request);
     const requestedPreset = new URL(request.url).searchParams.get("preset") ?? undefined;
-    const { activePresetId } = resolvePdfOutputPresetSelection({
+    const { downloadPresetId } = resolvePdfOutputPresetSelection({
       requestedPreset,
       theme,
       currentPlan: authSession.currentPlan.plan,
@@ -78,13 +78,13 @@ export async function GET(request: Request, context: PdfRouteContext) {
     const token = signPdfDocumentToken({
       eventId: event.id,
       theme,
-      preset: activePresetId,
+      preset: downloadPresetId,
       expiresInSeconds: PDF_DOCUMENT_TOKEN_TTL_SECONDS,
     });
     const documentUrl = buildPdfDocumentUrl({
       eventId: event.id,
       theme,
-      preset: activePresetId,
+      preset: downloadPresetId,
       token,
     });
     const pdfBytes = await generatePdfFromDocument({ documentUrl });

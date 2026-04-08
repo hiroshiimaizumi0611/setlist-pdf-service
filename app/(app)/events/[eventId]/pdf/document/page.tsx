@@ -116,7 +116,7 @@ export default async function EventPdfDocumentPage({
     return notFound();
   }
 
-  const { activePresetId } = resolvePdfOutputPresetSelection({
+  const { previewPresetId } = resolvePdfOutputPresetSelection({
     requestedPreset: resolvedSearchParams?.preset,
     theme: currentTheme,
     currentPlan: authSession.currentPlan.plan,
@@ -125,7 +125,7 @@ export default async function EventPdfDocumentPage({
   const layout = buildSetlistPdfLayout({
     event,
     theme: currentTheme,
-    presetId: activePresetId,
+    presetId: previewPresetId,
   });
 
   return <PdfDocument event={event} layout={layout} />;

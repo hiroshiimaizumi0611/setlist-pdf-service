@@ -99,6 +99,92 @@ describe("EventPdfPreviewPage route wiring", () => {
     );
   });
 
+  it("keeps a free pro preset request as the requested preview state while sending downloads through the free preset", async () => {
+    mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+    mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
+    mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
+    );
+
+    const result = await PdfPreviewPage({
+      params: Promise.resolve({ eventId: oWestEvent.id }),
+      searchParams: Promise.resolve({ theme: "dark", preset: "large-type" }),
+    });
+
+    expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
+      event: oWestEvent,
+      theme: "dark",
+      presetId: "large-type",
+    });
+    expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "dark",
+      preset: "large-type",
+    });
+    expect(result.props.requestedPresetId).toBe("large-type");
+    expect(result.props.activePresetId).toBe("large-type");
+    expect(result.props.blockedPresetId).toBe("large-type");
+    expect(result.props.documentHref).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
+    );
+    expect(result.props.downloadHref).toBe(
+      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`,
+    );
+  });
+
+  it("keeps pro users on the same preset for preview and download", async () => {
+    mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "pro",
+      },
+    });
+    mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
+    mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
+    );
+
+    const result = await PdfPreviewPage({
+      params: Promise.resolve({ eventId: oWestEvent.id }),
+      searchParams: Promise.resolve({ theme: "dark", preset: "large-type" }),
+    });
+
+    expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
+      event: oWestEvent,
+      theme: "dark",
+      presetId: "large-type",
+    });
+    expect(mocks.mockBuildPdfDocumentUrl).toHaveBeenCalledWith({
+      eventId: oWestEvent.id,
+      theme: "dark",
+      preset: "large-type",
+    });
+    expect(result.props.requestedPresetId).toBe("large-type");
+    expect(result.props.activePresetId).toBe("large-type");
+    expect(result.props.blockedPresetId).toBeNull();
+    expect(result.props.documentHref).toBe(
+      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
+    );
+    expect(result.props.downloadHref).toBe(
+      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=large-type`,
+    );
+  });
+
   it("falls back to dark when theme query is invalid", async () => {
     mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
       session: {
@@ -134,39 +220,6 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.requestedPresetId).toBe("standard-dark");
     expect(result.props.activePresetId).toBe("standard-dark");
-    expect(result.props.documentHref).toBe(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
-    );
-    expect(result.props.downloadHref).toBe(
-      `/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`,
-    );
-  });
-
-  it("preserves a blocked pro preset query for free users while rendering with a valid fallback preset", async () => {
-    mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
-      session: {
-        user: {
-          id: "user-1",
-        },
-      },
-      currentPlan: {
-        plan: "free",
-      },
-    });
-    mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
-    mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
-    mocks.mockBuildPdfDocumentUrl.mockReturnValue(
-      "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
-    );
-
-    const result = await PdfPreviewPage({
-      params: Promise.resolve({ eventId: oWestEvent.id }),
-      searchParams: Promise.resolve({ theme: "dark", preset: "large-type" }),
-    });
-
-    expect(result.props.requestedPresetId).toBe("large-type");
-    expect(result.props.activePresetId).toBe("standard-dark");
-    expect(result.props.blockedPresetId).toBe("large-type");
     expect(result.props.documentHref).toBe(
       "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );

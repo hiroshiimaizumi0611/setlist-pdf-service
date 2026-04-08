@@ -125,6 +125,34 @@ describe("EventPdfDocument route wiring", () => {
     expect(result.props.layout).toBe(mockLayout);
   });
 
+  it("renders the requested preset in the preview document for a signed-in free user", async () => {
+    mocks.mockGetAuthSessionWithPlan.mockResolvedValue({
+      session: {
+        user: {
+          id: "user-1",
+        },
+      },
+      currentPlan: {
+        plan: "free",
+      },
+    });
+    mocks.mockGetEventForUser.mockResolvedValue(oWestEvent);
+    mocks.mockBuildSetlistPdfLayout.mockReturnValue(mockLayout);
+
+    const result = await PdfDocumentRoute({
+      params: Promise.resolve({ eventId: oWestEvent.id }),
+      searchParams: Promise.resolve({ theme: "dark", preset: "large-type" }),
+    });
+
+    expect(mocks.mockBuildSetlistPdfLayout).toHaveBeenCalledWith({
+      event: oWestEvent,
+      theme: "dark",
+      presetId: "large-type",
+    });
+    expect(result.props.event).toBe(oWestEvent);
+    expect(result.props.layout).toBe(mockLayout);
+  });
+
   it("rejects a mutated preset when the token was signed for a different preset", async () => {
     mocks.mockGetAuthSessionWithPlan.mockResolvedValue(null);
     mocks.mockVerifyPdfDocumentToken.mockReturnValue({
