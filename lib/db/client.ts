@@ -26,6 +26,7 @@ export const db = drizzle(client, { schema });
 
 export const dbReady = Promise.resolve().then(async () => {
   if (!env.isRemoteDatabase) {
+    await client.execute("PRAGMA busy_timeout = 5000");
     await client.execute("PRAGMA foreign_keys = ON");
   }
 

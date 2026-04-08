@@ -89,8 +89,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     expect(result.props.event).toBe(oWestEvent);
     expect(result.props.layout).toBe(mockLayout);
     expect(result.props.requestedPresetId).toBe("standard-dark");
-    expect(result.props.activePresetId).toBe("standard-dark");
-    expect(result.props.blockedPresetId).toBeNull();
+    expect(result.props.isExportGated).toBe(false);
     expect(result.props.documentHref).toBe(
       "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );
@@ -132,8 +131,7 @@ describe("EventPdfPreviewPage route wiring", () => {
       preset: "large-type",
     });
     expect(result.props.requestedPresetId).toBe("large-type");
-    expect(result.props.activePresetId).toBe("large-type");
-    expect(result.props.blockedPresetId).toBe("large-type");
+    expect(result.props.isExportGated).toBe(true);
     expect(result.props.documentHref).toBe(
       "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
     );
@@ -175,8 +173,7 @@ describe("EventPdfPreviewPage route wiring", () => {
       preset: "large-type",
     });
     expect(result.props.requestedPresetId).toBe("large-type");
-    expect(result.props.activePresetId).toBe("large-type");
-    expect(result.props.blockedPresetId).toBeNull();
+    expect(result.props.isExportGated).toBe(false);
     expect(result.props.documentHref).toBe(
       "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=large-type",
     );
@@ -219,7 +216,7 @@ describe("EventPdfPreviewPage route wiring", () => {
     });
     expect(result.props.currentTheme).toBe("dark");
     expect(result.props.requestedPresetId).toBe("standard-dark");
-    expect(result.props.activePresetId).toBe("standard-dark");
+    expect(result.props.isExportGated).toBe(false);
     expect(result.props.documentHref).toBe(
       "http://localhost:3000/events/event-o-west/pdf/document?theme=dark&preset=standard-dark",
     );

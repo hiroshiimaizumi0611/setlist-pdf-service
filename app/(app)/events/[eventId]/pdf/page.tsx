@@ -47,7 +47,6 @@ export default async function EventPdfPreviewPage({
     previewPresetId,
     downloadPresetId,
     isExportGated,
-    blockedPresetId,
   } =
     resolvePdfOutputPresetSelection({
       requestedPreset: resolvedSearchParams?.preset,
@@ -92,8 +91,7 @@ export default async function EventPdfPreviewPage({
       currentTheme={currentTheme}
       currentPlan={authSession.currentPlan.plan}
       requestedPresetId={requestedPresetId}
-      activePresetId={requestedPresetId}
-      blockedPresetId={isExportGated ? blockedPresetId : null}
+      isExportGated={isExportGated}
       documentHref={documentUrl}
       downloadHref={`/api/events/${event.id}/pdf?${downloadParams.toString()}`}
     />

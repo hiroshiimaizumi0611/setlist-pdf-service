@@ -28,7 +28,7 @@ function buildPreviewPageProps() {
     currentTheme: "dark" as const,
     currentPlan: "free" as const,
     requestedPresetId: "standard-dark" as const,
-    activePresetId: "standard-dark" as const,
+    isExportGated: false,
     documentHref:
       "http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=standard-dark",
     downloadHref: "/api/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
@@ -129,7 +129,7 @@ describe("PdfPreviewPage", () => {
         currentTheme="light"
         currentPlan="free"
         requestedPresetId="standard-light"
-        activePresetId="standard-light"
+        isExportGated={false}
         documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=light&preset=standard-light"
         downloadHref="/api/events/event-nagoya-radhall/pdf?theme=light&preset=standard-light"
       />,
@@ -167,7 +167,7 @@ describe("PdfPreviewPage", () => {
         currentTheme="dark"
         currentPlan="free"
         requestedPresetId="standard-dark"
-        activePresetId="standard-dark"
+        isExportGated={false}
         documentHref={`${documentHref}&preset=standard-dark`}
         downloadHref={`/api/events/${oWestEvent.id}/pdf?theme=dark&preset=standard-dark`}
       />,
@@ -255,7 +255,7 @@ describe("PdfPreviewPage", () => {
         currentTheme="light"
         currentPlan="free"
         requestedPresetId="standard-light"
-        activePresetId="standard-light"
+        isExportGated={false}
         documentHref={`${documentHref}&preset=standard-light`}
         downloadHref={`${downloadHref}&preset=standard-light`}
       />,
@@ -279,8 +279,7 @@ describe("PdfPreviewPage", () => {
       <PdfPreviewPage
         {...props}
         requestedPresetId="large-type"
-        activePresetId="large-type"
-        blockedPresetId="large-type"
+        isExportGated
         documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type"
       />,
     );
@@ -328,7 +327,7 @@ describe("PdfPreviewPage", () => {
       <PdfPreviewPage
         {...props}
         requestedPresetId="large-type"
-        activePresetId="large-type"
+        isExportGated
       />,
     );
 
@@ -336,6 +335,7 @@ describe("PdfPreviewPage", () => {
 
     const dialog = screen.getByRole("dialog", { name: "PDF出力の制限" });
     expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "キャンセル" })).toHaveFocus();
     expect(within(dialog).getByText("このプリセットで出力するにはProが必要です")).toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: "標準プリセットで出力" })).toHaveAttribute(
       "href",
@@ -352,6 +352,25 @@ describe("PdfPreviewPage", () => {
     expect(screen.queryByRole("dialog", { name: "PDF出力の制限" })).not.toBeInTheDocument();
   });
 
+  it("closes the export gate modal on Escape for keyboard users", () => {
+    const props = buildPreviewPageProps();
+
+    render(
+      <PdfPreviewPage
+        {...props}
+        requestedPresetId="large-type"
+        isExportGated
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "PDF出力" }));
+    expect(screen.getByRole("dialog", { name: "PDF出力の制限" })).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog", { name: "PDF出力の制限" })).not.toBeInTheDocument();
+  });
+
   it("lets pro users select every preset via preview-aligned URLs", () => {
     const props = buildPreviewPageProps();
 
@@ -360,7 +379,7 @@ describe("PdfPreviewPage", () => {
         {...props}
         currentPlan="pro"
         requestedPresetId="large-type"
-        activePresetId="large-type"
+        isExportGated={false}
         documentHref="http://localhost:3000/events/event-nagoya-radhall/pdf/document?theme=dark&preset=large-type"
         downloadHref="/api/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type"
       />,

@@ -14,8 +14,6 @@ type PdfPresetSelectorProps = {
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
   requestedPresetId: PdfOutputPresetId;
-  activePresetId: PdfOutputPresetId;
-  blockedPresetId?: PdfOutputPresetId | null;
 };
 
 function buildPresetHref({
@@ -36,15 +34,13 @@ function buildPresetHref({
 }
 
 function getPresetCardClassName({
-  isRequested,
-  isActive,
+  isSelected,
   isLocked,
 }: {
-  isRequested: boolean;
-  isActive: boolean;
+  isSelected: boolean;
   isLocked: boolean;
 }) {
-  if (isActive) {
+  if (isSelected) {
     return "border-[#f6c453] bg-[#241d11] text-[#f6f3ee] shadow-[0_18px_42px_rgba(0,0,0,0.28)]";
   }
 
@@ -83,10 +79,7 @@ export function PdfPresetSelector({
   currentTheme,
   currentPlan,
   requestedPresetId,
-  activePresetId,
-  blockedPresetId,
 }: PdfPresetSelectorProps) {
-  void blockedPresetId;
   return (
     <section className="rounded-[24px] border border-[#2f2a24] bg-[#111111]/92 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.28)] backdrop-blur">
       <div className="flex flex-col gap-2 border-b border-[#2b2721] pb-3">
@@ -105,14 +98,12 @@ export function PdfPresetSelector({
 
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {getPdfOutputPresets().map((preset) => {
-          const isRequested = preset.id === requestedPresetId;
-          const isActive = preset.id === activePresetId;
+          const isSelected = preset.id === requestedPresetId;
           const isLocked =
             preset.requiredPlan === APP_PLAN_NAMES.pro &&
             currentPlan !== APP_PLAN_NAMES.pro;
           const cardClassName = getPresetCardClassName({
-            isRequested,
-            isActive,
+            isSelected,
             isLocked,
           });
 
@@ -125,7 +116,7 @@ export function PdfPresetSelector({
                 presetId: preset.id,
               })}
               aria-label={preset.label}
-              aria-current={isRequested ? "page" : undefined}
+              aria-current={isSelected ? "page" : undefined}
               className={`flex min-h-[132px] flex-col justify-between rounded-[20px] border px-4 py-4 transition ${cardClassName}`}
             >
               <div className="space-y-3">
@@ -143,10 +134,14 @@ export function PdfPresetSelector({
               </div>
               <p
                 className={`font-mono text-[10px] uppercase tracking-[0.22em] ${
-                  isActive || isRequested || isLocked ? "text-[#f6c453]" : "text-[#8d8578]"
+                  isSelected || isLocked ? "text-[#f6c453]" : "text-[#8d8578]"
                 }`}
               >
-                {isLocked ? "preview available / export requires Pro" : isRequested ? "active route state" : "switch preview"}
+                {isLocked
+                  ? "preview available / export requires Pro"
+                  : isSelected
+                    ? "active route state"
+                    : "switch preview"}
               </p>
             </Link>
           );

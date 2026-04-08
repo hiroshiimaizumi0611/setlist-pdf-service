@@ -14,8 +14,7 @@ type PdfPreviewPageProps = {
   currentTheme: PdfThemeName;
   currentPlan: AppPlan;
   requestedPresetId: PdfOutputPresetId;
-  activePresetId: PdfOutputPresetId;
-  blockedPresetId?: PdfOutputPresetId | null;
+  isExportGated: boolean;
   documentHref: string;
   downloadHref: string;
 };
@@ -36,39 +35,17 @@ function formatPreviewSubtitle(event: EventWithItems) {
   return parts.length > 0 ? parts.join("  ") : "日付・会場未設定";
 }
 
-function buildPreviewDocumentHref({
-  documentHref,
-  currentTheme,
-  requestedPresetId,
-}: {
-  documentHref: string;
-  currentTheme: PdfThemeName;
-  requestedPresetId: PdfOutputPresetId;
-}) {
-  const url = new URL(documentHref);
-  url.searchParams.set("theme", currentTheme);
-  url.searchParams.set("preset", requestedPresetId);
-  return url.toString();
-}
-
 export function PdfPreviewPage({
   event,
   layout,
   currentTheme,
   currentPlan,
   requestedPresetId,
-  activePresetId,
-  blockedPresetId: _blockedPresetId,
+  isExportGated,
   documentHref,
   downloadHref,
 }: PdfPreviewPageProps) {
-  void _blockedPresetId;
   const previewBaseHref = `/events/${event.id}/pdf`;
-  const previewDocumentHref = buildPreviewDocumentHref({
-    documentHref,
-    currentTheme,
-    requestedPresetId,
-  });
   const lightHref = `${previewBaseHref}?theme=light&preset=${requestedPresetId}`;
   const darkHref = `${previewBaseHref}?theme=dark&preset=${requestedPresetId}`;
 
@@ -102,9 +79,7 @@ export function PdfPreviewPage({
               編集へ戻る
             </Link>
             <PdfExportGateModal
-              currentTheme={currentTheme}
-              currentPlan={currentPlan}
-              activePresetId={activePresetId}
+              isExportGated={isExportGated}
               downloadHref={downloadHref}
             />
           </div>
@@ -126,13 +101,12 @@ export function PdfPreviewPage({
               currentTheme={currentTheme}
               currentPlan={currentPlan}
               requestedPresetId={requestedPresetId}
-              activePresetId={activePresetId}
             />
             <div className="overflow-hidden rounded-[28px] border border-[#2f2a24] bg-[#0b0b0b] shadow-[0_32px_90px_rgba(0,0,0,0.45)]">
               <iframe
-                key={previewDocumentHref}
+                key={documentHref}
                 title="紙面プレビュー"
-                src={previewDocumentHref}
+                src={documentHref}
                 className="h-[960px] w-full bg-white"
               />
             </div>
