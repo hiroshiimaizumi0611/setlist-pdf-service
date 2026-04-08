@@ -230,8 +230,8 @@ Make `app/(app)/events/[eventId]/pdf/page.tsx` and `app/(app)/events/[eventId]/p
 
 - requested preset for active selector state
 - preview preset for iframe layout/document
-- download preset for modal fallback/direct export
-- export gate metadata for the UI
+- download preset and export gate metadata for the preview UI
+- document route itself is limited to preview rendering concerns only
 
 - [ ] **Step 5: Re-run the focused route test**
 
@@ -280,10 +280,10 @@ Expected: FAIL if current server behavior still allows the wrong preset path.
 Ensure the API route:
 
 - never returns Pro preset rendering to free users
-- accepts modal-confirmed free-standard export
+- accepts free-standard export requests regardless of where they came from
 - preserves current authenticated ownership checks
 
-Do not move modal behavior into the server route. The route is only the final guard.
+Do not move modal behavior into the server route. The route is only the final guard, so it should simply reject Pro preset downloads for free users and allow free-standard presets.
 
 - [ ] **Step 4: Re-run the focused API test**
 
