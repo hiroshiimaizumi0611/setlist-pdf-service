@@ -103,10 +103,10 @@ Free ユーザーが Pro preset preview 中に `PDF出力` を押した場合、
 preview iframe と actual PDF download は、引き続きそれぞれ単一の preset を受け取って描画する。  
 ただし `free + pro preset requested` の時だけ、
 
-- preview route/document route は requested preset
-- download route は gated fallback preset
+- preview route/document route は requested preset を使う
+- download route は、modal で最終確定された preset だけを受け取る
 
-を使う。
+という分離にする。
 
 これは「同じ action で違う preset が silently 出る」ことを避けるため、必ずモーダルを挟む。
 
