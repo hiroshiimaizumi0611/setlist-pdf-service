@@ -223,7 +223,20 @@ export function SetlistTable({
           const rowLabel = getRowLabel(item.itemType);
           const dragHandleLabel = `${item.title} をドラッグして並び替え`;
           const isReorderEnabled = canDragReorder;
+          const isDraggingSource = draggingItemId === item.id;
           const isDragTarget = dragOverItemId === item.id && draggingItemId !== item.id;
+          const dragStateTone = isDraggingSource
+            ? "border-[#f6c453]/70 bg-[#fff7d6] shadow-[0_10px_24px_rgba(0,0,0,0.12)] scale-[1.01]"
+            : "";
+          const motionTransition =
+            "transition-[background-color,border-color,box-shadow,opacity,transform] duration-150 ease-out";
+          const dropTargetIndicator = isDragTarget ? (
+            <div
+              aria-hidden="true"
+              data-row-drop-indicator="true"
+              className={`absolute inset-x-0 top-0 h-0.5 bg-[#f6c453] shadow-[0_0_0_1px_rgba(246,196,83,0.35)]`}
+            />
+          ) : null;
 
           if (item.itemType === "heading") {
             return (
@@ -261,16 +274,18 @@ export function SetlistTable({
                 data-row-reorder-ready={reorderItemsAction ? "true" : "false"}
                 data-row-edit-ready={updateItemAction ? "true" : "false"}
                 data-row-drop-target={isDragTarget ? "true" : "false"}
-                className={`group border-b ${theme.border} ${itemTone.row.heading} px-4 py-3 ${
-                  isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
+                data-row-dragging={isDraggingSource ? "true" : "false"}
+                className={`group relative border-b ${theme.border} ${itemTone.row.heading} px-4 py-3 ${motionTransition} ${
+                  isDraggingSource ? dragStateTone : ""
                 }`}
               >
+                {dropTargetIndicator}
                 <div className="flex items-center gap-4">
                   <div
                     data-row-drag-handle
                     aria-label={dragHandleLabel}
                     draggable={isReorderEnabled}
-                    className={`hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`}
+                    className={`hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue} cursor-grab active:cursor-grabbing`}
                   >
                     ⋮⋮
                   </div>
@@ -382,16 +397,18 @@ export function SetlistTable({
               data-row-reorder-ready={reorderItemsAction ? "true" : "false"}
               data-row-edit-ready={updateItemAction ? "true" : "false"}
               data-row-drop-target={isDragTarget ? "true" : "false"}
-              className={`group border-b ${theme.border} ${itemTone.row[item.itemType]} transition-colors ${
-                isDragTarget ? "ring-2 ring-inset ring-[#f6c453]/70" : ""
+              data-row-dragging={isDraggingSource ? "true" : "false"}
+              className={`group relative border-b ${theme.border} ${itemTone.row[item.itemType]} ${motionTransition} ${
+                isDraggingSource ? dragStateTone : ""
               }`}
             >
+              {dropTargetIndicator}
               <div className="grid md:grid-cols-[24px_4px_56px_minmax(0,1fr)_88px_160px]">
                 <div
                   data-row-drag-handle
                   aria-label={dragHandleLabel}
                   draggable={isReorderEnabled}
-                  className={`hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`}
+                  className={`hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue} cursor-grab active:cursor-grabbing`}
                 >
                   ⋮⋮
                 </div>

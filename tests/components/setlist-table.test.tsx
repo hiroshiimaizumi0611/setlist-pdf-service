@@ -185,6 +185,64 @@ describe("SetlistTable", () => {
     expect(getRenderedTitles(setlistSection)).toEqual(["3曲目", "2曲目", "1曲目"]);
   });
 
+  it("marks the dragged source row and hovered target row with dedicated motion hooks", async () => {
+    const pendingReorder = deferredPromise<void>();
+    const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const targetRow = songRows[2] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(sourceRow).toHaveAttribute("data-row-dragging", "true");
+    expect(targetRow).toHaveAttribute("data-row-drop-target", "true");
+    expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
+    expect(sourceRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+
+    fireEvent.drop(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    await act(async () => {
+      pendingReorder.resolve();
+      await pendingReorder.promise;
+    });
+  });
+
   it("applies the same optimistic reorder contract to heading rows", async () => {
     const pendingReorder = deferredPromise<void>();
     const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
