@@ -147,7 +147,7 @@ export function SetlistTable({
         orderedItemIds: nextItems.map((candidate) => candidate.id),
       });
     } catch {
-      // Leave the optimistic order in place for now; rollback is handled in a later task.
+      setOptimisticItems(items);
     } finally {
       setIsSavingOrder(false);
       setDraggingItemId(null);

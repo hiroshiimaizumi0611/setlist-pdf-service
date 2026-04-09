@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SetlistTable } from "../../components/setlist-table";
 
@@ -254,8 +254,7 @@ describe("SetlistTable", () => {
   });
 
   it("handles a rejected reorder action without surfacing an unhandled error", async () => {
-    const pendingReorder = deferredPromise<void>();
-    const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
+    const reorderItemsAction = vi.fn().mockRejectedValueOnce(new Error("reorder failed"));
     const items = [
       createItem("item-1", "1曲目"),
       createItem("item-2", "2曲目"),
@@ -304,13 +303,11 @@ describe("SetlistTable", () => {
     expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
     expect(screen.getByText("並び順を更新中...")).toBeInTheDocument();
 
-    await act(async () => {
-      pendingReorder.reject(new Error("reorder failed"));
-      await Promise.resolve();
-    });
-
-    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+    await waitFor(() =>
+      expect(getRenderedTitles(setlistSection)).toEqual(["1曲目", "2曲目", "3曲目"]),
+    );
     expect(screen.queryByText("並び順を更新中...")).not.toBeInTheDocument();
+    expect(firstHandle).toHaveAttribute("draggable", "true");
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
     consoleErrorSpy.mockRestore();
