@@ -122,8 +122,12 @@ export function SetlistTable({
   const dragLeaveClearTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
-  const canDragReorder = Boolean(reorderItemsAction) && !isSavingOrder;
+  const hasReorderAction = Boolean(reorderItemsAction);
+  const canDragReorder = hasReorderAction && !isSavingOrder;
   const itemsSignature = getItemsSignature(items);
+  const helperCopy = canDragReorder
+    ? "ドラッグで並び替えし、編集・削除は各行から操作します。"
+    : "編集・削除は各行から操作します。";
   const clearPendingDragLeave = () => {
     if (dragLeaveClearTimeoutRef.current === null) {
       return;
@@ -256,9 +260,7 @@ export function SetlistTable({
       >
         <div>
           <h2 className="font-mono text-2xl font-black tracking-[-0.06em]">セットリスト</h2>
-          <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>
-            ドラッグで並び替えし、編集・削除は各行から操作します。
-          </p>
+          <p className={`mt-1 text-sm leading-6 ${theme.mutedText}`}>{helperCopy}</p>
         </div>
         <span
           className={`${theme.pill} inline-flex w-fit px-3 py-2 font-mono text-[11px] uppercase tracking-[0.22em]`}
@@ -295,6 +297,21 @@ export function SetlistTable({
               className={`absolute inset-x-0 top-0 h-0.5 ${dropIndicatorTone}`}
             />
           ) : null;
+          const dragHandle = hasReorderAction ? (
+            <div
+              data-row-drag-handle
+              aria-label={dragHandleLabel}
+              draggable={isReorderEnabled}
+              className={getDragHandleClassName(
+                isReorderEnabled,
+                `hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`,
+              )}
+            >
+              ⋮⋮
+            </div>
+          ) : (
+            <div aria-hidden="true" className="hidden h-8 w-8 md:flex" />
+          );
 
           if (item.itemType === "heading") {
             return (
@@ -341,17 +358,7 @@ export function SetlistTable({
               >
                 {dropTargetIndicator}
                 <div className="flex items-center gap-4">
-                  <div
-                    data-row-drag-handle
-                    aria-label={dragHandleLabel}
-                    draggable={isReorderEnabled}
-                    className={getDragHandleClassName(
-                      isReorderEnabled,
-                      `hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`,
-                    )}
-                  >
-                    ⋮⋮
-                  </div>
+                  {dragHandle}
                   <div
                     data-row-cue="heading"
                     className={`flex h-8 w-12 items-center justify-center border ${itemTone.headingBorder} font-mono text-sm font-black tracking-[0.24em] ${itemTone.cue}`}
@@ -469,17 +476,21 @@ export function SetlistTable({
             >
               {dropTargetIndicator}
               <div className="grid md:grid-cols-[24px_4px_56px_minmax(0,1fr)_88px_160px]">
-                <div
-                  data-row-drag-handle
-                  aria-label={dragHandleLabel}
-                  draggable={isReorderEnabled}
-                  className={getDragHandleClassName(
-                    isReorderEnabled,
-                    `hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`,
-                  )}
-                >
-                  ⋮⋮
-                </div>
+                {hasReorderAction ? (
+                  <div
+                    data-row-drag-handle
+                    aria-label={dragHandleLabel}
+                    draggable={isReorderEnabled}
+                    className={getDragHandleClassName(
+                      isReorderEnabled,
+                      `hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`,
+                    )}
+                  >
+                    ⋮⋮
+                  </div>
+                ) : (
+                  <div aria-hidden="true" className="hidden md:flex" />
+                )}
 
                 <div
                   aria-hidden="true"

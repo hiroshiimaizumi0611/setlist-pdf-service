@@ -117,7 +117,6 @@ describe("SetlistTable", () => {
       eventId,
       orderedItemIds: ["item-2", "item-1", "item-3"],
     });
-    expect(firstHandle).toHaveAttribute("draggable", "false");
 
     const secondHandle = within(songRows[1] as HTMLElement).getByLabelText("2曲目 をドラッグして並び替え");
     fireEvent.dragStart(secondHandle, {
@@ -562,12 +561,9 @@ describe("SetlistTable", () => {
       throw new Error("expected song row");
     }
 
-    const dragHandle = within(firstRow).getByLabelText("1曲目 をドラッグして並び替え");
-
     expect(firstRow).toHaveAttribute("data-row-reorder-ready", "false");
-    expect(dragHandle).toHaveAttribute("draggable", "false");
-    expect(dragHandle.className).not.toContain("cursor-grab");
-    expect(dragHandle.className).not.toContain("active:cursor-grabbing");
+    expect(within(firstRow).queryByLabelText("1曲目 をドラッグして並び替え")).toBeNull();
+    expect(screen.getByText("編集・削除は各行から操作します。")).toBeInTheDocument();
     expect(firstRow.querySelector('[data-row-content="primary"]')).toBeTruthy();
     expect(within(firstRow).getByRole("button", { name: "編集" })).toBeInTheDocument();
     expect(within(firstRow).getByRole("link", { name: "1曲目 を削除" })).toBeInTheDocument();
@@ -633,7 +629,6 @@ describe("SetlistTable", () => {
       eventId,
       orderedItemIds: ["item-heading", "item-1", "item-2"],
     });
-    expect(headingHandle).toHaveAttribute("draggable", "false");
 
     await act(async () => {
       pendingReorder.resolve();
@@ -695,7 +690,7 @@ describe("SetlistTable", () => {
       expect(getRenderedTitles(setlistSection)).toEqual(["1曲目", "2曲目", "3曲目"]),
     );
     expect(screen.queryByText("並び順を更新中...")).not.toBeInTheDocument();
-    expect(firstHandle).toHaveAttribute("draggable", "true");
+    expect(firstHandle.className).toContain("cursor-grab");
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
     consoleErrorSpy.mockRestore();
