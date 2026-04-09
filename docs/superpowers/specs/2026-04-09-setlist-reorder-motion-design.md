@@ -69,6 +69,16 @@ drop target は `この行の前に入る` ことを明確にする。
 重要なのは、見た目と実際の reorder ロジックを一致させること。  
 現在の reorder は `target row の手前に挿入` なので、表示もそれに合わせる。
 
+### Drag Leave / Cancel
+
+pointer が valid target から外れた時は、挿入ラインを残さない。
+
+- `dragLeave` または list 外へ抜けた時は target state を解除する
+- valid row 以外へ drop した場合は reorder しない
+- cancel 時は dragging / target / saving の各状態を自然にクリアする
+
+一覧に `入れ替わりそうな表示だけ残る` 状態は作らない。
+
 ### Surrounding Rows
 
 drag over で周囲の行が切り替わる時は、
@@ -169,6 +179,7 @@ drop 後は server action 完了を待たず、一覧を先に並び替えた状
 - drop 後、action 完了前でも row order が即時に入れ替わる
 - drag source row に lift state がつく
 - drag target に insertion indicator state がつく
+- drag leave / invalid drop で indicator が残らない
 - action 成功後も表示順が維持される
 - action 失敗時は props 順へ戻る
 - save 中の軽い status 表示が出る
