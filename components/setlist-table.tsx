@@ -119,7 +119,7 @@ export function SetlistTable({
   const [optimisticItems, setOptimisticItems] = useState(items);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const lastCanonicalItemsSignatureRef = useRef(getItemsSignature(items));
-  const dragLeaveClearTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const dragLeaveClearTimeoutRef = useRef<number | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
   const hasReorderAction = Boolean(reorderItemsAction);

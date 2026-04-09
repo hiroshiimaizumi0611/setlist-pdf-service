@@ -628,7 +628,7 @@ describe("SetlistTable", () => {
       throw new Error("expected heading row");
     }
 
-    const headingHandle = within(headingRow).getByLabelText("EN をドラッグして並び替え");
+    const headingHandle = within(headingRow as HTMLElement).getByLabelText("EN をドラッグして並び替え");
     const firstSongRow = setlistSection.querySelector('article[data-row-variant="song"]');
     expect(firstSongRow).toBeTruthy();
     if (!firstSongRow) {

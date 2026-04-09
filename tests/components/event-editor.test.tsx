@@ -220,9 +220,7 @@ describe("EventEditorPageContent", () => {
     );
     expect(within(desktopActions).getByText("編集")).toBeInTheDocument();
     expect(within(desktopActions).getByText("削除")).toBeInTheDocument();
-    expect(within(firstSongRow).getByLabelText("緑 をドラッグして並び替え")).toHaveClass(
-      "hidden",
-    );
+    expect(within(firstSongRow).queryByLabelText("緑 をドラッグして並び替え")).toBeNull();
     expect(screen.getByRole("button", { name: "PDF出力" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Proでテンプレート保存を有効化" })).toHaveAttribute(
       "href",
