@@ -60,6 +60,19 @@ function getRenderedTitles(section: HTMLElement) {
   });
 }
 
+function dispatchDragLeaveWithRelatedTarget(target: HTMLElement, relatedTarget: EventTarget | null) {
+  const event = document.createEvent("Event");
+  event.initEvent("dragleave", true, true);
+
+  Object.defineProperty(event, "relatedTarget", {
+    value: relatedTarget,
+  });
+
+  act(() => {
+    target.dispatchEvent(event);
+  });
+}
+
 describe("SetlistTable", () => {
   it("updates the DOM order immediately after a drag drop while the reorder action is in flight", async () => {
     const pendingReorder = deferredPromise<void>();
@@ -291,6 +304,67 @@ describe("SetlistTable", () => {
 
     expect(targetRow).toHaveAttribute("data-row-drop-target", "false");
     expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+  });
+
+  it("keeps the valid drop target when dragleave moves between descendants in the same row", () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const targetRow = songRows[2] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+    const targetContent = targetRow.querySelector('[data-row-content="primary"]');
+    expect(targetContent).toBeTruthy();
+    if (!targetContent) {
+      throw new Error("expected primary row content");
+    }
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    dispatchDragLeaveWithRelatedTarget(targetRow, targetContent);
+
+    expect(targetRow).toHaveAttribute("data-row-drop-target", "true");
+    expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
+
+    fireEvent.drop(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(reorderItemsAction).toHaveBeenCalledWith({
+      eventId,
+      orderedItemIds: ["item-2", "item-1", "item-3"],
+    });
   });
 
   it("does not reorder when a drop lands after the valid target has been cleared", () => {

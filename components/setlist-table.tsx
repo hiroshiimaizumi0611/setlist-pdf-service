@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { DragEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { SetlistItemRecord } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
@@ -110,6 +111,17 @@ export function SetlistTable({
   const clearDragState = () => {
     setDraggingItemId(null);
     setDragOverItemId(null);
+  };
+  const handleDragLeave = (event: DragEvent<HTMLElement>, itemId: string) => {
+    const nextTarget = event.relatedTarget ?? event.nativeEvent.relatedTarget;
+
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+
+    if (dragOverItemId === itemId) {
+      setDragOverItemId(null);
+    }
   };
 
   useEffect(() => {
@@ -276,11 +288,7 @@ export function SetlistTable({
                   event.dataTransfer.dropEffect = "move";
                   setDragOverItemId(item.id);
                 }}
-                onDragLeave={() => {
-                  if (dragOverItemId === item.id) {
-                    setDragOverItemId(null);
-                  }
-                }}
+                onDragLeave={(event) => handleDragLeave(event, item.id)}
                 onDrop={(event) => {
                   event.preventDefault();
                   handleDrop(item.id);
@@ -403,11 +411,7 @@ export function SetlistTable({
                 event.dataTransfer.dropEffect = "move";
                 setDragOverItemId(item.id);
               }}
-              onDragLeave={() => {
-                if (dragOverItemId === item.id) {
-                  setDragOverItemId(null);
-                }
-              }}
+              onDragLeave={(event) => handleDragLeave(event, item.id)}
               onDrop={(event) => {
                 event.preventDefault();
                 handleDrop(item.id);
