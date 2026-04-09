@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { nagoyaRadhallEvent } from "../fixtures/nagoya-radhall-event";
 import { EventEditorPageContent } from "../../app/(app)/events/[eventId]/page";
 
@@ -79,6 +79,10 @@ const authenticatedUserIdentity = {
   displayName: "Akari Stage",
   email: "akari@example.com",
 };
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 function AuthenticatedEventEditorPageContent(
   props: Omit<ComponentProps<typeof EventEditorPageContent>, "userIdentity">,
@@ -583,66 +587,72 @@ describe("EventEditorPageContent", () => {
   });
 
   it("clears the drag indicator on leave and still submits the expected reorder payload from the editor", async () => {
-    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+    vi.useFakeTimers();
+    try {
+      const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
 
-    render(
-      <AuthenticatedEventEditorPageContent
-        events={eventSummaries}
-        event={event}
-        currentTheme="light"
-        currentPlan="free"
-        updateItemAction={mockUpdateItemAction}
-        reorderItemsAction={reorderItemsAction}
-        deleteEventAction={mockDeleteEventAction}
-      />,
-    );
+      render(
+        <AuthenticatedEventEditorPageContent
+          events={eventSummaries}
+          event={event}
+          currentTheme="light"
+          currentPlan="free"
+          updateItemAction={mockUpdateItemAction}
+          reorderItemsAction={reorderItemsAction}
+          deleteEventAction={mockDeleteEventAction}
+        />,
+      );
 
-    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
-    expect(setlistSection).toBeTruthy();
-    if (!setlistSection) {
-      throw new Error("expected setlist section");
-    }
+      const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+      expect(setlistSection).toBeTruthy();
+      if (!setlistSection) {
+        throw new Error("expected setlist section");
+      }
 
-    const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
-    expect(rows.length).toBeGreaterThan(2);
+      const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+      expect(rows.length).toBeGreaterThan(2);
 
-    const firstRow = requireElement(rows[0], "expected first song row");
-    const thirdRow = requireElement(rows[2], "expected third song row");
+      const firstRow = requireElement(rows[0], "expected first song row");
+      const thirdRow = requireElement(rows[2], "expected third song row");
 
-    const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
+      const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
 
-    fireEvent.dragStart(firstHandle, {
-      dataTransfer: {
-        effectAllowed: "move",
-        setData: vi.fn(),
-      },
-    });
-    fireEvent.dragOver(thirdRow, {
-      dataTransfer: {
-        dropEffect: "move",
-      },
-    });
+      fireEvent.dragStart(firstHandle, {
+        dataTransfer: {
+          effectAllowed: "move",
+          setData: vi.fn(),
+        },
+      });
+      fireEvent.dragOver(thirdRow, {
+        dataTransfer: {
+          dropEffect: "move",
+        },
+      });
 
-    expect(thirdRow).toHaveAttribute("data-row-drop-target", "true");
-    expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
+      expect(thirdRow).toHaveAttribute("data-row-drop-target", "true");
+      expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
 
-    fireEvent.dragLeave(thirdRow);
+      fireEvent.dragLeave(thirdRow);
+      fireEvent.dragOver(thirdRow, {
+        dataTransfer: {
+          dropEffect: "move",
+        },
+      });
+      act(() => {
+        vi.advanceTimersByTime(60);
+      });
 
-    expect(thirdRow).toHaveAttribute("data-row-drop-target", "false");
-    expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+      expect(thirdRow).toHaveAttribute("data-row-drop-target", "true");
+      expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
 
-    fireEvent.dragOver(thirdRow, {
-      dataTransfer: {
-        dropEffect: "move",
-      },
-    });
-    fireEvent.drop(thirdRow, {
-      dataTransfer: {
-        dropEffect: "move",
-      },
-    });
+      await act(async () => {
+        fireEvent.drop(thirdRow, {
+          dataTransfer: {
+            dropEffect: "move",
+          },
+        });
+      });
 
-    await waitFor(() =>
       expect(reorderItemsAction).toHaveBeenCalledWith({
         eventId: event.id,
         orderedItemIds: [
@@ -651,8 +661,10 @@ describe("EventEditorPageContent", () => {
           event.items[2].id,
           ...event.items.slice(3).map((item) => item.id),
         ],
-      }),
-    );
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("submits desktop drag reorder by inserting before the hovered row when dragging upward", async () => {

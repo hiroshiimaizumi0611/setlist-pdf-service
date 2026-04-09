@@ -104,23 +104,36 @@ export function SetlistTable({
   const [optimisticItems, setOptimisticItems] = useState(items);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const lastCanonicalItemsSignatureRef = useRef(getItemsSignature(items));
+  const dragLeaveClearTimeoutRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
   const canDragReorder = Boolean(reorderItemsAction) && !isSavingOrder;
   const itemsSignature = getItemsSignature(items);
-  const clearDragState = () => {
-    setDraggingItemId(null);
-    setDragOverItemId(null);
-  };
-  const handleDragLeave = (event: DragEvent<HTMLElement>, itemId: string) => {
-    const nextTarget = event.relatedTarget ?? event.nativeEvent.relatedTarget;
-
-    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+  const clearPendingDragLeave = () => {
+    if (dragLeaveClearTimeoutRef.current === null) {
       return;
     }
 
+    window.clearTimeout(dragLeaveClearTimeoutRef.current);
+    dragLeaveClearTimeoutRef.current = null;
+  };
+  const clearDragState = () => {
+    clearPendingDragLeave();
+    setDraggingItemId(null);
+    setDragOverItemId(null);
+  };
+  const scheduleDragLeaveClear = (itemId: string) => {
+    clearPendingDragLeave();
+    dragLeaveClearTimeoutRef.current = window.setTimeout(() => {
+      dragLeaveClearTimeoutRef.current = null;
+      setDragOverItemId((currentDragOverItemId) =>
+        currentDragOverItemId === itemId ? null : currentDragOverItemId,
+      );
+    }, 60);
+  };
+  const handleDragLeave = (_event: DragEvent<HTMLElement>, itemId: string) => {
     if (dragOverItemId === itemId) {
-      setDragOverItemId(null);
+      scheduleDragLeaveClear(itemId);
     }
   };
 
@@ -133,6 +146,8 @@ export function SetlistTable({
     setOptimisticItems(items);
   }, [draggingItemId, isSavingOrder, items, itemsSignature]);
 
+  useEffect(() => () => clearPendingDragLeave(), []);
+
   const reorderItems = async (targetItemId: string) => {
     if (!reorderItemsAction || isSavingOrder || !draggingItemId || draggingItemId === targetItemId) {
       clearDragState();
@@ -144,8 +159,7 @@ export function SetlistTable({
     const targetIndex = nextItems.findIndex((candidate) => candidate.id === targetItemId);
 
     if (draggedIndex < 0 || targetIndex < 0) {
-      setDraggingItemId(null);
-      setDragOverItemId(null);
+      clearDragState();
       return;
     }
 
@@ -174,6 +188,7 @@ export function SetlistTable({
       return;
     }
 
+    clearPendingDragLeave();
     void reorderItems(targetItemId);
   };
   const itemTone =
@@ -284,6 +299,7 @@ export function SetlistTable({
                     return;
                   }
 
+                  clearPendingDragLeave();
                   event.preventDefault();
                   event.dataTransfer.dropEffect = "move";
                   setDragOverItemId(item.id);
@@ -402,15 +418,16 @@ export function SetlistTable({
                 event.dataTransfer.effectAllowed = "move";
                 event.dataTransfer.setData("text/plain", item.id);
               }}
-              onDragOver={(event) => {
-                if (!draggingItemId || draggingItemId === item.id) {
-                  return;
-                }
+                onDragOver={(event) => {
+                  if (!draggingItemId || draggingItemId === item.id) {
+                    return;
+                  }
 
-                event.preventDefault();
-                event.dataTransfer.dropEffect = "move";
-                setDragOverItemId(item.id);
-              }}
+                  clearPendingDragLeave();
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  setDragOverItemId(item.id);
+                }}
               onDragLeave={(event) => handleDragLeave(event, item.id)}
               onDrop={(event) => {
                 event.preventDefault();
