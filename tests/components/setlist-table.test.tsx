@@ -252,4 +252,67 @@ describe("SetlistTable", () => {
       await pendingReorder.promise;
     });
   });
+
+  it("handles a rejected reorder action without surfacing an unhandled error", async () => {
+    const pendingReorder = deferredPromise<void>();
+    const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const firstRow = songRows[0] as HTMLElement;
+    const thirdRow = songRows[2] as HTMLElement;
+    const firstHandle = within(firstRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(firstHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.drop(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+    expect(screen.getByText("並び順を更新中...")).toBeInTheDocument();
+
+    await act(async () => {
+      pendingReorder.reject(new Error("reorder failed"));
+      await Promise.resolve();
+    });
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+    expect(screen.queryByText("並び順を更新中...")).not.toBeInTheDocument();
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
 });
