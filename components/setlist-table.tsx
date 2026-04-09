@@ -107,6 +107,10 @@ export function SetlistTable({
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
   const canDragReorder = Boolean(reorderItemsAction) && !isSavingOrder;
   const itemsSignature = getItemsSignature(items);
+  const clearDragState = () => {
+    setDraggingItemId(null);
+    setDragOverItemId(null);
+  };
 
   useEffect(() => {
     if (draggingItemId || isSavingOrder || itemsSignature === lastCanonicalItemsSignatureRef.current) {
@@ -119,8 +123,7 @@ export function SetlistTable({
 
   const reorderItems = async (targetItemId: string) => {
     if (!reorderItemsAction || isSavingOrder || !draggingItemId || draggingItemId === targetItemId) {
-      setDraggingItemId(null);
-      setDragOverItemId(null);
+      clearDragState();
       return;
     }
 
@@ -150,9 +153,16 @@ export function SetlistTable({
       setOptimisticItems(items);
     } finally {
       setIsSavingOrder(false);
-      setDraggingItemId(null);
-      setDragOverItemId(null);
+      clearDragState();
     }
+  };
+  const handleDrop = (targetItemId: string) => {
+    if (!draggingItemId || dragOverItemId !== targetItemId) {
+      clearDragState();
+      return;
+    }
+
+    void reorderItems(targetItemId);
   };
   const itemTone =
     currentTheme === "dark"
@@ -266,13 +276,17 @@ export function SetlistTable({
                   event.dataTransfer.dropEffect = "move";
                   setDragOverItemId(item.id);
                 }}
+                onDragLeave={() => {
+                  if (dragOverItemId === item.id) {
+                    setDragOverItemId(null);
+                  }
+                }}
                 onDrop={(event) => {
                   event.preventDefault();
-                  reorderItems(item.id);
+                  handleDrop(item.id);
                 }}
                 onDragEnd={() => {
-                  setDraggingItemId(null);
-                  setDragOverItemId(null);
+                  clearDragState();
                 }}
                 data-row-variant="heading"
                 data-row-rhythm="setlist"
@@ -389,13 +403,17 @@ export function SetlistTable({
                 event.dataTransfer.dropEffect = "move";
                 setDragOverItemId(item.id);
               }}
+              onDragLeave={() => {
+                if (dragOverItemId === item.id) {
+                  setDragOverItemId(null);
+                }
+              }}
               onDrop={(event) => {
                 event.preventDefault();
-                reorderItems(item.id);
+                handleDrop(item.id);
               }}
               onDragEnd={() => {
-                setDraggingItemId(null);
-                setDragOverItemId(null);
+                clearDragState();
               }}
               data-row-variant={item.itemType}
               data-row-rhythm="setlist"

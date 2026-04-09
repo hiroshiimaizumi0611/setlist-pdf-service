@@ -244,6 +244,107 @@ describe("SetlistTable", () => {
     });
   });
 
+  it("clears the hovered drop indicator when the pointer leaves the target row", () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const targetRow = songRows[2] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(targetRow).toHaveAttribute("data-row-drop-target", "true");
+    expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
+
+    fireEvent.dragLeave(targetRow);
+
+    expect(targetRow).toHaveAttribute("data-row-drop-target", "false");
+    expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+  });
+
+  it("does not reorder when a drop lands after the valid target has been cleared", () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const clearedTargetRow = songRows[2] as HTMLElement;
+    const invalidDropRow = songRows[1] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(clearedTargetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.dragLeave(clearedTargetRow);
+
+    fireEvent.drop(invalidDropRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(reorderItemsAction).not.toHaveBeenCalled();
+    expect(screen.queryByText("並び順を更新中...")).not.toBeInTheDocument();
+  });
+
   it("uses dark-theme motion colors and opacity when a row is dragged", async () => {
     const pendingReorder = deferredPromise<void>();
     const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);

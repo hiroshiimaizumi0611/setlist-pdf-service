@@ -582,6 +582,79 @@ describe("EventEditorPageContent", () => {
     );
   });
 
+  it("clears the drag indicator on leave and still submits the expected reorder payload from the editor", async () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <AuthenticatedEventEditorPageContent
+        events={eventSummaries}
+        event={event}
+        currentTheme="light"
+        currentPlan="free"
+        updateItemAction={mockUpdateItemAction}
+        reorderItemsAction={reorderItemsAction}
+        deleteEventAction={mockDeleteEventAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const rows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    expect(rows.length).toBeGreaterThan(2);
+
+    const firstRow = requireElement(rows[0], "expected first song row");
+    const thirdRow = requireElement(rows[2], "expected third song row");
+
+    const firstHandle = within(firstRow).getByLabelText("緑 をドラッグして並び替え");
+
+    fireEvent.dragStart(firstHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(thirdRow).toHaveAttribute("data-row-drop-target", "true");
+    expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
+
+    fireEvent.dragLeave(thirdRow);
+
+    expect(thirdRow).toHaveAttribute("data-row-drop-target", "false");
+    expect(thirdRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+
+    fireEvent.dragOver(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.drop(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    await waitFor(() =>
+      expect(reorderItemsAction).toHaveBeenCalledWith({
+        eventId: event.id,
+        orderedItemIds: [
+          event.items[1].id,
+          event.items[0].id,
+          event.items[2].id,
+          ...event.items.slice(3).map((item) => item.id),
+        ],
+      }),
+    );
+  });
+
   it("submits desktop drag reorder by inserting before the hovered row when dragging upward", async () => {
     const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
 
@@ -772,7 +845,9 @@ describe("EventEditorPageContent", () => {
     expect(firstSongRow).toHaveAttribute("data-row-rhythm", "setlist");
     expect(within(firstSongRow).getByText("M01")).toHaveAttribute("data-row-cue", "song");
     expect(within(firstSongRow).getByText("緑")).toHaveAttribute("data-row-title", "song");
-    expect(firstSongRow.className).toContain("transition-colors");
+    expect(firstSongRow.className).toContain(
+      "transition-[background-color,border-color,box-shadow,opacity,transform]",
+    );
 
     const firstSongContent = requireElement(
       firstSongRow.querySelector('[data-row-content="primary"]'),
