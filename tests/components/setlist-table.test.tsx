@@ -494,6 +494,85 @@ describe("SetlistTable", () => {
     });
   });
 
+  it("exposes reduced-motion-friendly hooks while a row is being dragged", () => {
+    const reorderItemsAction = vi.fn().mockResolvedValue(undefined);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const targetRow = songRows[2] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(sourceRow).toHaveAttribute("data-row-motion-state", "dragging");
+    expect(targetRow).toHaveAttribute("data-row-motion-state", "drop-target");
+    expect(sourceRow.className).toContain("motion-safe:");
+    expect(sourceRow.className).toContain("motion-reduce:");
+    expect(targetRow.className).toContain("motion-safe:");
+    expect(targetRow.className).toContain("motion-reduce:");
+  });
+
+  it("keeps rows compact and removes drag affordances when reorder is unavailable", () => {
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+    ];
+
+    render(<SetlistTable currentTheme="light" eventId={eventId} items={items} />);
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const firstRow = setlistSection.querySelector('article[data-row-variant="song"]') as HTMLElement | null;
+    expect(firstRow).toBeTruthy();
+    if (!firstRow) {
+      throw new Error("expected song row");
+    }
+
+    const dragHandle = within(firstRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    expect(firstRow).toHaveAttribute("data-row-reorder-ready", "false");
+    expect(dragHandle).toHaveAttribute("draggable", "false");
+    expect(dragHandle.className).not.toContain("cursor-grab");
+    expect(dragHandle.className).not.toContain("active:cursor-grabbing");
+    expect(firstRow.querySelector('[data-row-content="primary"]')).toBeTruthy();
+    expect(within(firstRow).getByRole("button", { name: "編集" })).toBeInTheDocument();
+    expect(within(firstRow).getByRole("link", { name: "1曲目 を削除" })).toBeInTheDocument();
+  });
+
   it("applies the same optimistic reorder contract to heading rows", async () => {
     const pendingReorder = deferredPromise<void>();
     const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);

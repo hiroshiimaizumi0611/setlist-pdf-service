@@ -89,6 +89,21 @@ function getItemsSignature(items: SetlistItemRecord[]) {
     .join("|");
 }
 
+function getRowMotionState(isDraggingSource: boolean, isDragTarget: boolean) {
+  if (isDraggingSource) {
+    return "dragging";
+  }
+
+  if (isDragTarget) {
+    return "drop-target";
+  }
+
+  return "idle";
+}
+
+const rowMotionClasses =
+  "motion-safe:transition-[background-color,border-color,box-shadow,opacity,transform] motion-safe:duration-150 motion-safe:ease-out motion-reduce:transition-none";
+
 export function SetlistTable({
   currentTheme,
   eventId,
@@ -231,6 +246,8 @@ export function SetlistTable({
           headingBorder: "border-[#2b241c]/16",
           duration: "text-[#615547]",
         };
+  const getDragHandleClassName = (isReorderEnabled: boolean, extraClasses: string) =>
+    `${extraClasses} ${isReorderEnabled ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`;
 
   return (
     <section className={`overflow-hidden border-2 ${theme.border} ${theme.panel}`}>
@@ -262,6 +279,7 @@ export function SetlistTable({
           const isReorderEnabled = canDragReorder;
           const isDraggingSource = draggingItemId === item.id;
           const isDragTarget = dragOverItemId === item.id && draggingItemId !== item.id;
+          const rowMotionState = getRowMotionState(isDraggingSource, isDragTarget);
           const dragStateTone = isDraggingSource
             ? currentTheme === "dark"
               ? "border-[#f6c453]/40 bg-[#282116] opacity-90 shadow-[0_10px_24px_rgba(0,0,0,0.28)] scale-[1.01]"
@@ -270,8 +288,6 @@ export function SetlistTable({
           const dropIndicatorTone = currentTheme === "dark"
             ? "bg-[#f6c453]/85 shadow-[0_0_0_1px_rgba(246,196,83,0.18)]"
             : "bg-[#f6c453] shadow-[0_0_0_1px_rgba(246,196,83,0.35)]";
-          const motionTransition =
-            "transition-[background-color,border-color,box-shadow,opacity,transform] duration-150 ease-out";
           const dropTargetIndicator = isDragTarget ? (
             <div
               aria-hidden="true"
@@ -318,7 +334,8 @@ export function SetlistTable({
                 data-row-edit-ready={updateItemAction ? "true" : "false"}
                 data-row-drop-target={isDragTarget ? "true" : "false"}
                 data-row-dragging={isDraggingSource ? "true" : "false"}
-                className={`group relative border-b ${theme.border} ${itemTone.row.heading} px-4 py-3 ${motionTransition} ${
+                data-row-motion-state={rowMotionState}
+                className={`group relative border-b ${theme.border} ${itemTone.row.heading} px-4 py-3 ${rowMotionClasses} ${
                   isDraggingSource ? dragStateTone : ""
                 }`}
               >
@@ -328,7 +345,10 @@ export function SetlistTable({
                     data-row-drag-handle
                     aria-label={dragHandleLabel}
                     draggable={isReorderEnabled}
-                    className={`hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue} cursor-grab active:cursor-grabbing`}
+                    className={getDragHandleClassName(
+                      isReorderEnabled,
+                      `hidden h-8 w-8 items-center justify-center border md:flex ${itemTone.headingBorder} font-mono text-[11px] font-black tracking-[0.28em] ${itemTone.cue}`,
+                    )}
                   >
                     ⋮⋮
                   </div>
@@ -442,7 +462,8 @@ export function SetlistTable({
               data-row-edit-ready={updateItemAction ? "true" : "false"}
               data-row-drop-target={isDragTarget ? "true" : "false"}
               data-row-dragging={isDraggingSource ? "true" : "false"}
-              className={`group relative border-b ${theme.border} ${itemTone.row[item.itemType]} ${motionTransition} ${
+              data-row-motion-state={rowMotionState}
+              className={`group relative border-b ${theme.border} ${itemTone.row[item.itemType]} ${rowMotionClasses} ${
                 isDraggingSource ? dragStateTone : ""
               }`}
             >
@@ -452,7 +473,10 @@ export function SetlistTable({
                   data-row-drag-handle
                   aria-label={dragHandleLabel}
                   draggable={isReorderEnabled}
-                  className={`hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue} cursor-grab active:cursor-grabbing`}
+                  className={getDragHandleClassName(
+                    isReorderEnabled,
+                    `hidden items-center justify-center border-b border-inherit px-2 py-3 font-mono text-[11px] font-black tracking-[0.28em] md:flex md:border-b-0 md:border-r ${itemTone.cue}`,
+                  )}
                 >
                   ⋮⋮
                 </div>
