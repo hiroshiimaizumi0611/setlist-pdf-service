@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SetlistItemRecord } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
@@ -82,16 +82,23 @@ export function SetlistTable({
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
+  const [optimisticItems, setOptimisticItems] = useState(items);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const theme = getDashboardThemeStyles(currentTheme);
-  const editingItem = items.find((item) => item.id === editingItemId) ?? null;
-  const reorderItems = (targetItemId: string) => {
+  const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
+
+  useEffect(() => {
+    setOptimisticItems(items);
+  }, [items]);
+
+  const reorderItems = async (targetItemId: string) => {
     if (!reorderItemsAction || !draggingItemId || draggingItemId === targetItemId) {
       setDraggingItemId(null);
       setDragOverItemId(null);
       return;
     }
 
-    const nextItems = [...items];
+    const nextItems = [...optimisticItems];
     const draggedIndex = nextItems.findIndex((candidate) => candidate.id === draggingItemId);
     const targetIndex = nextItems.findIndex((candidate) => candidate.id === targetItemId);
 
@@ -105,13 +112,19 @@ export function SetlistTable({
     const insertionIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
     nextItems.splice(insertionIndex, 0, draggedItem);
 
-    void reorderItemsAction({
-      eventId,
-      orderedItemIds: nextItems.map((candidate) => candidate.id),
-    });
+    setOptimisticItems(nextItems);
+    setIsSavingOrder(true);
 
-    setDraggingItemId(null);
-    setDragOverItemId(null);
+    try {
+      await reorderItemsAction({
+        eventId,
+        orderedItemIds: nextItems.map((candidate) => candidate.id),
+      });
+    } finally {
+      setIsSavingOrder(false);
+      setDraggingItemId(null);
+      setDragOverItemId(null);
+    }
   };
   const itemTone =
     currentTheme === "dark"
@@ -170,10 +183,15 @@ export function SetlistTable({
         >
           {items.length}項目
         </span>
+        {isSavingOrder ? (
+          <span className={`font-mono text-[11px] uppercase tracking-[0.22em] ${theme.mutedText}`}>
+            並び順を更新中...
+          </span>
+        ) : null}
       </div>
 
       <div className="space-y-0">
-        {items.map((item, index) => {
+        {optimisticItems.map((item, index) => {
           const rowLabel = getRowLabel(item.itemType);
           const dragHandleLabel = `${item.title} をドラッグして並び替え`;
           const isReorderEnabled = Boolean(reorderItemsAction);
@@ -359,7 +377,7 @@ export function SetlistTable({
                   data-row-cue={item.itemType}
                   className={`flex items-center justify-center border-b border-inherit px-2.5 py-3 font-mono text-sm font-black tracking-[0.16em] md:border-b-0 md:border-r ${itemTone.cue}`}
                 >
-                  {formatCue(items, index)}
+                  {formatCue(optimisticItems, index)}
                 </div>
 
                 <div data-row-content="primary" className="min-w-0 px-4 py-3 md:px-4">
