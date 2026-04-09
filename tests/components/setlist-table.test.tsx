@@ -569,6 +569,35 @@ describe("SetlistTable", () => {
     expect(within(firstRow).getByRole("link", { name: "1曲目 を削除" })).toBeInTheDocument();
   });
 
+  it("keeps heading rows compact and free of drag affordances when reorder is unavailable", () => {
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-heading", "EN", "heading"),
+      createItem("item-2", "2曲目"),
+    ];
+
+    render(<SetlistTable currentTheme="light" eventId={eventId} items={items} />);
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const headingRow = setlistSection.querySelector('article[data-row-variant="heading"]') as HTMLElement | null;
+    expect(headingRow).toBeTruthy();
+    if (!headingRow) {
+      throw new Error("expected heading row");
+    }
+
+    expect(headingRow).toHaveAttribute("data-row-reorder-ready", "false");
+    expect(headingRow).toHaveAttribute("data-row-motion-state", "idle");
+    expect(within(headingRow).queryByLabelText("EN をドラッグして並び替え")).toBeNull();
+    expect(headingRow.querySelector('[data-row-cue="heading"]')).toBeTruthy();
+    expect(within(headingRow).getByRole("button", { name: "編集" })).toBeInTheDocument();
+    expect(within(headingRow).getByRole("link", { name: "EN を削除" })).toBeInTheDocument();
+  });
+
   it("applies the same optimistic reorder contract to heading rows", async () => {
     const pendingReorder = deferredPromise<void>();
     const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
