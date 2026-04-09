@@ -226,15 +226,20 @@ export function SetlistTable({
           const isDraggingSource = draggingItemId === item.id;
           const isDragTarget = dragOverItemId === item.id && draggingItemId !== item.id;
           const dragStateTone = isDraggingSource
-            ? "border-[#f6c453]/70 bg-[#fff7d6] shadow-[0_10px_24px_rgba(0,0,0,0.12)] scale-[1.01]"
+            ? currentTheme === "dark"
+              ? "border-[#f6c453]/40 bg-[#282116] opacity-90 shadow-[0_10px_24px_rgba(0,0,0,0.28)] scale-[1.01]"
+              : "border-[#f6c453]/70 bg-[#fff7d6] opacity-95 shadow-[0_10px_24px_rgba(0,0,0,0.12)] scale-[1.01]"
             : "";
+          const dropIndicatorTone = currentTheme === "dark"
+            ? "bg-[#f6c453]/85 shadow-[0_0_0_1px_rgba(246,196,83,0.18)]"
+            : "bg-[#f6c453] shadow-[0_0_0_1px_rgba(246,196,83,0.35)]";
           const motionTransition =
             "transition-[background-color,border-color,box-shadow,opacity,transform] duration-150 ease-out";
           const dropTargetIndicator = isDragTarget ? (
             <div
               aria-hidden="true"
               data-row-drop-indicator="true"
-              className={`absolute inset-x-0 top-0 h-0.5 bg-[#f6c453] shadow-[0_0_0_1px_rgba(246,196,83,0.35)]`}
+              className={`absolute inset-x-0 top-0 h-0.5 ${dropIndicatorTone}`}
             />
           ) : null;
 

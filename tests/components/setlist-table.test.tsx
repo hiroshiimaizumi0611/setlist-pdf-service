@@ -230,6 +230,67 @@ describe("SetlistTable", () => {
     expect(targetRow).toHaveAttribute("data-row-drop-target", "true");
     expect(targetRow.querySelector('[data-row-drop-indicator="true"]')).toBeTruthy();
     expect(sourceRow.querySelector('[data-row-drop-indicator="true"]')).toBeNull();
+    expect(sourceRow.className).toContain("opacity-95");
+
+    fireEvent.drop(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    await act(async () => {
+      pendingReorder.resolve();
+      await pendingReorder.promise;
+    });
+  });
+
+  it("uses dark-theme motion colors and opacity when a row is dragged", async () => {
+    const pendingReorder = deferredPromise<void>();
+    const reorderItemsAction = vi.fn().mockReturnValue(pendingReorder.promise);
+    const items = [
+      createItem("item-1", "1曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-3", "3曲目"),
+    ];
+
+    render(
+      <SetlistTable
+        currentTheme="dark"
+        eventId={eventId}
+        items={items}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    const setlistSection = screen.getByRole("heading", { name: "セットリスト" }).closest("section");
+    expect(setlistSection).toBeTruthy();
+    if (!setlistSection) {
+      throw new Error("expected setlist section");
+    }
+
+    const songRows = setlistSection.querySelectorAll('article[data-row-variant="song"]');
+    const sourceRow = songRows[0] as HTMLElement;
+    const targetRow = songRows[2] as HTMLElement;
+    const sourceHandle = within(sourceRow).getByLabelText("1曲目 をドラッグして並び替え");
+
+    fireEvent.dragStart(sourceHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(targetRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(sourceRow).toHaveAttribute("data-row-dragging", "true");
+    expect(sourceRow.className).toContain("opacity-90");
+    expect(sourceRow.className).toContain("bg-[#282116]");
+    const indicator = targetRow.querySelector('[data-row-drop-indicator="true"]') as HTMLElement | null;
+    expect(indicator).toBeTruthy();
+    expect(indicator?.className).toContain("bg-[#f6c453]/85");
 
     fireEvent.drop(targetRow, {
       dataTransfer: {
