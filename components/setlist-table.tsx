@@ -88,8 +88,12 @@ export function SetlistTable({
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
 
   useEffect(() => {
+    if (draggingItemId || isSavingOrder) {
+      return;
+    }
+
     setOptimisticItems(items);
-  }, [items]);
+  }, [draggingItemId, isSavingOrder, items]);
 
   const reorderItems = async (targetItemId: string) => {
     if (!reorderItemsAction || !draggingItemId || draggingItemId === targetItemId) {

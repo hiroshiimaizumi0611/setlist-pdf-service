@@ -70,7 +70,7 @@ describe("SetlistTable", () => {
       createItem("item-3", "3曲目"),
     ];
 
-    render(
+    const { rerender } = render(
       <SetlistTable
         currentTheme="light"
         eventId={eventId}
@@ -113,6 +113,18 @@ describe("SetlistTable", () => {
       eventId,
       orderedItemIds: ["item-2", "item-1", "item-3"],
     });
+
+    rerender(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={[...items]}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+    expect(screen.getByText("並び順を更新中...")).toBeInTheDocument();
 
     pendingReorder.resolve();
     await pendingReorder.promise;
