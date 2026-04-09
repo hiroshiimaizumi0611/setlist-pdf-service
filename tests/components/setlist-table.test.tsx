@@ -113,6 +113,28 @@ describe("SetlistTable", () => {
       eventId,
       orderedItemIds: ["item-2", "item-1", "item-3"],
     });
+    expect(firstHandle).toHaveAttribute("draggable", "false");
+
+    const secondHandle = within(songRows[1] as HTMLElement).getByLabelText("2曲目 をドラッグして並び替え");
+    fireEvent.dragStart(secondHandle, {
+      dataTransfer: {
+        effectAllowed: "move",
+        setData: vi.fn(),
+      },
+    });
+    fireEvent.dragOver(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+    fireEvent.drop(thirdRow, {
+      dataTransfer: {
+        dropEffect: "move",
+      },
+    });
+
+    expect(reorderItemsAction).toHaveBeenCalledTimes(1);
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
 
     rerender(
       <SetlistTable
@@ -190,6 +212,7 @@ describe("SetlistTable", () => {
       eventId,
       orderedItemIds: ["item-heading", "item-1", "item-2"],
     });
+    expect(headingHandle).toHaveAttribute("draggable", "false");
 
     pendingReorder.resolve();
     await pendingReorder.promise;

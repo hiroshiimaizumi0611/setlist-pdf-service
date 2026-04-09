@@ -86,6 +86,7 @@ export function SetlistTable({
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
+  const canDragReorder = Boolean(reorderItemsAction) && !isSavingOrder;
 
   useEffect(() => {
     if (draggingItemId || isSavingOrder) {
@@ -96,7 +97,7 @@ export function SetlistTable({
   }, [draggingItemId, isSavingOrder, items]);
 
   const reorderItems = async (targetItemId: string) => {
-    if (!reorderItemsAction || !draggingItemId || draggingItemId === targetItemId) {
+    if (!reorderItemsAction || isSavingOrder || !draggingItemId || draggingItemId === targetItemId) {
       setDraggingItemId(null);
       setDragOverItemId(null);
       return;
@@ -198,7 +199,7 @@ export function SetlistTable({
         {optimisticItems.map((item, index) => {
           const rowLabel = getRowLabel(item.itemType);
           const dragHandleLabel = `${item.title} をドラッグして並び替え`;
-          const isReorderEnabled = Boolean(reorderItemsAction);
+          const isReorderEnabled = canDragReorder;
           const isDragTarget = dragOverItemId === item.id && draggingItemId !== item.id;
 
           if (item.itemType === "heading") {
