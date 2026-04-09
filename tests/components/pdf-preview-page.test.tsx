@@ -68,6 +68,14 @@ describe("PdfPreviewPage", () => {
     expect(screen.getAllByText("Pro").length).toBeGreaterThan(0);
     expect(screen.getByText("Large Type で足元でも読みやすく")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Standard Dark" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Standard Light" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall/pdf?theme=light&preset=standard-light",
+    );
+    expect(screen.getByRole("link", { name: "Standard Dark" })).toHaveAttribute(
+      "href",
+      "/events/event-nagoya-radhall/pdf?theme=dark&preset=standard-dark",
+    );
     expect(screen.getByRole("link", { name: "Large Type" })).toHaveAttribute(
       "href",
       "/events/event-nagoya-radhall/pdf?theme=dark&preset=large-type",

@@ -19,15 +19,19 @@ type PdfPresetSelectorProps = {
 function buildPresetHref({
   previewBaseHref,
   currentTheme,
-  presetId,
+  preset,
 }: {
   previewBaseHref: string;
   currentTheme: PdfThemeName;
-  presetId: PdfOutputPresetId;
+  preset: PdfOutputPreset;
 }) {
+  const nextTheme =
+    preset.id === "standard-light" || preset.id === "standard-dark"
+      ? preset.baseTheme
+      : currentTheme;
   const searchParams = new URLSearchParams({
-    theme: currentTheme,
-    preset: presetId,
+    theme: nextTheme,
+    preset: preset.id,
   });
 
   return `${previewBaseHref}?${searchParams.toString()}`;
@@ -113,7 +117,7 @@ export function PdfPresetSelector({
               href={buildPresetHref({
                 previewBaseHref,
                 currentTheme,
-                presetId: preset.id,
+                preset,
               })}
               aria-label={preset.label}
               aria-current={isSelected ? "page" : undefined}
