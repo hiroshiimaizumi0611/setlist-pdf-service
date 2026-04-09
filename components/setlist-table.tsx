@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SetlistItemRecord } from "@/lib/repositories/event-repository";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { getDashboardThemeStyles } from "./dashboard-shell";
@@ -70,6 +70,24 @@ function getRowLabel(itemType: SetlistItemRecord["itemType"]) {
   return "SONG";
 }
 
+function getItemsSignature(items: SetlistItemRecord[]) {
+  return items
+    .map(
+      (item) =>
+        [
+          item.id,
+          item.updatedAt instanceof Date ? item.updatedAt.getTime() : item.updatedAt,
+          item.position,
+          item.itemType,
+          item.title,
+          item.artist ?? "",
+          item.durationSeconds ?? "",
+          item.notes ?? "",
+        ].join(":"),
+    )
+    .join("|");
+}
+
 export function SetlistTable({
   currentTheme,
   eventId,
@@ -84,17 +102,20 @@ export function SetlistTable({
   const [dragOverItemId, setDragOverItemId] = useState<string | null>(null);
   const [optimisticItems, setOptimisticItems] = useState(items);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const lastCanonicalItemsSignatureRef = useRef(getItemsSignature(items));
   const theme = getDashboardThemeStyles(currentTheme);
   const editingItem = optimisticItems.find((item) => item.id === editingItemId) ?? null;
   const canDragReorder = Boolean(reorderItemsAction) && !isSavingOrder;
+  const itemsSignature = getItemsSignature(items);
 
   useEffect(() => {
-    if (draggingItemId || isSavingOrder) {
+    if (draggingItemId || isSavingOrder || itemsSignature === lastCanonicalItemsSignatureRef.current) {
       return;
     }
 
+    lastCanonicalItemsSignatureRef.current = itemsSignature;
     setOptimisticItems(items);
-  }, [draggingItemId, isSavingOrder, items]);
+  }, [draggingItemId, isSavingOrder, items, itemsSignature]);
 
   const reorderItems = async (targetItemId: string) => {
     if (!reorderItemsAction || isSavingOrder || !draggingItemId || draggingItemId === targetItemId) {

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SetlistTable } from "../../components/setlist-table";
 
@@ -148,8 +148,41 @@ describe("SetlistTable", () => {
     expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
     expect(screen.getByText("並び順を更新中...")).toBeInTheDocument();
 
-    pendingReorder.resolve();
-    await pendingReorder.promise;
+    await act(async () => {
+      pendingReorder.resolve();
+      await pendingReorder.promise;
+    });
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+    expect(screen.queryByText("並び順を更新中...")).not.toBeInTheDocument();
+
+    rerender(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={[...items]}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["2曲目", "1曲目", "3曲目"]);
+
+    const canonicalItems = [
+      createItem("item-3", "3曲目"),
+      createItem("item-2", "2曲目"),
+      createItem("item-1", "1曲目"),
+    ];
+
+    rerender(
+      <SetlistTable
+        currentTheme="light"
+        eventId={eventId}
+        items={canonicalItems}
+        reorderItemsAction={reorderItemsAction}
+      />,
+    );
+
+    expect(getRenderedTitles(setlistSection)).toEqual(["3曲目", "2曲目", "1曲目"]);
   });
 
   it("applies the same optimistic reorder contract to heading rows", async () => {
@@ -214,7 +247,9 @@ describe("SetlistTable", () => {
     });
     expect(headingHandle).toHaveAttribute("draggable", "false");
 
-    pendingReorder.resolve();
-    await pendingReorder.promise;
+    await act(async () => {
+      pendingReorder.resolve();
+      await pendingReorder.promise;
+    });
   });
 });
