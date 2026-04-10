@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
+import { AnimatedLoadingText } from "./animated-loading-text";
 import { getDashboardThemeStyles } from "./dashboard-shell";
 
 type ExportPdfButtonProps = {
@@ -44,7 +45,7 @@ export function ExportPdfButton({
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#2f2a24] border-t-[#f6c453]" />
                 <div className="space-y-2">
                   <p className="font-mono text-lg font-black tracking-[-0.04em]">
-                    PDFプレビューを準備中...
+                    <AnimatedLoadingText className="inline-flex">PDFプレビューを準備中...</AnimatedLoadingText>
                   </p>
                   <p className="text-sm leading-6 text-[#bfb7aa]">
                     用紙レイアウトと埋め込みプレビューを読み込んでいます。

@@ -1,3 +1,4 @@
+import { AnimatedLoadingText } from "./animated-loading-text";
 import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 
 function SkeletonBlock({ className }: { className: string }) {
@@ -61,7 +62,7 @@ export function EditorLoadingShell() {
       currentTheme="dark"
       sidebar={sidebar}
       eyebrow="技術進行シート"
-      title="読み込み中..."
+      title={<AnimatedLoadingText className="inline-flex">読み込み中...</AnimatedLoadingText>}
       description="公演情報とセットリストを読み込んでいます。"
       headerActions={
         <>
@@ -156,7 +157,7 @@ export function PdfPreviewLoadingShell() {
             </p>
             <div className="mx-auto w-14 border-t border-dashed border-[#f6c453]" />
             <h1 className="font-mono text-2xl font-black tracking-[-0.06em]">
-              PDFプレビューを準備中...
+              <AnimatedLoadingText className="inline-flex">PDFプレビューを準備中...</AnimatedLoadingText>
             </h1>
             <p className="mx-auto max-w-md text-sm leading-7 text-[#bfb7aa]">
               用紙レイアウトと埋め込みプレビューを読み込んでいます。
@@ -199,7 +200,7 @@ export function TemplatesLoadingShell() {
             TEMPLATE WORKSPACE
           </p>
           <h1 className="font-mono text-[2rem] font-black tracking-[-0.06em] sm:text-[2.45rem]">
-            読み込み中...
+            <AnimatedLoadingText className="inline-flex">読み込み中...</AnimatedLoadingText>
           </h1>
           <p className={`max-w-3xl text-sm leading-7 ${theme.mutedText}`}>
             テンプレート管理を読み込んでいます。

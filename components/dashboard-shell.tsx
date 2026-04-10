@@ -8,8 +8,8 @@ type DashboardShellProps = {
   sidebar: ReactNode;
   activeItem?: AppGlobalNavActiveItem;
   eyebrow: string;
-  title: string;
-  description: string;
+  title: ReactNode;
+  description: ReactNode;
   headerActions?: ReactNode;
   children: ReactNode;
 };
