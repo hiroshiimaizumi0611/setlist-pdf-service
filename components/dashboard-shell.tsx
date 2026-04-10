@@ -2,14 +2,24 @@ import type { ReactNode } from "react";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import { SidebarRail } from "./sidebar-rail";
 import type { AppGlobalNavActiveItem } from "./app-global-nav";
+import { AnimatedLoadingText } from "./animated-loading-text";
+
+export type DashboardLoadingTitle = {
+  text: string;
+  className?: string;
+};
+
+export function createDashboardLoadingTitle(text: string, className?: string): DashboardLoadingTitle {
+  return { text, className };
+}
 
 type DashboardShellProps = {
   currentTheme: PdfThemeName;
   sidebar: ReactNode;
   activeItem?: AppGlobalNavActiveItem;
   eyebrow: string;
-  title: ReactNode;
-  description: ReactNode;
+  title: string | DashboardLoadingTitle;
+  description: string;
   headerActions?: ReactNode;
   children: ReactNode;
 };
@@ -124,6 +134,14 @@ export function getDashboardThemeStyles(theme: PdfThemeName) {
   return DASHBOARD_THEME_STYLES[theme];
 }
 
+function renderLoadingTitle(title: string | DashboardLoadingTitle) {
+  if (typeof title === "string") {
+    return title;
+  }
+
+  return <AnimatedLoadingText className={title.className?.trim() ?? ""}>{title.text}</AnimatedLoadingText>;
+}
+
 export function DashboardShell({
   currentTheme,
   sidebar,
@@ -162,7 +180,7 @@ export function DashboardShell({
                   >
                     {theme.headerMeta}
                     <span className={`ml-3 ${theme.headerCurrentShow}`}>
-                      CURRENT SHOW: {title}
+                      CURRENT SHOW: {renderLoadingTitle(title)}
                     </span>
                   </div>
                 </div>
@@ -184,7 +202,7 @@ export function DashboardShell({
               {eyebrow}
             </p>
             <h1 className="mt-2 font-mono text-[2rem] font-black tracking-[-0.06em] sm:text-[2.45rem]">
-              {title}
+              {renderLoadingTitle(title)}
             </h1>
           </section>
 

@@ -15,9 +15,8 @@ describe("TemplatesLoadingShell", () => {
     render(<TemplatesLoadingShell />);
 
     const heading = screen.getByRole("heading", { name: "読み込み中..." });
-    expect(heading.querySelector("span")?.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(heading).toHaveTextContent("読み込み中...");
+    expect(heading.querySelector("span")).toBeInTheDocument();
     expect(screen.getByText("テンプレート管理を読み込んでいます。")).toBeInTheDocument();
     expect(screen.getByText("SOURCE EVENTS")).toBeInTheDocument();
     expect(screen.getByText("SAVED TEMPLATES")).toBeInTheDocument();

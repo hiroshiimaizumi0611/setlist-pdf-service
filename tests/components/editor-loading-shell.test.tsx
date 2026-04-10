@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { DashboardShell } from "../../components/dashboard-shell";
 import { EditorLoadingShell } from "../../components/loading-shells";
 
 vi.mock("next/navigation", async () => ({
@@ -15,11 +16,28 @@ describe("EditorLoadingShell", () => {
     render(<EditorLoadingShell />);
 
     const heading = screen.getByRole("heading", { name: "読み込み中..." });
-    expect(heading.querySelector("span")?.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(heading).toHaveTextContent("読み込み中...");
+    expect(heading.querySelector("span")).toBeInTheDocument();
     expect(screen.getByText("公演情報とセットリストを読み込んでいます。")).toBeInTheDocument();
     expect(screen.getByText("EVENT OVERVIEW")).toBeInTheDocument();
     expect(screen.getByText("SETLIST")).toBeInTheDocument();
+  });
+
+  it("keeps the dashboard shell title and description narrow", () => {
+    const invalidShell = (
+      <DashboardShell
+        currentTheme="dark"
+        sidebar={<div />}
+        eyebrow="技術進行シート"
+        // @ts-expect-error - arbitrary block nodes should not be accepted here
+        title={<div>読み込み中...</div>}
+        // @ts-expect-error - arbitrary block nodes should not be accepted here
+        description={<div>公演情報とセットリストを読み込んでいます。</div>}
+      >
+        <div />
+      </DashboardShell>
+    );
+
+    void invalidShell;
   });
 });

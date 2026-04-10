@@ -1,5 +1,5 @@
 import { AnimatedLoadingText } from "./animated-loading-text";
-import { DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
+import { createDashboardLoadingTitle, DashboardShell, getDashboardThemeStyles } from "./dashboard-shell";
 
 function SkeletonBlock({ className }: { className: string }) {
   return <div aria-hidden="true" className={`animate-pulse rounded-sm bg-[#2a2824] ${className}`} />;
@@ -62,7 +62,7 @@ export function EditorLoadingShell() {
       currentTheme="dark"
       sidebar={sidebar}
       eyebrow="技術進行シート"
-      title={<AnimatedLoadingText className="inline-flex">読み込み中...</AnimatedLoadingText>}
+      title={createDashboardLoadingTitle("読み込み中...", "inline-flex")}
       description="公演情報とセットリストを読み込んでいます。"
       headerActions={
         <>

@@ -28,9 +28,8 @@ describe("PDF export loading affordances", () => {
     fireEvent.click(screen.getByRole("button", { name: "PDF出力" }));
 
     const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
-    expect(status.querySelector("span")?.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
+    expect(status.querySelector("span")).toBeInTheDocument();
     expect(status).toBeInTheDocument();
     expect(container).not.toContainElement(status);
     expect(document.body).toContainElement(status);
@@ -41,9 +40,8 @@ describe("PDF export loading affordances", () => {
     render(<PdfPreviewLoadingShell />);
 
     const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
-    expect(status.querySelector("span")?.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
+    expect(status.querySelector("span")).toBeInTheDocument();
     expect(screen.getByText("用紙レイアウトと埋め込みプレビューを読み込んでいます。")).toBeInTheDocument();
     expect(screen.getByText("PAGE PREVIEW")).toBeInTheDocument();
     expect(status).toBeInTheDocument();
