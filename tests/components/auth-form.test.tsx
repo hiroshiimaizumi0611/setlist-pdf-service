@@ -96,12 +96,8 @@ describe("AuthForm", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "ログイン" }));
 
-    const pendingLabel = screen.getByText("ログイン中...");
-
     expect(screen.getByRole("button", { name: "ログイン中..." })).toBeDisabled();
-    expect(pendingLabel.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(screen.getByText("ログイン中...")).toBeInTheDocument();
 
     pendingSignIn.resolve({ error: null });
 

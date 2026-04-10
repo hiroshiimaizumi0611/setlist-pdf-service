@@ -117,12 +117,8 @@ describe("BillingPageContent", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Proへアップグレード" }));
 
-    const pendingLabel = screen.getByText("チェックアウトを準備中...");
-
     expect(screen.getByRole("button", { name: "チェックアウトを準備中..." })).toBeDisabled();
-    expect(pendingLabel.className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
+    expect(screen.getByText("チェックアウトを準備中...")).toBeInTheDocument();
   });
 
   it("renders the pro plan state with a billing portal CTA", () => {

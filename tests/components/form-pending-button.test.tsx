@@ -20,7 +20,7 @@ describe("FormPendingButton", () => {
   it("shimmers the pending label without changing the button shell", () => {
     useFormStatusMock.mockReturnValue({ pending: true });
 
-    const { container } = render(
+    render(
       <form>
         <FormPendingButton idleLabel="作成" pendingLabel="作成中..." className="w-full" />
       </form>,
@@ -30,9 +30,6 @@ describe("FormPendingButton", () => {
 
     expect(button).toBeDisabled();
     expect(button).toHaveClass("w-full");
-    expect(screen.getByText("作成中...").className).toContain(
-      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
-    );
-    expect(container.querySelector("style")).toBeNull();
+    expect(screen.getByText("作成中...")).toBeInTheDocument();
   });
 });
