@@ -117,7 +117,11 @@ export function UpgradeCard({
             }}
             className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-70`}
           >
-            {isPending ? <AnimatedLoadingText>{"チェックアウトを準備中..."}</AnimatedLoadingText> : upgradeLabel}
+            {isPending ? (
+              <AnimatedLoadingText tone="dark">チェックアウトを準備中...</AnimatedLoadingText>
+            ) : (
+              upgradeLabel
+            )}
           </button>
         )}
       </div>

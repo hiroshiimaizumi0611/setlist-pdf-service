@@ -101,6 +101,7 @@ export function EventList({
                         <FormPendingButton
                           idleLabel="複製"
                           pendingLabel="複製中..."
+                          tone={currentTheme === "dark" ? "light" : "dark"}
                           className={`${theme.buttonSecondary} min-h-9 px-3 text-[10px] font-black uppercase tracking-[0.2em]`}
                         />
                       </form>

@@ -19,4 +19,21 @@ describe("AnimatedLoadingText", () => {
     expect(text.className).toContain("inline-flex");
     expect(container.querySelector("style")).toBeNull();
   });
+
+  it("can switch to a dark-surface-safe shimmer tone for light buttons", () => {
+    render(
+      <AnimatedLoadingText tone="dark" className="inline-flex text-sm">
+        作成中...
+      </AnimatedLoadingText>,
+    );
+
+    const text = screen.getByText("作成中...");
+
+    expect(text.className).toContain(
+      "motion-safe:bg-[linear-gradient(90deg,#3f3310_0%,#f6c453_50%,#3f3310_100%)]",
+    );
+    expect(text.className).not.toContain(
+      "motion-safe:bg-[linear-gradient(90deg,#f8f5f0_0%,#f6c453_50%,#f8f5f0_100%)]",
+    );
+  });
 });

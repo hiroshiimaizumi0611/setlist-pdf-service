@@ -181,6 +181,7 @@ export function PerformanceArchivePageContent({
           <FormPendingButton
             idleLabel="新規公演作成"
             pendingLabel="作成中..."
+            tone="dark"
             className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
           />
         </form>
@@ -289,6 +290,7 @@ export function PerformanceArchivePageContent({
                 <FormPendingButton
                   idleLabel="新規公演作成"
                   pendingLabel="作成中..."
+                  tone="dark"
                   className={`${theme.buttonPrimary} min-h-11 px-4 py-3 text-sm font-black tracking-[0.14em] uppercase`}
                 />
               </form>

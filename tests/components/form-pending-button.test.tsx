@@ -32,4 +32,25 @@ describe("FormPendingButton", () => {
     expect(button).toHaveClass("w-full");
     expect(screen.getByText("作成中...")).toBeInTheDocument();
   });
+
+  it("passes a dark-surface-safe shimmer tone to pending labels when requested", () => {
+    useFormStatusMock.mockReturnValue({ pending: true });
+
+    render(
+      <form>
+        <FormPendingButton
+          idleLabel="作成"
+          pendingLabel="作成中..."
+          className="w-full"
+          tone="dark"
+        />
+      </form>,
+    );
+
+    const shimmer = screen.getByText("作成中...");
+
+    expect(shimmer.className).toContain(
+      "motion-safe:bg-[linear-gradient(90deg,#3f3310_0%,#f6c453_50%,#3f3310_100%)]",
+    );
+  });
 });

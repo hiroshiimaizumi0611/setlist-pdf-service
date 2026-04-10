@@ -126,7 +126,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         className="w-full rounded-2xl border border-[#f6c453] bg-[#f6c453] px-4 py-3.5 text-sm font-semibold text-[#1f1b16] transition hover:bg-[#ffe08a] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isPending ? (
-          <AnimatedLoadingText>
+          <AnimatedLoadingText tone="dark">
             {isRegister ? "アカウントを作成中..." : "ログイン中..."}
           </AnimatedLoadingText>
         ) : isRegister ? (

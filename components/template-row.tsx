@@ -37,6 +37,7 @@ export function TemplateRow({
           <FormPendingButton
             idleLabel="このテンプレートで公演作成"
             pendingLabel="公演作成中..."
+            tone="dark"
             className={`${theme.buttonPrimary} inline-flex min-h-11 items-center justify-center px-4 py-2 text-sm font-bold whitespace-nowrap`}
           />
         </form>
