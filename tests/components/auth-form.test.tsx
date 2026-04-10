@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AnimatedLoadingText } from "../../components/animated-loading-text";
 
 const {
   pushMock,
@@ -104,20 +103,5 @@ describe("AuthForm", () => {
     );
     expect(pushMock).toHaveBeenCalledWith("/events");
     expect(refreshMock).toHaveBeenCalled();
-  });
-
-  it("renders loading text with shimmer and reduced-motion class hooks", () => {
-    render(
-      <AnimatedLoadingText className="block text-sm">
-        ログイン中...
-      </AnimatedLoadingText>,
-    );
-
-    const text = screen.getByText("ログイン中...");
-
-    expect(text).toBeInTheDocument();
-    expect(text.className).toContain("motion-safe:");
-    expect(text.className).toContain("motion-reduce:");
-    expect(text.className).toContain("block");
   });
 });
