@@ -29,7 +29,9 @@ describe("PDF export loading affordances", () => {
 
     const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
     expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
-    expect(status.querySelector("span")).toBeInTheDocument();
+    const shimmer = status.querySelector("span");
+    expect(shimmer).toBeInTheDocument();
+    expect(shimmer?.className).toContain("motion-safe:");
     expect(status).toBeInTheDocument();
     expect(container).not.toContainElement(status);
     expect(document.body).toContainElement(status);
@@ -41,7 +43,9 @@ describe("PDF export loading affordances", () => {
 
     const status = screen.getByRole("status", { name: "PDFプレビューの読み込み状況" });
     expect(screen.getByText("PDFプレビューを準備中...")).toBeInTheDocument();
-    expect(status.querySelector("span")).toBeInTheDocument();
+    const shimmer = status.querySelector("span");
+    expect(shimmer).toBeInTheDocument();
+    expect(shimmer?.className).toContain("motion-safe:");
     expect(screen.getByText("用紙レイアウトと埋め込みプレビューを読み込んでいます。")).toBeInTheDocument();
     expect(screen.getByText("PAGE PREVIEW")).toBeInTheDocument();
     expect(status).toBeInTheDocument();
