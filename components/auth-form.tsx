@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, useTransition } from "react";
 import { authClient } from "@/lib/auth-client";
+import { AnimatedLoadingText } from "./animated-loading-text";
 
 type AuthMode = "login" | "register";
 
@@ -124,13 +125,15 @@ export function AuthForm({ mode }: AuthFormProps) {
         disabled={isPending}
         className="w-full rounded-2xl border border-[#f6c453] bg-[#f6c453] px-4 py-3.5 text-sm font-semibold text-[#1f1b16] transition hover:bg-[#ffe08a] disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {isPending
-          ? isRegister
-            ? "アカウントを作成中..."
-            : "ログイン中..."
-          : isRegister
-            ? "アカウントを作成"
-            : "ログイン"}
+        {isPending ? (
+          <AnimatedLoadingText>
+            {isRegister ? "アカウントを作成中..." : "ログイン中..."}
+          </AnimatedLoadingText>
+        ) : isRegister ? (
+          "アカウントを作成"
+        ) : (
+          "ログイン"
+        )}
       </button>
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">

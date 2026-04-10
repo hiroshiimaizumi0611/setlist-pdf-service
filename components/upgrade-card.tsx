@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import type { PdfThemeName } from "@/lib/pdf/theme-tokens";
 import type { AppPlan } from "@/lib/stripe/plans";
 import { authClient } from "@/lib/auth-client";
+import { AnimatedLoadingText } from "./animated-loading-text";
 import { getDashboardThemeStyles } from "./dashboard-shell";
 
 type UpgradeCardProps = {
@@ -116,7 +117,7 @@ export function UpgradeCard({
             }}
             className={`${theme.buttonPrimary} min-h-11 w-full px-4 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-70`}
           >
-            {isPending ? "チェックアウトを準備中..." : upgradeLabel}
+            {isPending ? <AnimatedLoadingText>{"チェックアウトを準備中..."}</AnimatedLoadingText> : upgradeLabel}
           </button>
         )}
       </div>

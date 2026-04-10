@@ -1,6 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+function deferredPromise<T>() {
+  let resolve: (value: T | PromiseLike<T>) => void = () => {};
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+
+  return { promise, resolve };
+}
+
 const {
   pushMock,
   refreshMock,
@@ -72,6 +81,32 @@ describe("AuthForm", () => {
     expect(pushMock).toHaveBeenCalledWith("/events");
     expect(refreshMock).toHaveBeenCalled();
   }, 20_000);
+
+  it("shimmers the login submit label while the request is pending", async () => {
+    const pendingSignIn = deferredPromise<{ error: null }>();
+    signInEmailMock.mockReturnValue(pendingSignIn.promise);
+
+    render(<AuthForm mode="login" />);
+
+    fireEvent.change(screen.getByLabelText("メールアドレス"), {
+      target: { value: "login@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("パスワード"), {
+      target: { value: "password1234" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "ログイン" }));
+
+    const pendingLabel = screen.getByText("ログイン中...");
+
+    expect(screen.getByRole("button", { name: "ログイン中..." })).toBeDisabled();
+    expect(pendingLabel.className).toContain(
+      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
+    );
+
+    pendingSignIn.resolve({ error: null });
+
+    await waitFor(() => expect(pushMock).toHaveBeenCalledWith("/events"));
+  });
 
   it("submits the register flow in Japanese and routes to the app", async () => {
     signUpEmailMock.mockResolvedValue({ error: null });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { AnimatedLoadingText } from "./animated-loading-text";
 
 type FormPendingButtonProps = {
   idleLabel: string;
@@ -17,7 +18,7 @@ export function FormPendingButton({
 
   return (
     <button type="submit" aria-disabled={pending} disabled={pending} className={className}>
-      {pending ? pendingLabel : idleLabel}
+      {pending ? <AnimatedLoadingText>{pendingLabel}</AnimatedLoadingText> : idleLabel}
     </button>
   );
 }

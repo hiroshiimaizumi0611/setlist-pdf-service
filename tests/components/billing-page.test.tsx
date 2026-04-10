@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BillingPageContent } from "../../app/(app)/settings/billing/page";
 
 const { mockRouterPush, mockRouterRefresh } = vi.hoisted(() => ({
@@ -7,11 +7,23 @@ const { mockRouterPush, mockRouterRefresh } = vi.hoisted(() => ({
   mockRouterRefresh: vi.fn(),
 }));
 
+const { subscriptionUpgradeMock } = vi.hoisted(() => ({
+  subscriptionUpgradeMock: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: mockRouterPush,
     refresh: mockRouterRefresh,
   }),
+}));
+
+vi.mock("@/lib/auth-client", () => ({
+  authClient: {
+    subscription: {
+      upgrade: subscriptionUpgradeMock,
+    },
+  },
 }));
 
 const authenticatedViewerProps = {
@@ -23,6 +35,10 @@ const authenticatedViewerProps = {
 };
 
 describe("BillingPageContent", () => {
+  beforeEach(() => {
+    subscriptionUpgradeMock.mockReset();
+  });
+
   it("renders the free plan state with an upgrade CTA", () => {
     render(
       <BillingPageContent
@@ -81,6 +97,33 @@ describe("BillingPageContent", () => {
       screen.getByText("Stripe test mode の設定が未完了でも画面確認できるようにしています。"),
     ).toBeInTheDocument();
   }, 20_000);
+
+  it("shimmers the upgrade label while checkout is preparing", async () => {
+    subscriptionUpgradeMock.mockImplementation(
+      () =>
+        new Promise<{ error: null; data: { url: string } | null }>(() => {
+          // Keep the transition pending for the assertion.
+        }),
+    );
+
+    render(
+      <BillingPageContent
+        currentPlan="free"
+        {...authenticatedViewerProps}
+        isStripeConfigured={true}
+        subscription={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Proへアップグレード" }));
+
+    const pendingLabel = screen.getByText("チェックアウトを準備中...");
+
+    expect(screen.getByRole("button", { name: "チェックアウトを準備中..." })).toBeDisabled();
+    expect(pendingLabel.className).toContain(
+      "motion-safe:[animation:animated-loading-text-shimmer_1.8s_linear_infinite]",
+    );
+  });
 
   it("renders the pro plan state with a billing portal CTA", () => {
     render(
